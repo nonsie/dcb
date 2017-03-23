@@ -37,22 +37,3 @@ function dynoblock_schema() {
   );
   return $schema;
 }
-
-function dynoblock_field_schema($field) {
-  switch ($field['type']) {
-    case 'dynoblock':
-      $columns = array(
-        'id' => array(
-          'type' => 'varchar',
-          'length' => 255,
-          'not null' => FALSE,
-        ),
-      );
-      break;
-  }
-  return array(
-    'columns' => $columns,
-    'indexes' => array(),
-  );
-}
-
