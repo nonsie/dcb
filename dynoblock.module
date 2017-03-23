@@ -9,7 +9,7 @@ function dynoblock_page_attachments(array &$page) {
   if (\Drupal::currentUser()->hasPermission('use dynoblocks')) {
     $page['#attached']['library'][] = 'dynoblock/edit';
 
-    $configs = variable_get('dynoblock', array());
+   // $configs = variable_get('dynoblock', array());
     $configs['load_ui'] = TRUE;
     $configs['dir_uri'] = '/' . drupal_get_path('module', 'dynoblock');
   }
@@ -110,7 +110,7 @@ function theme_dynoblock_tabledrag($vars) {
 function dynoblock_form_alter(&$form, &$form_state, $form_id) {
   if ($form_id == 'block_add_block_form' || $form_id == 'block_admin_configure') {
     $default_value = 0;
-    $blocks = variable_get('dynoblock_blocks', array());
+    //$blocks = variable_get('dynoblock_blocks', array());
     if (isset($form['delta']['#value'])) {
       $uses_dynoblocks = array_search($form['delta']['#value'], $blocks);
       if ($uses_dynoblocks !== FALSE) {
@@ -153,21 +153,21 @@ function dynoblock_system_block_validate($form, &$form_state) {
  * Submit handler for block config.
  */
 function dynoblock_system_block_save($form, &$form_state) {
-   $blocks = variable_get('dynoblock_blocks', array());
+   //$blocks = variable_get('dynoblock_blocks', array());
    $delta = $form_state['values']['delta'];
   // save dyno variable if selected
   if (!empty($form_state['values']['dynoblock'])) {
       $key = array_search($delta, $blocks);
       if ($key === FALSE) {
         array_push($blocks, $delta);
-        variable_set('dynoblock_blocks', $blocks);
+        //variable_set('dynoblock_blocks', $blocks);
       }
   }
   else {
     $key = array_search($delta, $blocks);
     if ($key !== FALSE) {
       unset($blocks[$key]);
-      variable_set('dynoblock_blocks', $blocks);
+      //variable_set('dynoblock_blocks', $blocks);
     }
   }
 }
@@ -178,7 +178,7 @@ function dynoblock_system_block_save($form, &$form_state) {
 function dynoblock_block_view_alter(&$data, $block) {
   $blocks = &drupal_static(__FUNCTION__);
   if (!isset($blocks)) {
-    $blocks = variable_get('dynoblock_blocks', array());
+    //$blocks = variable_get('dynoblock_blocks', array());
   }
   if (!empty($blocks)) {
     $found = array_search($block->delta, $blocks);
