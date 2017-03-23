@@ -3,3 +3,5 @@ description: A module that allows users to create inline content by selecting fr
 core: 8.x
 package: 'Custom'
 type: module
+dependencies:
+  - field
