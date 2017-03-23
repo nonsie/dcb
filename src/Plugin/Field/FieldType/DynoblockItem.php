@@ -11,12 +11,13 @@ use Drupal\Core\TypedData\DataDefinition;
  *
  * @FieldType(
  *   id = "dynoblock",
- *   label = @Translation("Dynoblock"),
+ *   label = @Translation("Dynoblock Field"),
  *   description = @Translation("This field stores a dynoblock instance in the
  * database."),
- *   category = @Translation("Text"),
+ *   module = "dynoblock",
+ *   category = @Translation("Custom"),
  *   default_widget = "dynoblock_default",
- *   default_formatter = "basic_string"
+ *   default_formatter = "dynoblock_default"
  * )
  */
 class DynoblockItem extends FieldItemBase {
@@ -30,6 +31,7 @@ class DynoblockItem extends FieldItemBase {
         'id' => array(
           'type'   => 'varchar',
           'length' => 256,
+          'not null' => FALSE,
         ),
       ),
       'indexes' => array(),
@@ -39,10 +41,21 @@ class DynoblockItem extends FieldItemBase {
   /**
    * {@inheritdoc}
    */
+  public function isEmpty() {
+    $value = $this->getValue();
+    $empty = TRUE;
+    if (isset($value['id']) && !empty($value['id'])) {
+      $empty = FALSE;
+    }
+    return $empty;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public static function propertyDefinitions(FieldStorageDefinitionInterface $field_definition) {
     $properties['id'] = DataDefinition::create('string')
-      ->setLabel(t('Dynoblock'))
-      ->setRequired(TRUE);
+      ->setLabel(t('Dynoblock'));
 
     return $properties;
   }
@@ -50,8 +63,10 @@ class DynoblockItem extends FieldItemBase {
   /**
    * {@inheritdoc}
    */
-  public function isEmpty() {
-    $value = $this->get('value')->getValue();
-    return $value === NULL || $value === '';
+  public static function generateSampleValue(FieldDefinitionInterface $field_definition) {
+    $random = new Random();
+    $values['value'] = md5($random->string() . time());
+    return $values;
   }
+
 }
