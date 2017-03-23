@@ -1,0 +1,4 @@
+name: Dynamic Blocks
+description: A module that allows users to create inline content by selecting from widgets.
+core: 8.x
+package: 'Custom'

@@ -1,0 +1,300 @@
+.dynoblock-region.active {
+  border: 3px dashed #1a5ca0;
+  cursor: pointer;
+  .dynoblock{
+    border-radius: 5px;
+    margin: 20px 10px;
+    padding-bottom:10px;
+    border-bottom: 1px dotted #ccc;
+    .dynoblock-content{
+      margin-left: 20px;
+    }
+  }
+  .dynoblock.active{
+    background: #1a5ca0;
+    color: white;
+    padding-top: 5px;
+    padding-bottom:5px;
+   // border-top: 1px solid #d0d0d0;
+  }
+  .dyno-add-block{
+    padding: 10px 10px;
+  }
+  .dyno-drag-element {
+    position: absolute;
+    //top: 30%;
+    cursor: move;
+    float: left;
+    height: 1.7em;
+    margin-left: -1em;
+    overflow: hidden;
+    text-decoration: none;
+  }
+}
+
+.dynoblock-region {
+  .dyno-add-block{
+    width: 100%;
+    padding: 10px 0px;
+  }
+  .dynoblock{
+    position: relative;
+    clear: both;
+  }
+}
+
+.dynoblock-body {
+  width:100%;
+}
+
+.dynoblock-title {
+  
+}
+
+.dynoblock.active {
+  position: relative;
+  min-height: 25px;
+  cursor: pointer;
+}
+
+.dynoblock-actions {
+  position: absolute;
+  top: -20px;
+  right: 0px;
+}
+
+
+#dynoblock-form {
+  padding-bottom:20px;
+  float: left;
+  width:100%;
+  display: inline-block;
+  .dynoblock-form-container{
+    float:left;
+  }
+  .dyno-theme-preview{
+    img{
+      width:100% !important;
+      height:auto !important;
+    }
+  }
+  .form-type-checkboxes {
+    max-height: 150px;
+    overflow-y: scroll;
+    .form-type-checkbox{
+      padding-left: 20px;
+    }
+  }
+  .form-item{
+    float:left;
+    clear:both;
+    width:100% !important;
+  }
+  .form-group{
+    margin: 10px 0px 10px 0px;
+  }
+  .dynoblock-form-actions{
+    clear: both;
+    width: 100%;
+    float: left;
+  }
+  .dyno-token-tree{
+    width:100%;
+    float: left;
+    clear: both;
+  }
+  .dyno-condition{
+    width:100%;
+  }
+  .dyno-weight{
+    width: 100%;
+  }
+  .dyno-widget-settings-container{
+    margin-top: 20px;
+  }
+  fieldset {
+    clear: left;
+  }
+}
+
+
+/**
+ * WIDGET SELECTION
+ */
+ #dyno-widget-selector{
+  .dyno-navigation{
+    padding-top: 10px;
+    padding-bottom: 20px;
+  }
+  .widget-actions-wrapper{
+    overflow: hidden;
+    margin-top: 20px;
+  }
+  .widget-actions-wrapper .btn-success{
+    float:left;
+  }
+  .widget-actions-wrapper .btn-danger{
+    float:right;
+  }
+  
+  .modal-body{
+    width:100%;
+    display: inline-block;
+    max-height: 800px;
+    overflow-y: scroll;
+  }
+}
+
+/**
+ * Dyno Ui
+ */
+.dyno-ui {
+  position: fixed;
+  left:0px;
+  width:35px;
+  top: 0px;
+  cursor: pointer;
+  left:0px;
+  img{
+    width: auto !important;
+  }
+  .dyno-toggle {
+    font-size: 20px;
+    font-weight: bold;
+    top: 55%;
+    float: left;
+    color: white;
+    width:35px;
+    background: #1a5ca0;
+    .dyno-back{
+      display: none;
+    }
+    .dyno-label {
+      -webkit-transform: rotate(-90deg);
+      -webkit-transform-origin: top left 0;
+      transform: rotate(-90deg);
+      transform-origin: top left 0;
+      float: right;
+      position: absolute;
+      top: 50%;
+      left:0px;
+      .dyno-hamburger {
+        position: relative;
+        margin: 0px -20px;
+        margin-top: -25px;
+        margin-right: -30px;
+        float: right;
+        position: absolute;
+        top: 56px;
+        color: #333;
+        left: 50%;
+        font-size: 18px;
+        img{
+          height: 20px;
+        }
+      }
+    }
+  }
+  .dyno-ui-content{
+   background: white; 
+  }
+}
+
+.dyno-ui.closed {
+  left:-35px;
+}
+
+
+.dyno-ui.open{
+  background: white;
+  -webkit-box-shadow: 2px 0 10px 0 #555;
+  -moz-box-shadow: 2px 0 10px 0 #555;
+  box-shadow: 2px 0 10px 0 #555;
+  color:black;
+  .dyno-toggle{
+    .dyno-hamburger{
+      top: 425px;
+      img{
+        height: 20px;
+      }
+    }
+  }
+  .dyno-ui-content{
+    width: 365px;
+    float:right;
+    .dyno-ui-region.dyno-editable{
+      .list-group{
+        li{
+          padding-left: 5px;
+          padding-right:5px;
+          text-align: left;
+          span{
+            padding-left:10px;
+          }
+        }
+        button{
+          padding: 0 5px 0 1px;
+          display: block;
+        }
+        .dynoblock-remove{
+          float: left;
+          border-color: #d43f3a;
+          background-color: transparent;
+          color: #d9534f;
+          border: none;
+          img{
+            height: 20px;
+          }
+        }
+        .dynoblock-edit{
+          float: right;
+          border: none;
+          background: white;
+          color:#5cb85c;
+          img{
+            height: 20px;
+          }
+        }
+      }
+    }
+    .dyno-ui-header{
+      .dyno-ui-actions{
+        padding-top: 5px;
+        text-align: center;
+        span:first-child{
+          float: left;
+          margin-left:5px;
+        }
+        span:last-child{
+          float: right;
+          margin-right:5px;
+        }
+        .dyno-add-block{
+          color: #1a5ca0;
+          font-size: 15px;
+          img{
+            height: 23px;
+          }
+        }
+      }
+    }
+    .list-group {
+      button{
+        display: none;
+      }
+      cursor: pointer;
+    }
+  }
+}
+
+.dyno-ui.show-back{
+  .dyno-toggle{
+    .dyno-back{
+      display: block;
+      text-align: center;
+      img{
+        height:25px;
+      }
+    }
+  }
+}

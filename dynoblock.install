@@ -1,0 +1,79 @@
+<?php
+ /**
+ * @file
+ * Installs Dynoblock module.
+ */ 
+
+function dynoblock_schema() {
+  $schema['dynoblock'] = array(
+    'description' => t('Dynoblock table.'),
+    'fields' => array(
+      'rid' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'bid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'data' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => FALSE,
+      ),
+      'conditions' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => FALSE,
+      ),
+      'weight' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+    ),
+  );
+  $schema['cache_dynoblock'] = drupal_get_schema_unprocessed('system', 'cache');
+  return $schema;
+}
+
+function dynoblock_field_schema($field) {
+  switch ($field['type']) {
+    case 'dynoblock':
+      $columns = array(
+        'id' => array(
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => FALSE,
+        ),
+      );
+      break;
+  }
+  return array(
+    'columns' => $columns,
+    'indexes' => array(),
+  );
+}
+
+/**
+ * Add new fields to {dynoblock} table.
+ */
+function dynoblock_update_7100() {
+  $fields = array(
+    'conditions' => array(
+      'type' => 'text',
+      'size' => 'big',
+      'not null' => FALSE,
+    ),
+    'weight' => array(
+      'type' => 'int',
+      'unsigned' => TRUE,
+      'not null' => FALSE,
+    ),
+  ); 
+  foreach ($fields as $name => $field) {
+    db_add_field('dynoblock', $name, $field);
+  }
+}

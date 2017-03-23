@@ -1,0 +1,19 @@
+core:
+  version: VERSION
+  js:
+    js/dynoblock.js: {}
+  dependencies:
+    - core/jquery
+
+edit:
+  version: VERSION
+  css:
+    theme:
+      css/dynoblock.css: {}
+  dependencies:
+    - core/jquery
+    - core/jquery.ui
+    - core/drupal
+    - core/drupal.form
+    - core/drupal.ajax
+    - core/drupalSettings
