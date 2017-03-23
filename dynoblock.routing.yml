@@ -1,7 +1,4 @@
-/**
- * Implements hook_menu().
- */
-function dynoblock_menu() {
+
 
   $items['dynoblock/generate/%/%/%'] = array(
     'page callback' => 'dynoblock_generate_form',
@@ -59,5 +56,3 @@ function dynoblock_menu() {
     'type' => MENU_CALLBACK,
   );
 
-  return $items;
-}
