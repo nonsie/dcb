@@ -1,58 +1,58 @@
-
-
-  $items['dynoblock/generate/%/%/%'] = array(
-    'page callback' => 'dynoblock_generate_form',
-    'page arguments' => array(2, 3, 4),
-    'access arguments' => array('use dynoblocks'),
-    'type' => MENU_CALLBACK,
-  );
-
-  $items['dynoblock/selector-modal'] = array(
-    'page callback' => 'dynoblock_selector_widgets',
-    'page arguments' => array(),
-    'access arguments' => array('use dynoblocks'),
-    'type' => MENU_CALLBACK,
-  );
-
-  $items['dynoblock/save/%'] = array(
-    'page callback' => 'dynoblock_save_block',
-    'page arguments' => array(2),
-    'access arguments' => array('use dynoblocks'),
-    'type' => MENU_CALLBACK,
-  );
-
-  $items['dynoblock/remove/%/%'] = array(
-    'page callback' => 'dynoblock_block_remove',
-    'page arguments' => array(2, 3),
-    'access arguments' => array('use dynoblocks'),
-    'type' => MENU_CALLBACK,
-  );
-
-  $items['dynoblock/edit/%/%/%'] = array(
-    'page callback' => 'dynoblock_block_edit',
-    'page arguments' => array(2, 3, 4),
-    'access arguments' => array('use dynoblocks'),
-    'type' => MENU_CALLBACK,
-  );
-
-  $items['dynoblock/load/blocks/%'] = array(
-    'page callback' => 'dynoblock_ajax_load',
-    'page arguments' => array('blocks', 3),
-    'access arguments' => array('access content'),
-    'type' => MENU_CALLBACK,
-  );
-
-  $items['dynoblock/update/%/%'] = array(
-    'page callback' => 'dynoblock_update_block',
-    'page arguments' => array(2, 3),
-    'access arguments' => array('use dynoblocks'),
-    'type' => MENU_CALLBACK,
-  );
-
-  $items['dynoblock/condition'] = array(
-    'page callback' => 'dynoblock_condition_callback',
-    'page arguments' => array(),
-    'access arguments' => array('use dynoblocks'),
-    'type' => MENU_CALLBACK,
-  );
-
+#
+#
+#  $items['dynoblock/generate/%/%/%'] = array(
+#    'page callback' => 'dynoblock_generate_form',
+#    'page arguments' => array(2, 3, 4),
+#    'access arguments' => array('use dynoblocks'),
+#    'type' => MENU_CALLBACK,
+#  );
+#
+#  $items['dynoblock/selector-modal'] = array(
+#    'page callback' => 'dynoblock_selector_widgets',
+#    'page arguments' => array(),
+#    'access arguments' => array('use dynoblocks'),
+#    'type' => MENU_CALLBACK,
+#  );
+#
+#  $items['dynoblock/save/%'] = array(
+#    'page callback' => 'dynoblock_save_block',
+#    'page arguments' => array(2),
+#    'access arguments' => array('use dynoblocks'),
+#    'type' => MENU_CALLBACK,
+#  );
+#
+#  $items['dynoblock/remove/%/%'] = array(
+#    'page callback' => 'dynoblock_block_remove',
+#    'page arguments' => array(2, 3),
+#    'access arguments' => array('use dynoblocks'),
+#    'type' => MENU_CALLBACK,
+#  );
+#
+#  $items['dynoblock/edit/%/%/%'] = array(
+#    'page callback' => 'dynoblock_block_edit',
+#    'page arguments' => array(2, 3, 4),
+#    'access arguments' => array('use dynoblocks'),
+#    'type' => MENU_CALLBACK,
+#  );
+#
+#  $items['dynoblock/load/blocks/%'] = array(
+#    'page callback' => 'dynoblock_ajax_load',
+#    'page arguments' => array('blocks', 3),
+#    'access arguments' => array('access content'),
+#    'type' => MENU_CALLBACK,
+#  );
+#
+#  $items['dynoblock/update/%/%'] = array(
+#    'page callback' => 'dynoblock_update_block',
+#    'page arguments' => array(2, 3),
+#    'access arguments' => array('use dynoblocks'),
+#    'type' => MENU_CALLBACK,
+#  );
+#
+#  $items['dynoblock/condition'] = array(
+#    'page callback' => 'dynoblock_condition_callback',
+#    'page arguments' => array(),
+#    'access arguments' => array('use dynoblocks'),
+#    'type' => MENU_CALLBACK,
+#  );
+#
