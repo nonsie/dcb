@@ -1,0 +1,4 @@
+services:
+  plugin.manager.dynoblock:
+    class: Drupal\dynoblock\DynoblockManager
+    parent: default_plugin_manager
