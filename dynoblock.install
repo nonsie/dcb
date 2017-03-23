@@ -35,7 +35,6 @@ function dynoblock_schema() {
       ),
     ),
   );
-  $schema['cache_dynoblock'] = drupal_get_schema_unprocessed('system', 'cache');
   return $schema;
 }
 
@@ -57,23 +56,3 @@ function dynoblock_field_schema($field) {
   );
 }
 
-/**
- * Add new fields to {dynoblock} table.
- */
-function dynoblock_update_7100() {
-  $fields = array(
-    'conditions' => array(
-      'type' => 'text',
-      'size' => 'big',
-      'not null' => FALSE,
-    ),
-    'weight' => array(
-      'type' => 'int',
-      'unsigned' => TRUE,
-      'not null' => FALSE,
-    ),
-  ); 
-  foreach ($fields as $name => $field) {
-    db_add_field('dynoblock', $name, $field);
-  }
-}
