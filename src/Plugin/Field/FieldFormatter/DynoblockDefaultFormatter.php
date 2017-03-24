@@ -24,8 +24,7 @@ class DynoblockDefaultFormatter extends FormatterBase {
   public function settingsSummary() {
     $summary = array();
     $settings = $this->getSettings();
-
-    $summary[] = t('Displays dynoblock ID.');
+    $summary[] = t('Displays dynoblock region ID.');
 
     return $summary;
   }
@@ -35,7 +34,6 @@ class DynoblockDefaultFormatter extends FormatterBase {
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
     $element = array();
-
     foreach ($items as $delta => $item) {
       // Render each element as markup.
       $element[$delta] = array(
@@ -43,7 +41,6 @@ class DynoblockDefaultFormatter extends FormatterBase {
         '#markup' => serialize($item),
       );
     }
-
     return $element;
   }
 

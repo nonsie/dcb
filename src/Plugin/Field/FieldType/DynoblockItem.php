@@ -42,12 +42,8 @@ class DynoblockItem extends FieldItemBase {
    * {@inheritdoc}
    */
   public function isEmpty() {
-    $value = $this->getValue();
-    $empty = TRUE;
-    if (isset($value['id']) && !empty($value['id'])) {
-      $empty = FALSE;
-    }
-    return $empty;
+    $value = $this->get('id')->getValue();
+    return empty($value) ? TRUE : FALSE;
   }
 
   /**
@@ -65,7 +61,7 @@ class DynoblockItem extends FieldItemBase {
    */
   public static function generateSampleValue(FieldDefinitionInterface $field_definition) {
     $random = new Random();
-    $values['value'] = md5($random->string() . time());
+    $values['id'] = md5($random->string() . time());
     return $values;
   }
 

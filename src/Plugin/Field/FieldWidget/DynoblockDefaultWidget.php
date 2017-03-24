@@ -23,24 +23,35 @@ class DynoblockDefaultWidget extends WidgetBase {
    * {@inheritdoc}
    */
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
-    $value = isset($items[$delta]->value) ? $items[$delta]->value : NULL;
+    $value = isset($items[$delta]->id) ? $items[$delta]->id : '';
 
-    $element += array(
+    $element['id'] = array(
       '#type' => 'textfield',
+      '#title' => t('Dynoblock region ID'),
       '#default_value' => $value,
-      '#placeholder' => $this->getSetting('placeholder'),
+      '#size' => 60,
+      '#element_validate' => array(
+        array($this, 'validate'),
+      ),
     );
 
-    return array('value' => $element);
+    return $element;
   }
 
   /**
-   * {@inheritdoc}
+   * Validate dynoblock field.
    */
-  public static function defaultSettings() {
-    return array(
-    'size' => 60,
-    'placeholder' => '',
-    ) + parent::defaultSettings();
+  public function validate($element, FormStateInterface $form_state) {
+    $value = $element['#value'];
+    if (strlen($value) == 0) {
+      $form_state->setValueForElement($element, '');
+      return;
+    }
+    else {
+      // Dynoblock field cannot contain spaces.
+      if (preg_match('/\s/', strtolower($value))) {
+        $form_state->setError($element, t("Dynoblock field cannot contain spaces"));
+      }
+    }
   }
 }
