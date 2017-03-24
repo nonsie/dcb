@@ -37,8 +37,14 @@ class DynoblockDefaultFormatter extends FormatterBase {
     foreach ($items as $delta => $item) {
       // Render each element as markup.
       $element[$delta] = array(
-        '#type' => 'markup',
-        '#markup' => serialize($item),
+        '#type' => 'container',
+        '#attributes' => array(
+          'class' => array('dynoblock-region'),
+          'data-dyno-rid' => $item->id,
+          'data-dyno-label' => $item->getEntity()->bundle(),
+           // Note: this was called data-dyno-nid in D7.
+          'data-dyno-eid' => $item->getEntity()->id(),
+        ),
       );
     }
     return $element;
