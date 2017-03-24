@@ -94,7 +94,7 @@ function theme_dynoblock_tabledrag($vars) {
   }
   $output = '<div id="' . $element['#attributes']['id'] . '" class="widget-field-groups">';
   $output .= theme('table', array(
-      'header' => $header, 
+      'header' => $header,
       'rows' => $rows,
       'attributes' => array('id' => 'widget-table-sort'),
     ));
@@ -183,7 +183,7 @@ function dynoblock_block_view_alter(&$data, $block) {
   if (!empty($blocks)) {
     $found = array_search($block->delta, $blocks);
     if ($found !== FALSE) {
-      $label = !empty($block->info) 
+      $label = !empty($block->info)
         ? $block->info
         : (!empty($block->title)
           ? $block->title
@@ -203,12 +203,12 @@ function dynoblock_ajax_load($type, $id) {
         // Get the Dynblock and its renderable html.
         $blocks = DynoBlocks::renderDynoBlocks($id);
         $result['html'] = render($blocks);
-        // Get the ajax commands. These can consist of js 
+        // Get the ajax commands. These can consist of js
         // files needing loaded or js settings being added..
         $commands = ajax_render(array());
         _dynoblocks_get_commands($_POST['data'], $commands);
         $result['commands'] = $commands;
-        break;  
+        break;
     }
   }
   print drupal_json_encode($result);
@@ -321,7 +321,7 @@ function dynoblock_core_form_ajax_callback($form, &$form_state) {
       array_pop($form_state['triggering_element']['#array_parents']);
       $element = drupal_array_get_nested_value($form, $form_state['triggering_element']['#array_parents']);
       return $element;
-      break;  
+      break;
     case 'remove':
       $parents = array();
       foreach ($form_state['triggering_element']['#parents'] as $parent) {
@@ -332,7 +332,7 @@ function dynoblock_core_form_ajax_callback($form, &$form_state) {
       }
       $element = drupal_array_get_nested_value($form, $parents);
       return $element;
-      break;  
+      break;
   }
 }
 
@@ -344,7 +344,7 @@ function dynoblock_widget_settings_callback($form, &$form_state) {
   array_pop($form_state['triggering_element']['#array_parents']);
   $element = drupal_array_get_nested_value($form, $form_state['triggering_element']['#array_parents']);
   return $element;
-  
+
 }
 
 /**
@@ -560,9 +560,9 @@ function dynoblock_save_block($method) {
   // Check that this is either an edit or new save.
   // If new save, make sure bid does not already exist.
   $output = array('saved' => FALSE);
-  if (!empty($_POST['rid']) 
-    && !empty($_POST['bid']) 
-    && ($method == 'edit' 
+  if (!empty($_POST['rid'])
+    && !empty($_POST['bid'])
+    && ($method == 'edit'
     || ($method == 'new' && !DynoBlocksDb::getBlock($_POST['rid'], $_POST['bid'])))) {
     $form = _dynoblock_find_form_handler(!empty($_POST['widget']) ? $_POST['widget'] : NULL);
     if ($form) {
@@ -612,7 +612,7 @@ function dynoblock_save_block($method) {
         }
       }
     }
-    
+
     // If this region is attatched to a node, add the node
     // to be re-indexed in search_api.
     // # TODO: make config to toggle this on and off.
@@ -638,10 +638,11 @@ function dynoblock_block_remove($rid, $bid) {
 
 
 function _dynoblock_find_form_handler($widget) {
-  $widgets = DynoBlocks::loadWidgets();
+  $core = \Drupal::service('dynoblock.core');
+  $widgets = $core->loadWidgets();
   if (array_key_exists($widget, $widgets)) {
     $form = $widgets[$widget];
-    $theme = DynoBlocks::getTheme($form['properties']['theme']);
+    $theme = $core->getTheme($form['properties']['theme']);
     if (module_load_include('inc', $form['module'], $theme['path'] . '/' . $form['properties']['dir'] . '/' . $form['form']['file'])) {
       return $form = new $form['form']['handler']();
     }
@@ -649,11 +650,12 @@ function _dynoblock_find_form_handler($widget) {
 }
 
 function _dynoblock_find_layout_handler($widget) {
-  $widgets = DynoBlocks::loadWidgets();
+  $core = \Drupal::service('dynoblock.core');
+  $widgets = $core->loadWidgets();
   if (array_key_exists($widget, $widgets)) {
     $layout = $widgets[$widget];
     $id = $layout['id'];
-    $theme = DynoBlocks::getTheme($layout['properties']['theme']);
+    $theme = $core->getTheme($layout['properties']['theme']);
     if (module_load_include('inc', $layout['module'], $theme['path'] . '/' . $layout['properties']['dir'] . '/' . $layout['form']['file'])) {
       if ($path = _dynoblock_find_layout_path($layout['id'])) {
         $layout = new $layout['layout']['handler']();
@@ -669,10 +671,11 @@ function _dynoblock_find_layout_handler($widget) {
 }
 
 function _dynoblock_find_layout_path($widget) {
-  $widgets = DynoBlocks::loadWidgets();
+  $core = \Drupal::service('dynoblock.core');
+  $widgets = $core->loadWidgets();
   if (array_key_exists($widget, $widgets)) {
     $widget = $widgets[$widget];
-    $theme = DynoBlocks::getTheme($widget['properties']['theme']);
+    $theme = $core->getTheme($widget['properties']['theme']);
     $path = $widget['layout']['file'];
     $dirs = explode('/', $path);
     if (count($dirs) > 1) {
@@ -733,7 +736,7 @@ function _dynoblocks_get_commands($data, &$commands) {
       }
     }
   }
-  
+
 
   // Render the HTML to load these files, and add AJAX commands to insert this
   // HTML in the page. We pass TRUE as the $skip_alter argument to prevent the
@@ -1056,16 +1059,16 @@ function dynoblock_widget_display($display, $items, $instance, $entity, $field_i
 
     if (isset($entity->nid)) {
       $entity_id = $entity->nid;
-    } 
+    }
     elseif (isset($entity->tid)) {
       $entity_id = $entity->tid;
-    } 
+    }
     else {
       $entity_id = NULL;
     }
-    
+
     $element[$delta]['wrapper']['dynoblock'] = DynoBlocks::dynoRegion($value['id'], $entity_id, $field_instance['label']);
     $element[$delta]['wrapper']['dynoblock']['blocks'] = DynoBlocks::renderDynoBlocks($value['id'], $entity);
-  }  
+  }
   return $element;
 }

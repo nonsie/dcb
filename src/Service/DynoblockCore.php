@@ -1,75 +1,124 @@
 <?php
 
-namespace Drupal\dynoblock;
+namespace Drupal\dynoblock\Service;
 
-class DynoBlocks {
+use Drupal\Core\Extension\ModuleHandler;
+use Drupal\dynoblock\DynoblockManager;
 
-  public static $blocks = array();
-  public static $themes = array();
-  public static $widgets = array();
+/**
+ * Class DynoblockCore.
+ *
+ * @package Drupal\dynoblock\Service
+ */
+class DynoblockCore {
 
-  public static function getTheme($id) {
-    if (empty(self::$themes)) {
-      self::$themes = self::getThemes();
-    }
-    return array_key_exists($id, self::$themes) ? self::$themes[$id] : NULL;
+  /**
+ * Dynoblock Plugin Manager.
+ *
+ * @var \Drupal\dynoblock\DynoblockManager.
+ */
+  public $pluginManager;
+
+  /**
+   * Dynoblock DB Serive.
+   *
+   * @var \Drupal\dynoblock\Service\DynoblockDb.
+   */
+  public $db;
+
+  /**
+   * @var array
+   */
+  public $blocks = array();
+
+  /**
+   * @var array
+   */
+  public $themes = array();
+
+  /**
+   * @var array
+   */
+  public $widgets = array();
+
+  /**
+   * DynoblockCore constructor.
+   *
+   * @param DynoblockManager $pluginManager
+   *   Injected.
+   * @param DynoblockDb $dynoblockDb
+   *   Injected.
+   */
+  public function __construct(DynoblockManager $pluginManager, DynoblockDb $dynoblockDb, ModuleHandler $moduleHandler) {
+    $this->pluginManager = $pluginManager;
+    $this->db = $dynoblockDb;
+    $this->moduleHandler = $moduleHandler;
   }
 
-  public static function getThemes() {
+  /**
+   * @param $id
+   * @return mixed|null
+   */
+  public function getTheme($id) {
+    if (empty($this->themes)) {
+      $this->themes = $this->getThemes();
+    }
+    return array_key_exists($id, $this->themes) ? $this->themes[$id] : NULL;
+  }
+
+  /**
+   * @return array|mixed|void
+   */
+  public function getThemes() {
     $themes = array();
-    foreach (module_implements('dynoblock_themes') as $module) {
-      $function = $module . '_dynoblock_themes';
-      $theme = $function();
+    foreach ($this->moduleHandler->getImplementations('dynoblock_themes') as $module) {
+      $theme = $this->moduleHandler->invoke($module, 'dynoblock_themes');
       foreach ($theme as &$thm) {
         $thm['full_path'] = drupal_get_path('module', $module) . '/' . $thm['path'];
         $thm['module'] = $module;
       }
       $themes += $theme;
     }
-    return self::$themes = $themes;
+    return $this->themes = $themes;
   }
 
-  public static function getWidget($id) {
-    $widgets = DynoBlocks::loadWidgets();
+  /**
+   * @param $id
+   * @return null
+   */
+  public function getWidget($id) {
+    $widgets = $this->loadWidgets();
     return array_key_exists($id, $widgets) ? $widgets[$id] : NULL;
   }
 
-  public static function loadWidgets() {
-    $widgets = array();
-    if (empty(self::$widgets)) {
-      foreach (module_implements('dynoblock_widgets') as $module) {
-        $function = $module . '_dynoblock_widgets';
-        $widget = $function();
-        foreach ($widget as &$w) {
-          $w['module'] = $module;
-          $w['parent_theme'] = self::getTheme($w['properties']['theme']);
-          if (!empty($w['parent_theme']['handler']) && !empty($w['parent_theme']['handler']['class']) && !empty($w['parent_theme']['handler']['file'])) {
-            module_load_include('inc', $module, $w['parent_theme']['path'] . '/' . $w['parent_theme']['handler']['file']);
-            $w['parent_theme']['handler'] = new $w['parent_theme']['handler']['class']();
-          }
-        }
-        $widgets += $widget;
-      }
-      self::$widgets = $widgets;
-      return $widgets;
-    }
-    else {
-      return self::$widgets;
-    }
+  /**
+   * @return array|\mixed[]|null
+   */
+  public function loadWidgets() {
+    return $this->widgets = $this->pluginManager->getDefinitions();
   }
 
-  public static function getBlocks($rid) {
-    return self::$blocks = DynoBlocksDb::getBlocks($rid);
+  /**
+   * @param $rid
+   * @return array
+   */
+  public function getBlocks($rid) {
+    return $this->blocks = $this->db->getBlocks($rid);
   }
 
-  public static function displayBlocks($blocks, $entity = array()) {
+  /**
+   * @param $blocks
+   * @param array $entity
+   * @return array
+   */
+  public function displayBlocks($blocks, $entity = array()) {
     $render = array();
     foreach ($blocks as $delta => $block) {
       $data = $block['data'];
       $id = !empty($data['widget']) ? $data['widget'] : $data['layout_id'];
       $layout = _dynoblock_find_layout_handler($id);
-      $widget = self::getWidget($data['widget']);
-      if ($layout && self::isDisplayable($data)) {
+      $widget = $this->getWidget($data['widget']);
+      if ($layout && $this->isDisplayable($data)) {
         $path = _dynoblock_find_layout_path($id);
         $layout->directory = $path;
         $layout->entity = $entity;
@@ -108,7 +157,12 @@ class DynoBlocks {
     return $render;
   }
 
-  public static function renderNewBlock($block, $html) {
+  /**
+   * @param $block
+   * @param $html
+   * @return mixed|null
+   */
+  public function renderNewBlock($block, $html) {
     $render['container'] = array(
       '#type' => 'container',
       '#attributes' => array(
@@ -133,7 +187,11 @@ class DynoBlocks {
     return render($render);
   }
 
-  public static function wrapEditBlock($html) {
+  /**
+   * @param $html
+   * @return mixed|null
+   */
+  public function wrapEditBlock($html) {
     $wrapper = array(
       '#type' => 'container',
       '#attributes' => array(
@@ -147,7 +205,13 @@ class DynoBlocks {
     return render($wrapper);
   }
 
-  public static function dynoRegion($rid, $nid = NULL, $label = NULL) {
+  /**
+   * @param $rid
+   * @param null $nid
+   * @param null $label
+   * @return array
+   */
+  public function dynoRegion($rid, $nid = NULL, $label = NULL) {
     return array(
       '#type' => 'container',
       '#attributes' => array(
@@ -161,16 +225,25 @@ class DynoBlocks {
     );
   }
 
-  public static function renderDynoBlocks($rid, $entity = array()) {
-    $blocks = self::getBlocks($rid);
-    $blocks = self::displayBlocks($blocks, $entity);
+  /**
+   * @param $rid
+   * @param array $entity
+   * @return array
+   */
+  public function renderDynoBlocks($rid, $entity = array()) {
+    $blocks = $this->getBlocks($rid);
+    $blocks = $this->displayBlocks($blocks, $entity);
     return array(
       '#type' => 'markup',
       '#markup' => render($blocks),
     );
   }
 
-  public static function isDisplayable($block) {
+  /**
+   * @param $block
+   * @return bool
+   */
+  public function isDisplayable($block) {
     global $user;
     $is_admin = FALSE;
     if (is_array($user->roles) && in_array('administrator', array_values($user->roles))) {

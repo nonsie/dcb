@@ -1,18 +1,39 @@
 <?php
 
-namespace Drupal\dynoblock;
+namespace Drupal\dynoblock\Service;
 
 use Drupal\Core\Database\Connection;
 
-class DynoBlocksDb {
+/**
+ * Class DynoblockDb.
+ *
+ * @package Drupal\dynoblock\Service
+ */
+class DynoblockDb {
 
+  /**
+   * @var string
+   */
   static $db_table = 'dynoblock';
+
+  /**
+   * @var Connection
+   */
   private $database;
 
+  /**
+   * DynoblockDb constructor.
+   *
+   * @param Connection $database
+   */
   public function __construct( Connection $database ) {
     $this->database = $database;
   }
 
+  /**
+   * @param $record
+   * @return \Drupal\Core\Database\StatementInterface|int|null
+   */
   public static function save($record) {
     return $this->database->merge(self::$db_table)
       ->key(
@@ -31,7 +52,11 @@ class DynoBlocksDb {
       ->execute();
   }
 
-  public static function update($record) {
+  /**
+   * @param $record
+   * @return \Drupal\Core\Database\StatementInterface|int|null
+   */
+  public function update($record) {
     return  $this->database->update(self::$db_table)
       ->condition('rid', $record['rid'])
       ->condition('bid', $record['bid'])
@@ -39,7 +64,11 @@ class DynoBlocksDb {
       ->execute();
   }
 
-  public static function getBlocks($rid) {
+  /**
+   * @param $rid
+   * @return array
+   */
+  public function getBlocks($rid) {
    $query = $this->database->select(self::$db_table, 'd');
    $query->fields('d', array('rid', 'bid', 'data'))
      ->orderBy('bid', 'ASC')
@@ -56,7 +85,12 @@ class DynoBlocksDb {
    return $results;
   }
 
-  public static function getBlock($rid, $bid) {
+  /**
+   * @param $rid
+   * @param $bid
+   * @return bool|mixed
+   */
+  public function getBlock($rid, $bid) {
     $query = $this->database->select(self::$db_table, 'd');
     $query->fields('d', array('rid', 'bid', 'data'))
       ->orderBy('bid', 'ASC')
@@ -71,7 +105,12 @@ class DynoBlocksDb {
     }
   }
 
-  public static function remove($rid, $bid) {
+  /**
+   * @param $rid
+   * @param $bid
+   * @return int
+   */
+  public function remove($rid, $bid) {
     $delete = $this->database->delete(self::$db_table)
       ->condition('rid', $rid)
       ->condition('bid', $bid)

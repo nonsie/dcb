@@ -4,6 +4,10 @@ namespace Drupal\dynoblock;
 
 class DynoblockWidgetModal {
 
+  public function __construct() {
+    $this->core = \Drupal::service('dynoblock.core');
+  }
+
   public $modal = array();
   public $default_active = 'themes';
   public $sections = array(
@@ -245,7 +249,7 @@ class DynoblockWidgetModal {
   }
 
   private function loadWidgets() {
-    $widgets = DynoBlocks::loadWidgets();
+    $widgets = $this->core->loadWidgets();
     foreach ($widgets as $machine => &$widget) {
       $layout = _dynoblock_find_layout_handler($machine);
       if ($layout) {
@@ -334,7 +338,7 @@ class DynoblockWidgetModal {
   */
 
   private function loadThemes() {
-    $themes = DynoBlocks::getThemes();
+    $themes = $this->core->getThemes();
     foreach ($themes as $key => &$theme) {
       $list_display = $this->listDisplay($theme, 1, 'theme');
       $theme['list_display'] = render($list_display);

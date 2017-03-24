@@ -1,7 +1,7 @@
 (function ($) {
 
   $(document).ready(function(){
-    
+
     var sortHoverTimer,
       actionsHoverTimer,
       globals = drupalSettings.dynoblock.core;
@@ -517,20 +517,10 @@
           var offset = 0;
           if(!open){
             $this.initUi();
-            // for admin menu
-            if($('#admin-menu').get(0)){
-              $this.ui.css({
-                top: '29px',
-              });
-              offset = 29;
-            }
-            // for drupal navbar module
-            if($('#navbar-bar').get(0)){
-              $this.ui.css({
-                top: '79px',
-              });
-              offset = 79;
-            }
+            $this.ui.css({
+              top: '75px',
+            });
+            offset = 29;
             $this.event('ui_toggled');
           }
           // Set inner content max height.
@@ -868,6 +858,7 @@
 
       this.init = function(callback){
         DynoBlocks.getData('/dynoblock/selector-modal', function(modal){
+          console.log(modal);
           modal = JSON.parse(modal);
           $this.remove();
           $this.modal = $(modal.html);
@@ -1025,7 +1016,12 @@
 
       this.toggle = function(){
         var $this = this;
-        this.modal.modal('toggle');
+        Drupal.dialog($(this.modal), {
+          "title": "Dynoblocks",
+          "width": "500px",
+          "maxHeight": '500px',
+        }).showModal();
+        // this.modal.modal('toggle');
         this.modal.on('hide.bs.modal', function (e) {
           $this.resetCkEditors();
         });

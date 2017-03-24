@@ -3,6 +3,9 @@
 namespace Drupal\dynoblock\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\dynoblock\DynoblockWidgetModal;
+use Drupal\Component\Serialization\Json;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class DynoController extends ControllerBase {
 
@@ -15,7 +18,16 @@ class DynoController extends ControllerBase {
   }
 
   function selectorModal() {
-
+    $modal = new DynoblockWidgetModal();
+    $modal->init();
+    $response = array(Json::encode(array(
+      'html' => render($modal->modal),
+      'sections' => $modal->build(),
+      'widgets' => $modal->widgets,
+      'themes' => $modal->themes,
+      'default_active' => $modal->default_active,
+    )));
+    return new JsonResponse($response);
   }
 
   function save($method) {
