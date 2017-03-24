@@ -1,4 +1,8 @@
 services:
+  dynoblock.database:
+    class: Drupal\dynoblock\DynoBlocksDb
+    arguments: ['@database']
+
   plugin.manager.dynoblock:
     class: Drupal\dynoblock\DynoblockManager
     parent: default_plugin_manager
