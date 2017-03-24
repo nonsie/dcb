@@ -1,8 +1,7 @@
 (function ($) {
 
   $(document).ready(function(){
-
-    console.log("something");
+    
     var sortHoverTimer,
       actionsHoverTimer,
       globals = drupalSettings.dynoblock.core;
