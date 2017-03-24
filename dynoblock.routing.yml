@@ -39,7 +39,7 @@ dynoblock.load.block:
   defaults:
     _controller: '\Drupal\dynoblock\Controller\DynoController::ajaxLoad'
   requirements:
-    _permission: 'use dynoblocks'
+    _permission: 'access content'
 
 dynoblock.update:
   path: '/dynoblock/update/{rid}/{bid}'
@@ -47,6 +47,13 @@ dynoblock.update:
     _controller: '\Drupal\dynoblock\Controller\DynoController::update'
   requirements:
     _permission: 'use dynoblocks'
+
+dynoblock.update:
+  path: '/dynoblock/testpage'
+  defaults:
+    _controller: '\Drupal\dynoblock\Controller\DynoController::testpage'
+  requirements:
+    _permission: 'access content'
 
 # @todo - leaving condition stuff out for now.
 #

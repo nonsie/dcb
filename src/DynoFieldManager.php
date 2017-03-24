@@ -1,22 +1,22 @@
 <?php
 /**
- * @file
- * Contains DynoblockManager.
+ * Created by PhpStorm.
+ * User: garymorse
+ * Date: 3/24/17
+ * Time: 2:58 PM
  */
 
 namespace Drupal\dynoblock;
+
 
 use Drupal\Core\Plugin\DefaultPluginManager;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 
-/**
- * Dynoblocks plugin manager.
- */
-class DynoblockManager extends DefaultPluginManager {
+class DynoFieldManager extends DefaultPluginManager {
 
   /**
-   * Constructs a DynoblockManager object.
+   * Constructs a DynoFieldManager object.
    *
    * @param \Traversable $namespaces
    *   An object that implements \Traversable which contains the root paths
@@ -26,10 +26,12 @@ class DynoblockManager extends DefaultPluginManager {
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    *   The module handler to invoke the alter hook with.
    */
-  public function __construct(\Traversable $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler) {
-    parent::__construct('Plugin/Dynoblock', $namespaces, $module_handler, 'Drupal\dynoblock\DynoblockInterface', 'Drupal\dynoblock\Annotation\Dynoblock');
 
-    $this->alterInfo('dynoblock_info');
-    $this->setCacheBackend($cache_backend, 'dynoblock');
+  public function __construct(\Traversable $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler) {
+    parent::__construct('Plugin/DynoField', $namespaces, $module_handler, 'Drupal\dynoblock\DynoFieldInterface', 'Drupal\dynoblock\Annotation\DynoField');
+
+    $this->alterInfo('dynoblock_field_info');
+    $this->setCacheBackend($cache_backend, 'dynofield');
   }
+
 }

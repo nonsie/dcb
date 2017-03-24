@@ -6,3 +6,11 @@ services:
   plugin.manager.dynoblock:
     class: Drupal\dynoblock\DynoblockManager
     parent: default_plugin_manager
+
+  plugin.manager.dynofield:
+    class: Drupal\dynoblock\DynoFieldManager
+    parent: default_plugin_manager
+
+  dynoblock.dynoblocks:
+    class: Drupal\dynoblock\DynoBlocks
+    arguments: ['@dynoblock.database']

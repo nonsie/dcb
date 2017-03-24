@@ -13,7 +13,7 @@ class DynoBlocksDb {
     $this->database = $database;
   }
 
-  public static function save($record) {
+  public function save($record) {
     return $this->database->merge(self::$db_table)
       ->key(
         array(
@@ -31,7 +31,7 @@ class DynoBlocksDb {
       ->execute();
   }
 
-  public static function update($record) {
+  public function update($record) {
     return  $this->database->update(self::$db_table)
       ->condition('rid', $record['rid'])
       ->condition('bid', $record['bid'])
@@ -39,7 +39,7 @@ class DynoBlocksDb {
       ->execute();
   }
 
-  public static function getBlocks($rid) {
+  public function getBlocks($rid) {
    $query = $this->database->select(self::$db_table, 'd');
    $query->fields('d', array('rid', 'bid', 'data'))
      ->orderBy('bid', 'ASC')
@@ -56,7 +56,7 @@ class DynoBlocksDb {
    return $results;
   }
 
-  public static function getBlock($rid, $bid) {
+  public function getBlock($rid, $bid) {
     $query = $this->database->select(self::$db_table, 'd');
     $query->fields('d', array('rid', 'bid', 'data'))
       ->orderBy('bid', 'ASC')
@@ -71,7 +71,7 @@ class DynoBlocksDb {
     }
   }
 
-  public static function remove($rid, $bid) {
+  public function remove($rid, $bid) {
     $delete = $this->database->delete(self::$db_table)
       ->condition('rid', $rid)
       ->condition('bid', $bid)

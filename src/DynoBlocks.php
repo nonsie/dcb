@@ -2,11 +2,18 @@
 
 namespace Drupal\dynoblock;
 
+
 class DynoBlocks {
 
   public static $blocks = array();
   public static $themes = array();
   public static $widgets = array();
+
+  private $dynodb;
+
+  public function __construct(DynoBlocksDb $dynodb) {
+    $this->dynodb = $dynodb;
+  }
 
   public static function getTheme($id) {
     if (empty(self::$themes)) {
