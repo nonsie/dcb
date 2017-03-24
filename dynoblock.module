@@ -20,7 +20,7 @@ function dynoblock_page_attachments(array &$page) {
 
   // Add configurable JS.
   $configs['ui_scroll'] = isset($configs['ui_scroll']) && $configs['ui_scroll'] === FALSE ? FALSE : TRUE;
-  $build['#attached']['drupalSettings']['dynoblock']['core'] = $configs;
+  $page['#attached']['drupalSettings']['dynoblock']['core'] = $configs;
 }
 
 
