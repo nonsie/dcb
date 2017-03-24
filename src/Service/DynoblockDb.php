@@ -34,7 +34,7 @@ class DynoblockDb {
    * @param $record
    * @return \Drupal\Core\Database\StatementInterface|int|null
    */
-  public static function save($record) {
+  public function save($record) {
     return $this->database->merge(self::$db_table)
       ->key(
         array(

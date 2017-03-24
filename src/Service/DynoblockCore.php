@@ -13,10 +13,10 @@ use Drupal\dynoblock\DynoblockManager;
 class DynoblockCore {
 
   /**
- * Dynoblock Plugin Manager.
- *
- * @var \Drupal\dynoblock\DynoblockManager.
- */
+   * Dynoblock Plugin Manager.
+   *
+   * @var \Drupal\dynoblock\DynoblockManager.
+   */
   public $pluginManager;
 
   /**
