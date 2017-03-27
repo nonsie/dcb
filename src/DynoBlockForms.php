@@ -97,10 +97,9 @@ class DynoBlockForms {
 
   private static function addExtraSettings(&$form, $default_values = array()) {
     $form->form['extra_settings'] = array(
-      '#type' => 'fieldset',
+      '#type' => 'details',
       '#title' => t('Widget Settings'),
-      '#collapsed' => TRUE,
-      '#collapsible' => TRUE,
+      '#open' => FALSE,
       '#weight' => 100,
       '#attributes' => array(
         'class' => array('dyno-widget-settings-container'),

@@ -327,7 +327,7 @@ function dynoblock_condition_callback() {
 
 function _dynoblock_condition_form($values = array()) {
   $condition['conditions'] = array(
-    '#type' => 'container',
+    '#type' => 'details',
     '#weight' => 98,
     '#attributes' => array(
       'class' => array('dyno-condition'),
