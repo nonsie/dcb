@@ -4,6 +4,7 @@ core:
     js/dynoblock.js: {}
   dependencies:
     - core/jquery
+    - core/drupalSettings
 
 edit:
   version: VERSION

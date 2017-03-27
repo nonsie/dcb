@@ -126,7 +126,7 @@
 #dyno-widget-selector .modal-body {
   width: 100%;
   display: inline-block;
-  max-height: 800px;
+  max-height: 500px;
   overflow-y: scroll;
 }
 

@@ -2,9 +2,11 @@ services:
   dynoblock.core:
     class: Drupal\dynoblock\Service\DynoblockCore
     arguments: ['@plugin.manager.dynoblock', '@dynoblock.database', '@module_handler']
+
   dynoblock.database:
     class: Drupal\dynoblock\Service\DynoblockDb
     arguments: ['@database']
+
   plugin.manager.dynoblock:
     class: Drupal\dynoblock\DynoblockManager
     parent: default_plugin_manager

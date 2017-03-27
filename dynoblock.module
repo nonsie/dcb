@@ -31,9 +31,11 @@ function dynoblock_theme($existing, $type, $theme, $path) {
   $themes = array(
     'dynoblock_tabledrag' => array(
       'render element' => 'element',
+      'function' => 'theme_dynoblock_tabledrag',
     ),
     'dynoblock_image_thumbnail' => array(
       'render element' => 'element',
+      'function' => 'theme_dynoblock_image_thumbnail',
     ),
   );
   return $themes;
@@ -69,37 +71,57 @@ function theme_dynoblock_image_thumbnail($variables) {
 
 function theme_dynoblock_tabledrag($vars) {
   $element = $vars['element'];
-  drupal_add_tabledrag('widget-table-sort', 'order', 'sibling', 'item-row-weight');
-  $header = array(
-    'items' => t('Items'),
-    'weight' => t('Weight')
+  $content['table'] = array(
+    '#type' => 'table',
+    '#header' => array(t('Items'), t('Weight')),
+    '#empty' => t('There are no items yet. Add an item.'),
+    // TableDrag: Each array value is a list of callback arguments for
+    // drupal_add_tabledrag(). The #id of the table is automatically prepended;
+    // if there is none, an HTML ID is auto-generated.
+    '#tabledrag' => array(
+      array(
+        'action' => 'order',
+        'relationship' => 'sibling',
+        'group' => 'widget-table-sort',
+      ),
+    ),
+    '#attributes' => array(
+      'id' => 'widget-table-sort',
+    ),
   );
-  $rows = array();
-  foreach (element_children($element) as $key) {
-    if (is_numeric($key)) {
-      $row = array();
-      $row['data'] = array();
-      $row['data'][] = render($element[$key]);
-      $row['class'] = array('draggable');
+
+  foreach (\Drupal\Core\Render\Element::children($element) as $key) {
+    if ($key !== 'add_another') {
+      // TableDrag: Mark the table row as draggable.
+      $content['table']['#rows'][$key]['class'][] = 'draggable';
+      // TableDrag: Sort the table row according to its existing/configured weight.
+      $content['table']['#rows'][$key]['#weight'] = 0;
+      // Some table columns containing raw markup.
+      $content['table']['#rows'][$key]['data'][] = render($element[$key]);
+      // TableDrag: Weight column element.
       $weight = array(
         '#type' => 'textfield',
-        '#title' => t('Weight'),
-        '#size' => 3,
-        '#maxlength' => 3,
-        '#attributes' => array('class' => array('item-row-weight')),
+        '#title' => t('Weight for @title', array('@title' => 'Weight')),
+        '#title_display' => 'invisible',
+        '#default_value' => 0,
+        // Classify the weight element for #tabledrag.
+        '#attributes' => array('class' => array('table-order-weight')),
       );
-      $row['data'][] = render($weight);
-      $rows[] = $row;
+      $content['table']['#rows'][$key]['data'][] = render($weight);
     }
   }
+
   $output = '<div id="' . $element['#attributes']['id'] . '" class="widget-field-groups">';
-  $output .= theme('table', array(
-      'header' => $header,
-      'rows' => $rows,
-      'attributes' => array('id' => 'widget-table-sort'),
-    ));
+  $output .= render($content);
   $output .= render($element['add_another']);
   $output .= '</div>';
+
+  drupal_attach_tabledrag($content['table'], array(
+    'action' => 'order',
+    'relationship' => 'sibling',
+    'group' => 'widget-table-sort',
+  ));
+
   return $output;
 }
 
@@ -127,9 +149,9 @@ function dynoblock_ajax_load($type, $id) {
  */
 function dynoblock_dynoblock_themes() {
   return array(
-    'dynoblocks' => array(
-      'id' => 'dynoblocks',
-      'label' => 'DynoBlocks',
+    'dynoblock' => array(
+      'id' => 'dynoblock',
+      'label' => 'DynoBlock',
       'description_short' => 'Contains miscellaneous blocks.',
       'module' => 'dynoblock',
       'path' => 'themes/dynoblocks',
@@ -150,29 +172,6 @@ function dynoblock_selector_widgets() {
       'default_active' => $modal->default_active,
     ));
 }
-
-
-/**
- * implments hook_form()
- */
-function dynoblock_form($form = array(), &$form_state, $widget_form) {
-  if (!empty($form_state['rebuild']) && !empty($form_state['input']['widget'])) {
-    $handler = _dynoblock_find_form_handler($form_state['input']['widget']);
-    $widget = DynoBLocks::getWidget($form_state['input']['widget']);
-    if ($handler && $widget) {
-      $handler->rebuild = TRUE;
-      $handler->form = array();
-      $handler->init()->build($form_state);
-      DynoBlockForms::buildWidgetForm($widget, $handler, $form_state);
-      DynoBlockForms::buildThemeSelection($widget, $handler, $form_state);
-      $widget_form = array_replace($widget_form, $handler->form);
-      $form_state['widget'] = $widget;
-    }
-  }
-  $form = $widget_form;
-  return $widget_form;
-}
-
 
 /**
  * Default Dynoblocks core ajax callback handler
@@ -417,76 +416,6 @@ function dynoblock_update_block($rid, $bid) {
   print drupal_json_encode(array('result' => $result));
 }
 
-
-function dynoblock_save_block($method) {
-  // Check that this is either an edit or new save.
-  // If new save, make sure bid does not already exist.
-  $output = array('saved' => FALSE);
-  if (!empty($_POST['rid'])
-    && !empty($_POST['bid'])
-    && ($method == 'edit'
-    || ($method == 'new' && !DynoBlocksDb::getBlock($_POST['rid'], $_POST['bid'])))) {
-    $form = _dynoblock_find_form_handler(!empty($_POST['widget']) ? $_POST['widget'] : NULL);
-    if ($form) {
-      $form->id = $_POST['widget'];
-      $form->formSubmit($_POST);
-      $record = array(
-        "rid" => $_POST['rid'],
-        "bid" => $_POST['bid'],
-        "data" => serialize($_POST),
-        'weight' => NULL,
-        'conditions' => serialize(array(
-            'condition_token' => !empty($_POST['condition_token']) ? !empty($_POST['condition_token']) : NULL,
-            'condition_operator' => !empty($_POST['condition_operator']) ? !empty($_POST['condition_operator']) : NULL,
-            'condition_value' => !empty($_POST['condition_value']) ? !empty($_POST['condition_value']) : NULL,
-          ))
-      );
-      if ($method == 'edit') {
-        $action = DynoBlocksDb::update($record);
-      }
-      else {
-        $action = DynoBlocksDb::save($record);
-      }
-      if ($action) {
-        $layout = _dynoblock_find_layout_handler($_POST['widget']);
-        if ($layout) {
-          $html = $layout->init($_POST)->preRender($_POST);
-          // Call theme preRender so it can modify final output.
-          $widget = DynoBLocks::getWidget($_POST['widget']);
-          if (!empty($widget['parent_theme']['handler'])) {
-            $theme_settings = !empty($_POST['global_theme_settings']) ? $_POST['global_theme_settings'] : array();
-            $widget['parent_theme']['handler']->preRender($widget, $_POST, $html, $theme_settings);
-          }
-          $html = render($html);
-          if ($method == 'new') {
-            $html = DynoBlocks::renderNewBlock($_POST, $html);
-          }
-          else {
-            $html = DynoBlocks::wrapEditBlock($html);
-          }
-          $output = array(
-            'saved' => TRUE,
-            'bid' => $_POST['bid'],
-            'rid' => $_POST['rid'],
-            'handler' => $_POST['widget'],
-            'block' => $html,
-          );
-        }
-      }
-    }
-
-    // If this region is attatched to a node, add the node
-    // to be re-indexed in search_api.
-    // # TODO: make config to toggle this on and off.
-    if (module_exists('search_api') && !empty($_POST['nid'])) {
-      search_api_track_item_change('node', array($_POST['nid']));
-    }
-  }
-  print drupal_json_encode($output);
-}
-
-
-
 function dynoblock_block_edit($rid, $bid, $nid) {
   return DynoBlockForms::editForm($rid, $bid, $nid);
 }
@@ -503,11 +432,7 @@ function _dynoblock_find_form_handler($widget) {
   $core = \Drupal::service('dynoblock.core');
   $widgets = $core->loadWidgets();
   if (array_key_exists($widget, $widgets)) {
-    $form = $widgets[$widget];
-    $theme = $core->getTheme($form['properties']['theme']);
-    if (module_load_include('inc', $form['module'], $theme['path'] . '/' . $form['properties']['dir'] . '/' . $form['form']['file'])) {
-      return $form = new $form['form']['handler']();
-    }
+    return $core->pluginManager->createInstance($widget);
   }
 }
 
@@ -515,20 +440,8 @@ function _dynoblock_find_layout_handler($widget) {
   $core = \Drupal::service('dynoblock.core');
   $widgets = $core->loadWidgets();
   if (array_key_exists($widget, $widgets)) {
-    $layout = $widgets[$widget];
-    $id = $layout['id'];
-    $theme = $core->getTheme($layout['properties']['theme']);
-    if (module_load_include('inc', $layout['module'], $theme['path'] . '/' . $layout['properties']['dir'] . '/' . $layout['form']['file'])) {
-      if ($path = _dynoblock_find_layout_path($layout['id'])) {
-        $layout = new $layout['layout']['handler']();
-        $layout->directory = $path;
-        $layout->id = $id;
-        return $layout;
-      }
-      else {
-        watchdog('dynoblock', "cannot find path for widget $widget. Make sure the widgets title, id and handler paths are correct.", array(), WATCHDOG_DEBUG);
-      }
-    }
+    $plugin = $core->pluginManager->createInstance($widget);
+    return $plugin;
   }
 }
 
@@ -556,85 +469,76 @@ function dynoblock_generate_form($type, $rid, $nid) {
 
 
 function _dynoblocks_get_commands($data, &$commands) {
+//  $files = array();
+//  $commands = array();
+//  foreach (array('css', 'js') as $type) {
+//    // It is highly suspicious if $_POST['ajax_page_state'][$type] is empty,
+//    // since the base page ought to have at least one JS file and one CSS file
+//    // loaded. It probably indicates an error, and rather than making the page
+//    // reload all of the files, instead we return no new files.
+//    if (empty($data['ajax_page_state'][$type])) {
+//      $items[$type] = array();
+//    }
+//    else {
+//      $function = 'drupal_add_' . $type;
+//      $items[$type] = $function();
+//      drupal_alter($type, $items[$type]);
+//      // @todo Inline CSS and JS items are indexed numerically. These can't be
+//      //   reliably diffed with array_diff_key(), since the number can change
+//      //   due to factors unrelated to the inline content, so for now, we strip
+//      //   the inline items from Ajax responses, and can add support for them
+//      //   when drupal_add_css() and drupal_add_js() are changed to use a hash
+//      //   of the inline content as the array key.
+//      foreach ($items[$type] as $key => $item) {
+//        if (is_numeric($key)) {
+//          unset($items[$type][$key]);
+//        }
+//      }
+//      foreach ($items[$type] as $key => $f_data) {
+//        //if (((is_array($data['ajax_page_state'][$type]) && !array_key_exists($key, $data['ajax_page_state'][$type])) || $type == 'js') && !in_array($key, $exclude[$type])) {
+//        if (!array_key_exists($key, $data['ajax_page_state'][$type])) {
+//          $files[$type][$key] = $f_data;
+//        }
+//      }
+//    }
+//  }
+//
+//
+//  // Render the HTML to load these files, and add AJAX commands to insert this
+//  // HTML in the page. We pass TRUE as the $skip_alter argument to prevent the
+//  // data from being altered again, as we already altered it above. Settings are
+//  // handled separately, afterwards.
+//  if (isset($files['js']['settings'])) {
+//    unset($files['js']['settings']);
+//  }
+//  if (!empty($files['css'])) {
+//    $styles = drupal_get_css($files['css'], TRUE);
+//  }
+//  $scripts_footer = drupal_get_js('footer', $files['js'], TRUE);
+//  $scripts_header = drupal_get_js('header', $files['js'], TRUE);
+//
+//  $extra_commands = array();
+//  if (!empty($styles)) {
+//    $extra_commands[] = ajax_command_add_css($styles);
+//  }
+//  if (!empty($scripts_header)) {
+//    $extra_commands[] = ajax_command_prepend('head', $scripts_header);
+//  }
+//  if (!empty($scripts_footer)) {
+//    $extra_commands[] = ajax_command_append('body', $scripts_footer);
+//  }
+//  if (!empty($extra_commands)) {
+//    $commands = array_merge($extra_commands, $commands);
+//  }
+//
+//  // Now add a command to merge changes and additions to Drupal.settings.
+//  $scripts = drupal_add_js();
+//  if (!empty($scripts['settings'])) {
+//    $settings = $scripts['settings'];
+//    array_unshift($commands, ajax_command_settings(drupal_array_merge_deep_array($settings['data']), TRUE));
+//  }
+
   $files = array();
-  $commands = array();
-/*
-  $exclude = array(
-    'js' => array(
-      'sites/all/modules/custom/dynoblock/js/dynoblock.js',
-      '//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha/js/bootstrap.min.js',
-    ),
-    'css' => array(),
-  );
-*/
-  foreach (array('css', 'js') as $type) {
-    // It is highly suspicious if $_POST['ajax_page_state'][$type] is empty,
-    // since the base page ought to have at least one JS file and one CSS file
-    // loaded. It probably indicates an error, and rather than making the page
-    // reload all of the files, instead we return no new files.
-    if (empty($data['ajax_page_state'][$type])) {
-      $items[$type] = array();
-    }
-    else {
-      $function = 'drupal_add_' . $type;
-      $items[$type] = $function();
-      drupal_alter($type, $items[$type]);
-      // @todo Inline CSS and JS items are indexed numerically. These can't be
-      //   reliably diffed with array_diff_key(), since the number can change
-      //   due to factors unrelated to the inline content, so for now, we strip
-      //   the inline items from Ajax responses, and can add support for them
-      //   when drupal_add_css() and drupal_add_js() are changed to use a hash
-      //   of the inline content as the array key.
-      foreach ($items[$type] as $key => $item) {
-        if (is_numeric($key)) {
-          unset($items[$type][$key]);
-        }
-      }
-      foreach ($items[$type] as $key => $f_data) {
-        //if (((is_array($data['ajax_page_state'][$type]) && !array_key_exists($key, $data['ajax_page_state'][$type])) || $type == 'js') && !in_array($key, $exclude[$type])) {
-        if (!array_key_exists($key, $data['ajax_page_state'][$type])) {
-          $files[$type][$key] = $f_data;
-        }
-      }
-    }
-  }
-
-
-  // Render the HTML to load these files, and add AJAX commands to insert this
-  // HTML in the page. We pass TRUE as the $skip_alter argument to prevent the
-  // data from being altered again, as we already altered it above. Settings are
-  // handled separately, afterwards.
-  if (isset($files['js']['settings'])) {
-    unset($files['js']['settings']);
-  }
-  if (!empty($files['css'])) {
-    $styles = drupal_get_css($files['css'], TRUE);
-  }
-  $scripts_footer = drupal_get_js('footer', $files['js'], TRUE);
-  $scripts_header = drupal_get_js('header', $files['js'], TRUE);
-
-  $extra_commands = array();
-  if (!empty($styles)) {
-    $extra_commands[] = ajax_command_add_css($styles);
-  }
-  if (!empty($scripts_header)) {
-    $extra_commands[] = ajax_command_prepend('head', $scripts_header);
-  }
-  if (!empty($scripts_footer)) {
-    $extra_commands[] = ajax_command_append('body', $scripts_footer);
-  }
-  if (!empty($extra_commands)) {
-    $commands = array_merge($extra_commands, $commands);
-  }
-
-  // Now add a command to merge changes and additions to Drupal.settings.
-  $scripts = drupal_add_js();
-  if (!empty($scripts['settings'])) {
-    $settings = $scripts['settings'];
-    array_unshift($commands, ajax_command_settings(drupal_array_merge_deep_array($settings['data']), TRUE));
-  }
-
-
   return $files;
 
 }

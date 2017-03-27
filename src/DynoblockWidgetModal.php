@@ -66,20 +66,6 @@ class DynoblockWidgetModal {
       ),
     );
 
-    // HEADER
-    $this->modal['modal']['dialog']['content']['header'] = array(
-      '#type' => 'container',
-      '#attributes' => array(
-        'class' => array('modal-header'),
-      ),
-    );
-    $this->modal['modal']['dialog']['content']['header']['close'] = array(
-      '#type' => 'markup',
-      '#markup' => '<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>',
-
-    );
     // set navbar
     $this->modal['modal']['dialog']['content']['header']['nav'] = $this->menu();
 
@@ -190,10 +176,6 @@ class DynoblockWidgetModal {
         'style' => array('max-width: 850px;'),
       ),
     );
-    $menu['logo'] = array(
-      '#type' => 'markup',
-      '#markup' => '<a class="navbar-brand" href="#">Dynoblocks</a>',
-    );
 
     $links = array(
       /*
@@ -253,22 +235,18 @@ class DynoblockWidgetModal {
     foreach ($widgets as $machine => &$widget) {
       $layout = _dynoblock_find_layout_handler($machine);
       if ($layout) {
-        $preview = DynoBlockForms::getPreview($widget);
+        $preview = DynoBlockForms::getPreview($layout);
         if ($preview) $preview = render($preview);
         $widget['preview'] = $this->previewHeader($widget) . $preview . $this->previewActions();
-        $widget['properties'] = !empty($widget['properties']) ? $widget['properties'] : array();
         $list_display = $this->listDisplay($widget, 2, 'widget');
         $widget['list_display'] = render($list_display);
         // set widgets to themes
-        if (array_key_exists($widget['properties']['theme'], $this->themes)) {
-          $this->themes[$widget['properties']['theme']]['widgets'][$machine] = $widget;
+        if (array_key_exists($layout->properties['theme'], $this->themes)) {
+          $this->themes[$layout->properties['theme']]['widgets'][$machine] = $widget;
         }
       }
     }
-    $this->widgets = $widgets;
-    //$this->sortWidgets();
-    //return $this->sortWidgets();
-    $this->widgets;
+    return $this->widgets = $widgets;
   }
 
   private function previewHeader($widget) {
@@ -282,7 +260,7 @@ class DynoblockWidgetModal {
     $header['wrapper']['title'] = array(
       '#type' => 'html_tag',
       '#tag' => 'em',
-      '#value' => $widget['label'],
+      '#value' => $widget['name'],
       '#prefix' => '<label>Previewing:</label> ',
       '#attributes' => array(
         'class' => array('widget-label'),

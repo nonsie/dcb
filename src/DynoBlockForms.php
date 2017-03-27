@@ -2,6 +2,7 @@
 
 namespace Drupal\dynoblock;
 
+
 class DynoBlockForms {
 
   const coreAjaxCallback = 'dynoblock_core_form_ajax_callback';
@@ -20,22 +21,22 @@ class DynoBlockForms {
 
   public static function generateForm($type, $rid, $nid) {
     self::$method = 'new';
-    $form = _dynoblock_find_form_handler($type);
-    $widget = DynoBLocks::getWidget($type);
-    if ($form && $widget) {
+    $core = \Drupal::service('dynoblock.core');
+    $plugin = _dynoblock_find_form_handler($type);
+    $widget = $core->getWidget($type);
+    if ($plugin && $widget) {
       $form_state = array();
-      $form->init()->build();
-      self::addDefaultFields($form, $widget, $nid);
-      self::addExtraSettings($form);
-      self::buildWidgetForm($widget, $form, $form_state);
-      self::buildThemeSelection($widget, $form, $form_state);
-      self::buildParentThemeSettings($widget, $form, $form_state);
-      $createForm = drupal_get_form('dynoblock_form', $form->form);
-      $html = render($createForm);
-      $commands = ajax_render(array());
+      $plugin->init()->build();
+      self::addDefaultFields($plugin, $widget, $nid);
+      self::addExtraSettings($plugin);
+      self::buildWidgetForm($widget, $plugin, $form_state);
+      self::buildThemeSelection($widget, $plugin, $form_state);
+      self::buildParentThemeSettings($widget, $plugin, $form_state);
+      $form = \Drupal::formBuilder()->getForm('Drupal\dynoblock\Form\DynoblockForm', $plugin->form);
+      $html = render($form);
+      $commands = array();
       _dynoblocks_get_commands($_POST['data'], $commands);
-      print drupal_json_encode(compact('html', 'commands'));
-      drupal_exit();
+      return compact('html', 'commands');
     }
     else {
       return FALSE;
@@ -45,25 +46,25 @@ class DynoBlockForms {
 
   public static function editForm($rid, $bid, $nid) {
     self::$method = 'edit';
+    $core = \Drupal::service('dynoblock.core');
     if ($bid) {
-      $block = DynoBlocksDb::getBlock($rid, $bid);
+      $block = $core->db->getBlock($rid, $bid);
       if ($block) {
         $widget = !empty($block['widget']) ? $block['widget'] : $block['layout_id'];
-        $form = _dynoblock_find_form_handler($widget);
-        $widget = DynoBLocks::getWidget($widget);
-        if ($form && $widget) {
-          $form->init()->build($block);
-          self::addDefaultFields($form, $widget, $nid);
-          self::addExtraSettings($form, $block);
-          self::buildWidgetForm($widget, $form, $block);
-          self::buildThemeSelection($widget, $form, $block);
-          self::buildParentThemeSettings($widget, $form, $block);
-          $createForm = drupal_get_form('dynoblock_form', $form->form);
-          $html = render($createForm);
-          $commands = ajax_render(array());
+        $plugin = _dynoblock_find_form_handler($widget);
+        $widget = $core->getWidget($widget);
+        if ($plugin && $widget) {
+          $plugin->init()->build($block);
+          self::addDefaultFields($plugin, $widget, $nid);
+          self::addExtraSettings($plugin, $block);
+          self::buildWidgetForm($widget, $plugin, $block);
+          self::buildThemeSelection($widget, $plugin, $block);
+          self::buildParentThemeSettings($widget, $plugin, $block);
+          $form = \Drupal::formBuilder()->getForm('Drupal\dynoblock\Form\DynoblockForm', $plugin->form);
+          $html = render($form);
+          $commands = array();
           _dynoblocks_get_commands($_POST['data'], $commands);
-          print drupal_json_encode(compact('html', 'commands'));
-          drupal_exit();
+          return compact('html', 'commands');
 
         }
       }
@@ -80,7 +81,7 @@ class DynoBlockForms {
       '#type' => 'html_tag',
       '#tag' => 'div',
       '#value' => t('<h5><strong>Widget</strong>: <em>@widget</em></h5>', array(
-        '@widget' => $widget['label']
+        '@widget' => $widget['name']
       )),
       '#attributes' => array(
         'class' => array('widget-form-widget-type'),
@@ -121,7 +122,6 @@ class DynoBlockForms {
     );
     $cardinality = isset($widget['form_settings']['cardinality']) ? $widget['form_settings']['cardinality'] : NULL;
     $variant_support = isset($widget['form_settings']['variant_support']) ? $widget['form_settings']['variant_support'] : NULL;
-
     if ($cardinality !== NULL) {
       $items = empty($form_state['input'][$id]) && !empty($form_state[$id]) ? $form_state[$id] : $form_state['input'][$id];
       $container_id = self::createId($widget, 'widget-group');
@@ -167,13 +167,12 @@ class DynoBlockForms {
             '#default_value' => (empty($items[$i]['id']) ? DynoBlockForms::randId() :  $items[$i]['id']),
           );
         }
-
       }
     }
   }
 
   public static function randId() {
-    return md5(drupal_random_bytes(32) . time());
+    return md5(random_bytes(32) . time());
   }
 
   public static function buildParentThemeSettings($widget, &$form, &$form_state) {
@@ -279,13 +278,8 @@ class DynoBlockForms {
   }
 
   public static function getPreview($widget) {
-    if (!empty($widget['properties']['preview_image'])) {
-      $properties = $widget['properties'];
-      $image_path = format_string('/@theme/@dir/@img', array(
-        '@theme' => $widget['parent_theme']['full_path'],
-        '@dir' => $properties['dir'],
-        '@img' => $properties['preview_image'],
-      ));
+    if (!empty($widget->preview_image)) {
+      $image_path = $widget->preview_image;
       return array(
         '#type' => 'markup',
         '#markup' => '<img height="280px" src="' . $image_path . '"/>',

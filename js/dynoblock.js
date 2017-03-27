@@ -1,6 +1,6 @@
 (function ($) {
 
-  $(document).ready(function(){
+  //$(document).ready(function(){
 
     var sortHoverTimer,
       actionsHoverTimer,
@@ -12,8 +12,10 @@
     var DynoBlocks = {
 
       regions: [],
+      drupalSettings: {},
 
-      init: function(load_ui){
+      init: function(load_ui, settings){
+        this.drupalSettings = settings;
         if(load_ui && globals.load_ui){
           DynoUi.init();
         }
@@ -132,6 +134,7 @@
       saveBlock: function(form_state, method, callback){
         this.postData('/dynoblock/save/' + method, form_state, function(data){
           if(callback){
+            console.log(data);
             callback(data);
           }
         });
@@ -200,10 +203,10 @@
             },
           },
         };
-        for (var key in Drupal.settings.ajaxPageState.css) {
+        for (var key in this.drupalSettings.ajaxPageState.css) {
           options.data['ajax_page_state'].css[key] = 1;
         }
-        for (var key in Drupal.settings.ajaxPageState.js) {
+        for (var key in this.drupalSettings.ajaxPageState.js) {
           options.data['ajax_page_state'].js[key] = 1;
         }
         return options;
@@ -858,7 +861,6 @@
 
       this.init = function(callback){
         DynoBlocks.getData('/dynoblock/selector-modal', function(modal){
-          console.log(modal);
           modal = JSON.parse(modal);
           $this.remove();
           $this.modal = $(modal.html);
@@ -888,13 +890,11 @@
             $this.clearItems(form);
             $this.toggle();
           }
-
         });
-
       }
 
       this.close = function(){
-        this.modal.modal('toggle');
+        $('.ui-dialog').remove();
         this.resetCkEditors();
       }
 
@@ -1016,12 +1016,12 @@
 
       this.toggle = function(){
         var $this = this;
-        Drupal.dialog($(this.modal), {
+        Drupal.dialog(this.modal, {
           "title": "Dynoblocks",
-          "width": "500px",
-          "maxHeight": '500px',
+          "width": "800px",
+          "maxHeight": '800px',
+          "position": 'center',
         }).showModal();
-        // this.modal.modal('toggle');
         this.modal.on('hide.bs.modal', function (e) {
           $this.resetCkEditors();
         });
@@ -1074,13 +1074,7 @@
 
     }
 
-    // Run Dynoblocks.
-    DynoBlocks.init(true);
-    Drupal.DynoBlocks = DynoBlocks;
-    Drupal.DynoBlocksUi = DynoUi;
-
-
-  });
+  //});
 
   Object.size = function(obj) {
     var size = 0, key;
@@ -1090,9 +1084,16 @@
     return size;
   };
 
-
+  var init = false;
   Drupal.behaviors.dynoblock = {
     attach: function (context, settings) {
+      if (!init) {
+        init = true;
+        // Run Dynoblocks.
+        DynoBlocks.init(true, settings);
+        Drupal.DynoBlocks = DynoBlocks;
+        Drupal.DynoBlocksUi = DynoUi;
+      }
     }
   };
 

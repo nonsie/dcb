@@ -69,4 +69,11 @@ interface DynoblockInterface extends PluginInspectionInterface {
    */
   public function render();
 
+  /**
+   * Pre render widget.
+   *
+   * @return array
+   */
+  public function preRender($values);
+
 }

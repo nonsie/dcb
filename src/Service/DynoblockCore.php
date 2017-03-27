@@ -116,13 +116,13 @@ class DynoblockCore {
     foreach ($blocks as $delta => $block) {
       $data = $block['data'];
       $id = !empty($data['widget']) ? $data['widget'] : $data['layout_id'];
-      $layout = _dynoblock_find_layout_handler($id);
+      $plugin = _dynoblock_find_layout_handler($id);
       $widget = $this->getWidget($data['widget']);
-      if ($layout && $this->isDisplayable($data)) {
+      if ($plugin && $this->isDisplayable($data)) {
         $path = _dynoblock_find_layout_path($id);
-        $layout->directory = $path;
-        $layout->entity = $entity;
-        $html = $layout->init($data)->preRender($data);
+        $plugin->directory = $path;
+        $plugin->entity = $entity;
+        $html = $plugin->init($data)->preRender($data);
         // Call theme preRender so it can modify final output.
         if (!empty($widget['parent_theme']['handler'])) {
           $theme_settings = !empty($data['global_theme_settings']) ? $data['global_theme_settings'] : array();
