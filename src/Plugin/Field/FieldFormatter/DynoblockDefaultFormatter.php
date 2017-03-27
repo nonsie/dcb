@@ -33,19 +33,11 @@ class DynoblockDefaultFormatter extends FormatterBase {
    * {@inheritdoc}
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
+    $dynoblockCore = \Drupal::service('dynoblock.core');
     $element = array();
     foreach ($items as $delta => $item) {
-      // Render each element as markup.
-      $element[$delta] = array(
-        '#type' => 'container',
-        '#attributes' => array(
-          'class' => array('dynoblock-region'),
-          'data-dyno-rid' => $item->id,
-          'data-dyno-label' => $item->getEntity()->bundle(),
-           // Note: this was called data-dyno-nid in D7.
-          'data-dyno-eid' => $item->getEntity()->id(),
-        ),
-      );
+      $element[$delta] = $dynoblockCore->dynoRegion($item->id, $item->getEntity()->id(), ucfirst($item->id));
+      $element[$delta]['blocks'] = $dynoblockCore->renderDynoBlocks($item->id, $item);
     }
     return $element;
   }
