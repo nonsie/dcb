@@ -23,7 +23,7 @@ class DynoblockDefaultWidget extends WidgetBase {
    * {@inheritdoc}
    */
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
-    $value = isset($items[$delta]->id) ? $items[$delta]->id : $this->defaultValue();
+    $value = isset($items[$delta]->id) ? $items[$delta]->id : '';
 
     $element['id'] = array(
       '#type' => 'textfield',
@@ -53,12 +53,5 @@ class DynoblockDefaultWidget extends WidgetBase {
         $form_state->setError($element, t("Dynoblock field cannot contain spaces"));
       }
     }
-  }
-
-  /**
-   * Returns calculated dynoblock id.
-   */
-  protected function defaultValue() {
-    return md5(random_bytes(32) . time());
   }
 }
