@@ -3,16 +3,20 @@
 namespace Drupal\dynoblock;
 
 use Drupal\Component\Plugin\PluginBase;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class DynoblockBase extends PluginBase implements DynoblockInterface {
+class DynoblockBase extends PluginBase implements DynoblockInterface, ContainerFactoryPluginInterface {
 
   public $preview_image;
   public $module;
   public $class;
   public $dir;
   public $properties;
+  public $dynoFieldManager;
+  public $fields;
 
-  public function __construct(array $configuration, $plugin_id, $plugin_definition) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, DynoFieldManager $dynoFieldManager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $properties = $this->pluginDefinition['properties'];
     $this->module = $properties['module'];
@@ -20,6 +24,32 @@ class DynoblockBase extends PluginBase implements DynoblockInterface {
     $this->dir = drupal_get_path('module', $this->module);
     $this->preview_image = $this->getPreviewImageFilePath($properties['preview_image']);
     $this->properties = $properties;
+    $this->dynoFieldManager = $dynoFieldManager;
+  }
+
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('plugin.manager.dynofield')
+    );
+  }
+
+  /**
+   * @param $id
+   * @return null
+   */
+  public function getField($id) {
+    $fields = $this->loadFields();
+    return array_key_exists($id, $fields) ? $fields[$id] : NULL;
+  }
+
+  /**
+   * @return array|\mixed[]|null
+   */
+  public function loadFields() {
+    return $this->fields = $this->dynoFieldManager->getDefinitions();
   }
 
   /**

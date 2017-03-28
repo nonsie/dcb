@@ -40,6 +40,10 @@ class PageTitle extends DynoblockBase {
       '#title' => t('Title'),
       '#default_value' => !empty($form_state['title']) ? $form_state['title'] : NULL,
     );
+
+    $field_def = $this->getField('text_field');
+    $text_field = $this->dynoFieldManager->createInstance($field_def['id']);
+    $this->form['fields']['anotherfield'] = $text_field->form();
   }
 
   public function preRender($values) {
