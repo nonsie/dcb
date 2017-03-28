@@ -895,6 +895,7 @@
 
       this.close = function(){
         $('.ui-dialog').remove();
+        $('#dyno-widget-selector').remove();
         this.resetCkEditors();
       }
 

@@ -19,4 +19,8 @@ class PageTitleGrayTheme extends PageTitleDefaultTheme {
 
   }
 
+  public function preview($file = '') {
+    return parent::preview($this->plugin->themes['dynoblock-page-title-gray']['preview_image']);
+  }
+
 }

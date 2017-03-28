@@ -2,9 +2,24 @@
 
 namespace Drupal\dynoblock;
 
+/**
+ * Class DynoWidgetTheme.
+ *
+ * @package Drupal\dynoblock
+ */
 abstract class DynoWidgetTheme {
+
   public $form_state = array();
-  public function __construct(&$form_state = array()) {
+  public $plugin;
+
+  /**
+   * DynoWidgetTheme constructor.
+   *
+   * @param array $form_state
+   * @param DynoblockInterface $plugin
+   */
+  public function __construct(&$form_state = array(), DynoblockInterface $plugin) {
+    $this->plugin = $plugin;
     $this->form_state = $form_state;
   }
 
@@ -37,9 +52,10 @@ abstract class DynoWidgetTheme {
    */
   public function preview($file = '') {
     if ($file) {
+      $file = file_create_url($this->plugin->directory . '/' . $file);
       $preview = array(
         '#type' => 'markup',
-        '#markup' => '<img src="/' . $file . '"/>',
+        '#markup' => '<img src="'. $file. '"/>',
       );
       return render($preview);
     }

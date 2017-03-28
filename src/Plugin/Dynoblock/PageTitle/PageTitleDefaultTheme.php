@@ -79,7 +79,10 @@ class PageTitleDefaultTheme extends DynoWidgetTheme {
   }
 
   public function preview($file = '') {
-    $file = drupal_get_path('module', 'aaa_dynoblock_widgets') . '/themes/aaa/page_title/title.png';
-    return parent::preview($file);
+    if(empty($file)) {
+      return parent::preview($this->plugin->themes['dynoblock-page-title-default']['preview_image']);
+    } else {
+      return parent::preview($file);
+    }
   }
 }

@@ -10,7 +10,7 @@ use Drupal\dynoblock\DynoWidgetAPI;
  * Provides a 'page Title' Dynoblock Widget.
  *
  * @Dynoblock(
- *   id = "page_title",
+ *   id = "PageTitle",
  *   name = @Translation("Page Title"),
  *   description_short = "Page title widget",
  *   default_theme = "dynoblock-page-title-default",
@@ -19,11 +19,13 @@ use Drupal\dynoblock\DynoWidgetAPI;
  *        "label" = "Default",
  *        "template_dir" = "src/Plugin/Dynoblock/PageTitle",
  *        "handler" = "PageTitleDefaultTheme",
+ *        "preview_image" = "title.png",
  *     },
  *     "dynoblock-page-title-gray" = {
  *        "label" = "Gray",
  *        "template_dir" = "src/Plugin/Dynoblock/PageTitle",
  *        "handler" = "PageTitleGrayTheme",
+ *        "preview_image" = "one_col.png",
  *     }
  *   },
  *   form_settings = {
@@ -37,9 +39,6 @@ use Drupal\dynoblock\DynoWidgetAPI;
  * )
  */
 class PageTitle extends DynoblockBase {
-
-  public $form;
-  public $form_state;
 
   public function init() {
     // TODO: ....
@@ -55,33 +54,14 @@ class PageTitle extends DynoblockBase {
   }
 
   public function preRender($values) {
-    $test = new PageTitleDefaultTheme();
+    $this->form_state = $values;
     $theme = !empty($this->themes[$values['theme']]['handler']) ? $this->themes[$values['theme']]['handler'] : NULL;
-    if ($theme) {
-      switch ($theme){
-        case 'PageTitleDefaultTheme':
-          $theme = new PageTitleDefaultTheme();
-          $this->layout = $theme->display($values);
-          break;
-        case 'PageTitleGrayTheme':
-          $theme = new PageTitleGrayTheme();
-          $this->layout = $theme->display($values);
-          break;
-      }
+    if ($theme = $this->loadTheme($theme)) {
+      $this->layout = $theme->display($values);
+      $theme->preview($this->themes['dynoblock-page-title-default']['preview_image']);
     }
     return $this->layout;
 
-  }
-
-  public function loadTheme($theme) {
-    switch ($theme){
-      case 'PageTitleDefaultTheme':
-          return new PageTitleDefaultTheme();
-          break;
-      case 'PageTitleGrayTheme':
-        return new PageTitleGrayTheme();
-        break;
-    }
   }
 
   /**

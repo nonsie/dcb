@@ -119,8 +119,6 @@ class DynoblockCore {
       $plugin = _dynoblock_find_layout_handler($id);
       $widget = $this->getWidget($data['widget']);
       if ($plugin && $this->isDisplayable($data)) {
-        $path = _dynoblock_find_layout_path($id);
-        $plugin->directory = $path;
         $plugin->entity = $entity;
         $html = $plugin->init($data)->preRender($data);
         // Call theme preRender so it can modify final output.
@@ -155,8 +153,9 @@ class DynoblockCore {
               '#theme' => $data['theme'],
               '#block' => $html,
             );
+          } else {
+            $render[$delta]['content']['dyno_block'] = $html;
           }
-          $render[$delta]['content']['dyno_block'] = $html;
         }
       }
     }

@@ -12,7 +12,18 @@ class DynoblockBase extends PluginBase implements DynoblockInterface {
   public $class;
   public $dir;
   public $properties;
+  public $form;
+  public $form_state;
+  public $themes;
+  public $namespace;
 
+  /**
+   * DynoblockBase constructor.
+   *
+   * @param array $configuration
+   * @param string $plugin_id
+   * @param mixed $plugin_definition
+   */
   public function __construct(array $configuration, $plugin_id, $plugin_definition) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $properties = $this->pluginDefinition['properties'];
@@ -26,7 +37,8 @@ class DynoblockBase extends PluginBase implements DynoblockInterface {
   }
 
   /**
-   *
+   * @param $uri
+   * @return string
    */
   private function getPreviewImageFilePath($uri) {
     return file_create_url(drupal_get_path('module', $this->module) . '/' . $uri);
@@ -50,7 +62,7 @@ class DynoblockBase extends PluginBase implements DynoblockInterface {
    * {@inheritdoc}
    */
   public function getId() {
-    return $this->pluginDefinition['properties'];
+    return $this->pluginId;
   }
 
   /**
@@ -142,7 +154,19 @@ class DynoblockBase extends PluginBase implements DynoblockInterface {
    * {@inheritdoc}
    */
   public function loadTheme($theme) {
+    if($theme) {
+      return $this->initTheme($this->pluginId, $theme);
+    }
+  }
 
+  /**
+   * @param $pluginId
+   * @param $theme
+   * @return mixed
+   */
+  public function initTheme($pluginId, $theme) {
+    $theme = $this->namespace . '\\' . $pluginId . '\\' . $theme;
+    return new $theme($this->form_state, $this);
   }
 
 }

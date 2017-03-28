@@ -250,7 +250,8 @@ class DynoBlockForms {
         $theme = $form->loadTheme($theme_selected);
         // Dont show preview unless they select a different one.
         // This happens because they already know what the default one looks like.
-        if ($number_of_themes > 1 && empty($form_state['theme']) && !empty($form_state)) {
+        //if ($number_of_themes > 1 && empty($form_state['theme']) && !empty($form_state)) {
+        if ($number_of_themes > 1) {
           $form->form['theme_overview']['preview']['#value'] = $theme->preview();
         }
         // Hide theme selection if there is only one option.

@@ -46,6 +46,7 @@ function dynoblock_theme($existing, $type, $theme, $path) {
       foreach($plugin->themes as $tid => $properties){
         $themes[$tid] = array(
           'render element' => 'block',
+          'variables' => array('block' => NULL),
           'path' => drupal_get_path('module', $plugin->module) . '/' . $properties['template_dir'],
           'template' => $tid,
         );
@@ -57,7 +58,9 @@ function dynoblock_theme($existing, $type, $theme, $path) {
 
 /**
  * Formats uploaded image thumbnail display.
- * @param $element
+ *
+ * @param $variables
+ * @return string
  */
 function theme_dynoblock_image_thumbnail($variables) {
   $element = $variables['element'];
@@ -168,23 +171,9 @@ function dynoblock_dynoblock_themes() {
       'label' => 'DynoBlock',
       'description_short' => 'Contains miscellaneous blocks.',
       'module' => 'dynoblock',
-      'path' => 'themes/dynoblocks',
+      'path' => 'src/Plugin/Dynoblock',
     ),
   );
-}
-
-
-function dynoblock_selector_widgets() {
-  module_load_include('inc', 'dynoblock', 'includes/widgetSelector');
-  $modal = new DynoblockWidgetModal();
-  $modal->init();
-  print drupal_json_encode(array(
-      'html' => render($modal->modal),
-      'sections' => $modal->build(),
-      'widgets' => $modal->widgets,
-      'themes' => $modal->themes,
-      'default_active' => $modal->default_active,
-    ));
 }
 
 /**
@@ -441,25 +430,34 @@ function dynoblock_block_remove($rid, $bid) {
   print drupal_json_encode(array('removed' => $removed));
 }
 
-
+// TODO: mive this into DynoblockCore.
 function _dynoblock_find_form_handler($widget) {
   $core = \Drupal::service('dynoblock.core');
   $widgets = $core->loadWidgets();
   if (array_key_exists($widget, $widgets)) {
-    return $core->pluginManager->createInstance($widget);
+    return dynoblock_init_plugin($widget);
   }
 }
 
+// TODO: mive this into DynoblockCore.
 function _dynoblock_find_layout_handler($widget) {
   $core = \Drupal::service('dynoblock.core');
   $widgets = $core->loadWidgets();
   if (array_key_exists($widget, $widgets)) {
-    $plugin = $core->pluginManager->createInstance($widget);
-    return $plugin;
+    return dynoblock_init_plugin($widget);
   }
 }
 
-function _dynoblock_find_layout_path($widget) {
+// TODO: mive this into DynoblockCore.
+function dynoblock_init_plugin($plugin) {
+  $core = \Drupal::service('dynoblock.core');
+  $widget = $core->pluginManager->createInstance($plugin);
+  $path = _dynoblock_find_theme_path($plugin);
+  $widget->directory = $path . $widget->getId();
+  return $widget;
+}
+
+function _dynoblock_find_theme_path($widget) {
   $core = \Drupal::service('dynoblock.core');
   $widgets = $core->loadWidgets();
   if (array_key_exists($widget, $widgets)) {
