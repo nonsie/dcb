@@ -35,7 +35,7 @@ interface DynoFieldInterface extends PluginInspectionInterface {
    * @return $field
    *  A form render array.
    */
-  function form();
+  function form($properties = array());
 
   /**
    * Called when a widget using this field is being rendered.
@@ -46,7 +46,7 @@ interface DynoFieldInterface extends PluginInspectionInterface {
    * @return $display
    *  An render array containing the fields output.
    */
-  function render();
+  function render($value, $settings = array());
 
   /**
    * Called whena widget is saved.
@@ -61,6 +61,6 @@ interface DynoFieldInterface extends PluginInspectionInterface {
   function onSubmit();
   function onAjax();
   function validate();
-  function setFormElement();
+  function setFormElement($values);
 
 }

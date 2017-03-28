@@ -1,5 +1,43 @@
 <?php
 
+use Drupal\Core\Entity\EntityInterface;
+
+/**
+ * Implements hook_entity_presave().
+ *
+ * Populates dynoblock region if it currently has no value.
+ */
+function dynoblock_entity_presave(EntityInterface $entity) {
+  if ($entity->getEntityTypeId() !== 'node') {
+    return;
+  }
+  // Find any dynoblock fields attached to an entity.
+  $fieldnames = array();
+  $fields = $entity->getFieldDefinitions();
+  foreach ($fields as $fieldname => $field) {
+    if (substr($fieldname, 0, 6) !== 'field_') {
+      continue;
+    }
+    $fieldtype = $field->getType();
+    if ($fieldtype !== 'dynoblock') {
+      continue;
+    }
+    $fieldnames[] = $fieldname;
+  }
+  if (!empty($fieldnames)) {
+    // Handle each dynoblock field.
+    foreach ($fieldnames as $fieldname) {
+      $dynoblock_field = $entity->get($fieldname);
+      if ($dynoblock_field->isEmpty()) {
+        // @todo randId() method is part of DynoblockForms but should be in
+        // utility class instead?
+        $rand = md5(random_bytes(32) . time());
+        $dynoblock_field->set(0, $rand);
+      }
+    }
+  }
+}
+
 /**
  * Implements hook_page_attachments().
  *

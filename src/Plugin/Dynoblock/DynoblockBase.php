@@ -3,9 +3,12 @@
 namespace Drupal\dynoblock\Plugin\Dynoblock;
 
 use Drupal\Component\Plugin\PluginBase;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\dynoblock\DynoFieldManager;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\dynoblock\DynoblockInterface;
 
-class DynoblockBase extends PluginBase implements DynoblockInterface {
+class DynoblockBase extends PluginBase implements DynoblockInterface, ContainerFactoryPluginInterface {
 
   public $preview_image;
   public $module;
@@ -16,6 +19,8 @@ class DynoblockBase extends PluginBase implements DynoblockInterface {
   public $form_state;
   public $themes;
   public $namespace;
+  public $dynoFieldManager;
+  public $fields;
 
   /**
    * DynoblockBase constructor.
@@ -23,8 +28,9 @@ class DynoblockBase extends PluginBase implements DynoblockInterface {
    * @param array $configuration
    * @param string $plugin_id
    * @param mixed $plugin_definition
+   * @param DynoFieldManager $dynoFieldManager
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, DynoFieldManager $dynoFieldManager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $properties = $this->pluginDefinition['properties'];
     $this->module = $properties['module'];
@@ -34,6 +40,39 @@ class DynoblockBase extends PluginBase implements DynoblockInterface {
     $this->preview_image = $this->getPreviewImageFilePath($properties['preview_image']);
     $this->properties = $properties;
     $this->namespace = $this->getNamespace();
+    $this->dynoFieldManager = $dynoFieldManager;
+  }
+
+  /**
+   * @param ContainerInterface $container
+   * @param array $configuration
+   * @param string $plugin_id
+   * @param mixed $plugin_definition
+   * @return static
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('plugin.manager.dynofield')
+    );
+  }
+
+  /**
+   * @param $id
+   * @return null
+   */
+  public function getField($id) {
+    $fields = $this->loadFields();
+    return array_key_exists($id, $fields) ? $fields[$id] : NULL;
+  }
+
+  /**
+   * @return array|\mixed[]|null
+   */
+  public function loadFields() {
+    return $this->fields = $this->dynoFieldManager->getDefinitions();
   }
 
   /**
