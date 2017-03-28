@@ -76,4 +76,10 @@ interface DynoblockInterface extends PluginInspectionInterface {
    */
   public function preRender($values);
 
+  /**
+   * @param $theme
+   * @return mixed
+   */
+  public function loadTheme($theme);
+
 }

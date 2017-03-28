@@ -1,8 +1,9 @@
 <?php
 
-namespace Drupal\dynoblock;
+namespace Drupal\dynoblock\Plugin\Dynoblock;
 
 use Drupal\Component\Plugin\PluginBase;
+use Drupal\dynoblock\DynoblockInterface;
 
 class DynoblockBase extends PluginBase implements DynoblockInterface {
 
@@ -18,8 +19,10 @@ class DynoblockBase extends PluginBase implements DynoblockInterface {
     $this->module = $properties['module'];
     $this->class = $this->getClass();
     $this->dir = drupal_get_path('module', $this->module);
+    $this->themes = $this->getThemes();
     $this->preview_image = $this->getPreviewImageFilePath($properties['preview_image']);
     $this->properties = $properties;
+    $this->namespace = $this->getNamespace();
   }
 
   /**
@@ -48,6 +51,13 @@ class DynoblockBase extends PluginBase implements DynoblockInterface {
    */
   public function getId() {
     return $this->pluginDefinition['properties'];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getNamespace() {
+    return __NAMESPACE__;
   }
 
   /**
@@ -125,6 +135,13 @@ class DynoblockBase extends PluginBase implements DynoblockInterface {
    * {@inheritdoc}
    */
   public function render() {
+
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function loadTheme($theme) {
 
   }
 

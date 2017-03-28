@@ -150,6 +150,12 @@ class DynoblockCore {
               'class' => array('dynoblock-content'),
             ),
           );
+          if ($data['theme']) {
+            $render[$delta]['theme'] = array(
+              '#theme' => $data['theme'],
+              '#block' => $html,
+            );
+          }
           $render[$delta]['content']['dyno_block'] = $html;
         }
       }

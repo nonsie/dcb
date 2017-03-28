@@ -2,7 +2,7 @@
 
 namespace Drupal\dynoblock\Plugin\Dynoblock\PageTitle;
 
-use Drupal\dynoblock\DynoblockBase;
+use Drupal\dynoblock\Plugin\Dynoblock\DynoblockBase;
 use Drupal\dynoblock\DynoBlockForms;
 use Drupal\dynoblock\DynoWidgetAPI;
 
@@ -13,7 +13,19 @@ use Drupal\dynoblock\DynoWidgetAPI;
  *   id = "page_title",
  *   name = @Translation("Page Title"),
  *   description_short = "Page title widget",
- *   default_theme = "default",
+ *   default_theme = "dynoblock-page-title-default",
+ *   themes = {
+ *     "dynoblock-page-title-default" = {
+ *        "label" = "Default",
+ *        "template_dir" = "src/Plugin/Dynoblock/PageTitle",
+ *        "handler" = "PageTitleDefaultTheme",
+ *     },
+ *     "dynoblock-page-title-gray" = {
+ *        "label" = "Gray",
+ *        "template_dir" = "src/Plugin/Dynoblock/PageTitle",
+ *        "handler" = "PageTitleGrayTheme",
+ *     }
+ *   },
  *   form_settings = {
  *     "variant_support" = 1,
  *   },
@@ -43,10 +55,33 @@ class PageTitle extends DynoblockBase {
   }
 
   public function preRender($values) {
-    return $this->layout = array(
-      '#type' => 'markup',
-      '#markup' => '<h2>'. $values['title'] .'</h2>',
-    );
+    $test = new PageTitleDefaultTheme();
+    $theme = !empty($this->themes[$values['theme']]['handler']) ? $this->themes[$values['theme']]['handler'] : NULL;
+    if ($theme) {
+      switch ($theme){
+        case 'PageTitleDefaultTheme':
+          $theme = new PageTitleDefaultTheme();
+          $this->layout = $theme->display($values);
+          break;
+        case 'PageTitleGrayTheme':
+          $theme = new PageTitleGrayTheme();
+          $this->layout = $theme->display($values);
+          break;
+      }
+    }
+    return $this->layout;
+
+  }
+
+  public function loadTheme($theme) {
+    switch ($theme){
+      case 'PageTitleDefaultTheme':
+          return new PageTitleDefaultTheme();
+          break;
+      case 'PageTitleGrayTheme':
+        return new PageTitleGrayTheme();
+        break;
+    }
   }
 
   /**

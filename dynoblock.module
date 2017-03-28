@@ -38,6 +38,20 @@ function dynoblock_theme($existing, $type, $theme, $path) {
       'function' => 'theme_dynoblock_image_thumbnail',
     ),
   );
+  $dynoblock = \Drupal::service('dynoblock.core');
+  $plugins = $dynoblock->loadWidgets();
+  foreach($plugins as $key => $plugin){
+    $plugin = $dynoblock->pluginManager->createInstance($key);
+    if(!empty($plugin->themes)){
+      foreach($plugin->themes as $tid => $properties){
+        $themes[$tid] = array(
+          'render element' => 'block',
+          'path' => drupal_get_path('module', $plugin->module) . '/' . $properties['template_dir'],
+          'template' => $tid,
+        );
+      }
+    }
+  }
   return $themes;
 }
 
