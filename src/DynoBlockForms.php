@@ -2,7 +2,6 @@
 
 namespace Drupal\dynoblock;
 
-
 class DynoBlockForms {
 
   const coreAjaxCallback = 'dynoblock_core_form_ajax_callback';
@@ -224,12 +223,16 @@ class DynoBlockForms {
       // # TODO: If they never want to show the default theme preview
       // # need to add hidden value to $this->form with the default theme.
       // Theme selection select list.
+      $theme_options = array();
+      foreach($form->themes as $template => $properties){
+        $theme_options[$template] = $properties['label'];
+      }
       $form->form['theme_overview']['theme'] = array(
         '#type' => 'select',
         '#weight' => -100,
         '#title' => t('Layout Theme'),
         '#description' => t('Select A Widget Theme.'),
-        '#options' => $form->themes,
+        '#options' => $theme_options,
         '#default_value' => $default,
         '#attributes' => array(
           'target' => $container_id,
@@ -242,15 +245,16 @@ class DynoBlockForms {
         ),
       );
       $theme_selected = empty($default) && !empty($form->default_theme) ? $form->default_theme : $default;
-      if ($theme_selected) {
-        $theme = new $theme_selected($form_state);
+      if ($theme_selected && !empty($form->themes[$theme_selected])) {
+        $theme_selected = $form->themes[$theme_selected]['handler'];
+        $theme = $form->loadTheme($theme_selected);
         // Dont show preview unless they select a different one.
         // This happens because they already know what the default one looks like.
         if ($number_of_themes > 1 && empty($form_state['theme']) && !empty($form_state)) {
           $form->form['theme_overview']['preview']['#value'] = $theme->preview();
         }
         // Hide theme selection if there is only one option.
-        // Create a hidden field continaing the default theme handler.
+        // Create a hidden field containing the default theme handler.
         if ($number_of_themes <= 1) {
           $form->form['theme_overview']['theme'] = array(
             '#type' => 'hidden',

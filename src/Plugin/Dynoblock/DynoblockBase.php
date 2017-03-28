@@ -1,10 +1,12 @@
 <?php
 
-namespace Drupal\dynoblock;
+namespace Drupal\dynoblock\Plugin\Dynoblock;
 
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\dynoblock\DynoFieldManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\dynoblock\DynoblockInterface;
 
 class DynoblockBase extends PluginBase implements DynoblockInterface, ContainerFactoryPluginInterface {
 
@@ -22,8 +24,10 @@ class DynoblockBase extends PluginBase implements DynoblockInterface, ContainerF
     $this->module = $properties['module'];
     $this->class = $this->getClass();
     $this->dir = drupal_get_path('module', $this->module);
+    $this->themes = $this->getThemes();
     $this->preview_image = $this->getPreviewImageFilePath($properties['preview_image']);
     $this->properties = $properties;
+    $this->namespace = $this->getNamespace();
     $this->dynoFieldManager = $dynoFieldManager;
   }
 
@@ -78,6 +82,13 @@ class DynoblockBase extends PluginBase implements DynoblockInterface, ContainerF
    */
   public function getId() {
     return $this->pluginDefinition['properties'];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getNamespace() {
+    return __NAMESPACE__;
   }
 
   /**
@@ -155,6 +166,13 @@ class DynoblockBase extends PluginBase implements DynoblockInterface, ContainerF
    * {@inheritdoc}
    */
   public function render() {
+
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function loadTheme($theme) {
 
   }
 
