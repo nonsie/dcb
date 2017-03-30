@@ -69,63 +69,8 @@ class DynoController extends ControllerBase {
    * @return JsonResponse
    */
   function save($method) {
-    // Check that this is either an edit or new save.
-    // If new save, make sure bid does not already exist.
-    $output = array('saved' => FALSE);
-    if (!empty($_POST['rid'])
-      && !empty($_POST['bid'])
-      && ($method == 'edit'
-        || ($method == 'new' && !$this->dynoblockCore->db->getBlock($_POST['rid'], $_POST['bid'])))) {
-      $form = _dynoblock_find_form_handler(!empty($_POST['widget']) ? $_POST['widget'] : NULL);
-      if ($form) {
-        $form->id = $_POST['widget'];
-        $form->formSubmit($_POST);
-        $record = array(
-          "rid" => $_POST['rid'],
-          "bid" => $_POST['bid'],
-          "data" => serialize($_POST),
-          'weight' => NULL,
-          'conditions' => serialize(array(
-            'condition_token' => !empty($_POST['condition_token']) ? !empty($_POST['condition_token']) : NULL,
-            'condition_operator' => !empty($_POST['condition_operator']) ? !empty($_POST['condition_operator']) : NULL,
-            'condition_value' => !empty($_POST['condition_value']) ? !empty($_POST['condition_value']) : NULL,
-          ))
-        );
-        if ($method == 'edit') {
-          $action = $this->dynoblockCore->db->update($record);
-        }
-        else {
-          $action = $this->dynoblockCore->db->save($record);
-        }
-        if ($action) {
-          $layout = _dynoblock_find_layout_handler($_POST['widget']);
-          if ($layout) {
-            $html = $layout->init($_POST)->preRender($_POST);
-            // Call theme preRender so it can modify final output.
-            $widget = $this->dynoblockCore->getWidget($_POST['widget']);
-            if (!empty($widget['parent_theme']['handler'])) {
-              $theme_settings = !empty($_POST['global_theme_settings']) ? $_POST['global_theme_settings'] : array();
-              $widget['parent_theme']['handler']->preRender($widget, $_POST, $html, $theme_settings);
-            }
-            $html = render($html);
-            if ($method == 'new') {
-              $html = $this->dynoblockCore->renderNewBlock($_POST, $html);
-            }
-            else {
-              $html = $this->dynoblockCore->wrapEditBlock($html);
-            }
-            $output = array(
-              'saved' => TRUE,
-              'bid' => $_POST['bid'],
-              'rid' => $_POST['rid'],
-              'handler' => $_POST['widget'],
-              'block' => $html,
-            );
-          }
-        }
-      }
-    }
-    return new JsonResponse(Json::encode($output));
+    $result = $this->dynoblockCore->saveBlock($method);
+    return new JsonResponse(Json::encode($result));
   }
 
   /**
@@ -135,9 +80,8 @@ class DynoController extends ControllerBase {
    * @return JsonResponse
    */
   function remove($rid, $bid) {
-    $db = $this->dynoblockCore->db;
-    $removed = $db->remove($rid, $bid);
-    return new JsonResponse(Json::encode(array('removed' => $removed)));
+    $result = $this->dynoblockCore->removeBlock($rid, $bid);
+    return new JsonResponse(Json::encode($result));
   }
 
   /**
@@ -148,7 +92,7 @@ class DynoController extends ControllerBase {
    * @return JsonResponse
    */
   function edit($rid, $bid, $nid) {
-    $form = DynoBlockForms::editForm($rid, $bid, $nid);
+    $form = $this->dynoblockCore->editBlock($rid, $bid, $nid);
     return new JsonResponse(Json::encode($form));
   }
 

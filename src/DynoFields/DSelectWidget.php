@@ -54,9 +54,10 @@ class DSelectWidget extends DynoField {
   }
 
   public function buildWIdgetForm($widget, $default_values) {
+    $core = \Drupal::service('dynoblock.core');
     $form = array();
     if ($widget = self::getWidget($widget)) {
-      if ($widget_form = _dynoblock_find_form_handler($widget['id'])) {
+      if ($widget_form = $core->initPlugin($widget['id'])) {
         $widget_form->init()->build($default_values['widget']);
         DynoBlockForms::buildThemeSelection($widget, $widget_form, $default_values['widget']);
         $cardinality = isset($widget['form_settings']['cardinality']) ? $widget['form_settings']['cardinality'] : NULL;

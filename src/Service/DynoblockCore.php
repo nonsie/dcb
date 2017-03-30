@@ -3,6 +3,7 @@
 namespace Drupal\dynoblock\Service;
 
 use Drupal\Core\Extension\ModuleHandler;
+use Drupal\dynoblock\DynoBlockForms;
 use Drupal\dynoblock\DynoblockManager;
 
 /**
@@ -116,7 +117,7 @@ class DynoblockCore {
     foreach ($blocks as $delta => $block) {
       $data = $block['data'];
       $id = !empty($data['widget']) ? $data['widget'] : $data['layout_id'];
-      $plugin = _dynoblock_find_layout_handler($id);
+      $plugin = $this->initPlugin($id);
       $widget = $this->getWidget($data['widget']);
       if ($plugin && $this->isDisplayable($data)) {
         $plugin->entity = $entity;
@@ -307,6 +308,143 @@ class DynoblockCore {
       return TRUE;
     }
     return FALSE;
+  }
+
+  /**
+   * @param $rid
+   * @param $bid
+   */
+  public function updateBlock($rid, $bid) {
+    $result = FALSE;
+    if ($block = DynoBlocksDb::getBlock($rid, $bid)) {
+      foreach ($_POST as $key => $value) {
+        $block[$key] = $value;
+      }
+      $record = array(
+        'rid' => $rid,
+        'bid' => $bid,
+        'data' => serialize($block)
+      );
+      $result = DynoBlocksDb::update($record);
+    }
+    print drupal_json_encode(array('result' => $result));
+  }
+
+  /**
+   * @param $method
+   * @return array
+   */
+  public function saveBlock($method) {
+    // Check that this is either an edit or new save.
+    // If new save, make sure bid does not already exist.
+    $output = array('saved' => FALSE);
+    if (!empty($_POST['rid'])
+      && !empty($_POST['bid'])
+      && ($method == 'edit'
+        || ($method == 'new' && !$this->db->getBlock($_POST['rid'], $_POST['bid'])))) {
+      $form = $this->initPlugin(!empty($_POST['widget']) ? $_POST['widget'] : NULL);
+      if ($form) {
+        $form->id = $_POST['widget'];
+        $form->formSubmit($_POST);
+        $record = array(
+          "rid" => $_POST['rid'],
+          "bid" => $_POST['bid'],
+          "data" => serialize($_POST),
+          'weight' => NULL,
+          'conditions' => serialize(array(
+            'condition_token' => !empty($_POST['condition_token']) ? !empty($_POST['condition_token']) : NULL,
+            'condition_operator' => !empty($_POST['condition_operator']) ? !empty($_POST['condition_operator']) : NULL,
+            'condition_value' => !empty($_POST['condition_value']) ? !empty($_POST['condition_value']) : NULL,
+          ))
+        );
+        if ($method == 'edit') {
+          $action = $this->db->update($record);
+        }
+        else {
+          $action = $this->db->save($record);
+        }
+        if ($action) {
+          $layout = $this->initPlugin($_POST['widget']);
+          if ($layout) {
+            $html = $layout->init($_POST)->preRender($_POST);
+            // Call theme preRender so it can modify final output.
+            $widget = $this->getWidget($_POST['widget']);
+            if (!empty($widget['parent_theme']['handler'])) {
+              $theme_settings = !empty($_POST['global_theme_settings']) ? $_POST['global_theme_settings'] : array();
+              $widget['parent_theme']['handler']->preRender($widget, $_POST, $html, $theme_settings);
+            }
+            $html = render($html);
+            if ($method == 'new') {
+              $html = $this->renderNewBlock($_POST, $html);
+            }
+            else {
+              $html = $this->wrapEditBlock($html);
+            }
+            $output = array(
+              'saved' => TRUE,
+              'bid' => $_POST['bid'],
+              'rid' => $_POST['rid'],
+              'handler' => $_POST['widget'],
+              'block' => $html,
+            );
+          }
+        }
+      }
+    }
+    return $output;
+  }
+
+  /**
+   * @param $rid
+   * @param $bid
+   * @return array
+   */
+  public function removeBlock($rid, $bid) {
+    $removed = $this->db->remove($rid, $bid);
+    return array('removed' => $removed);
+  }
+
+  /**
+   * @param $rid
+   * @param $bid
+   * @param $nid
+   * @return mixed
+   */
+  public function editBlock($rid, $bid, $nid) {
+    return DynoBlockForms::editForm($rid, $bid, $nid);
+  }
+
+  /**
+   * @param $plugin
+   * @return object
+   */
+  public function initPlugin($plugin) {
+    if (array_key_exists($plugin, $this->loadWidgets())) {
+      $plugin = $this->pluginManager->createInstance($plugin);
+      $path = $this->findThemePath($plugin->getId());
+      $plugin->directory = $path . $plugin->getId();
+      return $plugin;
+    }
+  }
+
+  /**
+   * @param $widget
+   * @return string
+   */
+  public function findThemePath($widget) {
+    $widgets = $this->loadWidgets();
+    if (array_key_exists($widget, $widgets)) {
+      $widget = $widgets[$widget];
+      $theme = $this->getTheme($widget['properties']['theme']);
+      $path = $widget['layout']['file'];
+      $dirs = explode('/', $path);
+      if (count($dirs) > 1) {
+        array_pop($dirs);
+        $path = implode('/', $dirs);
+      }
+      return $theme['full_path'] . '/' . $path;
+    }
+
   }
 
 }

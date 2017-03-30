@@ -285,8 +285,9 @@ function dynoblock_core_form_ajax_submit($form, &$form_state) {
 }
 
 function dynoblock_form_ajax_callback($form, &$form_state) {
+  $core = \Drupal::service('dynoblock.core');
   $widget = $form_state['input']['widget'];
-  $widget = _dynoblock_find_form_handler($widget);
+  $widget = $core->initPlugin($widget);
   $trigger = $form_state['triggering_element'];
   if ($widget) {
     if (!empty($trigger['#ajax']['type']) && $trigger['#ajax']['type'] == 'widget_theme') {
@@ -320,9 +321,10 @@ function dynoblock_form_ajax_callback($form, &$form_state) {
 }
 
 function dynoblock_form_ajax_submit($form, &$form_state) {
+  $core = \Drupal::service('dynoblock.core');
   $form_state['rebuild'] = TRUE;
   $widget = $form_state['input']['widget'];
-  $widget = _dynoblock_find_form_handler($widget);
+  $widget = $core->initPlugin($widget);
   if ($widget) {
     $widget->ajaxSubmit($form, $form_state);
   }
@@ -440,83 +442,6 @@ function _dynoblock_weight_form($values = array()) {
   );
   return $form;
 }
-
-function dynoblock_update_block($rid, $bid) {
-  $result = FALSE;
-  if ($block = DynoBlocksDb::getBlock($rid, $bid)) {
-    foreach ($_POST as $key => $value) {
-      $block[$key] = $value;
-    }
-    $record = array(
-      'rid' => $rid,
-      'bid' => $bid,
-      'data' => serialize($block)
-    );
-    $result = DynoBlocksDb::update($record);
-  }
-  print drupal_json_encode(array('result' => $result));
-}
-
-function dynoblock_block_edit($rid, $bid, $nid) {
-  return DynoBlockForms::editForm($rid, $bid, $nid);
-}
-
-
-function dynoblock_block_remove($rid, $bid) {
-  $db = new DynoBlocksDb();
-  $removed = DynoBlocksDb::remove($rid, $bid);
-  print drupal_json_encode(array('removed' => $removed));
-}
-
-// TODO: mive this into DynoblockCore.
-function _dynoblock_find_form_handler($widget) {
-  $core = \Drupal::service('dynoblock.core');
-  $widgets = $core->loadWidgets();
-  if (array_key_exists($widget, $widgets)) {
-    return dynoblock_init_plugin($widget);
-  }
-}
-
-// TODO: mive this into DynoblockCore.
-function _dynoblock_find_layout_handler($widget) {
-  $core = \Drupal::service('dynoblock.core');
-  $widgets = $core->loadWidgets();
-  if (array_key_exists($widget, $widgets)) {
-    return dynoblock_init_plugin($widget);
-  }
-}
-
-// TODO: mive this into DynoblockCore.
-function dynoblock_init_plugin($plugin) {
-  $core = \Drupal::service('dynoblock.core');
-  $widget = $core->pluginManager->createInstance($plugin);
-  $path = _dynoblock_find_theme_path($plugin);
-  $widget->directory = $path . $widget->getId();
-  return $widget;
-}
-
-function _dynoblock_find_theme_path($widget) {
-  $core = \Drupal::service('dynoblock.core');
-  $widgets = $core->loadWidgets();
-  if (array_key_exists($widget, $widgets)) {
-    $widget = $widgets[$widget];
-    $theme = $core->getTheme($widget['properties']['theme']);
-    $path = $widget['layout']['file'];
-    $dirs = explode('/', $path);
-    if (count($dirs) > 1) {
-      array_pop($dirs);
-      $path = implode('/', $dirs);
-    }
-    return $theme['full_path'] . '/' . $path;
-  }
-
-}
-
-
-function dynoblock_generate_form($type, $rid, $nid) {
-  return DynoBlockForms::generateForm($type, $rid, $nid);
-}
-
 
 function _dynoblocks_get_commands($data, &$commands) {
 //  $files = array();

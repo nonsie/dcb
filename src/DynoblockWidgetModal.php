@@ -231,9 +231,10 @@ class DynoblockWidgetModal {
   }
 
   private function loadWidgets() {
+
     $widgets = $this->core->loadWidgets();
     foreach ($widgets as $machine => &$widget) {
-      $layout = _dynoblock_find_layout_handler($machine);
+      $layout = $this->core->initPlugin($machine);
       if ($layout) {
         $preview = DynoBlockForms::getPreview($layout);
         if ($preview) $preview = render($preview);

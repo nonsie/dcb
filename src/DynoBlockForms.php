@@ -21,7 +21,7 @@ class DynoBlockForms {
   public static function generateForm($type, $rid, $nid) {
     self::$method = 'new';
     $core = \Drupal::service('dynoblock.core');
-    $plugin = _dynoblock_find_form_handler($type);
+    $plugin = $core->initPlugin($type);
     $widget = $core->getWidget($type);
     if ($plugin && $widget) {
       $form_state = array();
@@ -50,7 +50,7 @@ class DynoBlockForms {
       $block = $core->db->getBlock($rid, $bid);
       if ($block) {
         $widget = !empty($block['widget']) ? $block['widget'] : $block['layout_id'];
-        $plugin = _dynoblock_find_form_handler($widget);
+        $plugin = $core->initPlugin($widget);
         $widget = $core->getWidget($widget);
         if ($plugin && $widget) {
           $plugin->init()->build($block);

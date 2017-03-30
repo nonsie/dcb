@@ -62,7 +62,6 @@ class PageTitle extends DynoblockBase {
     $theme = !empty($this->themes[$values['theme']]['handler']) ? $this->themes[$values['theme']]['handler'] : NULL;
     if ($theme = $this->loadTheme($theme)) {
       $this->layout = $theme->display($values);
-      $theme->preview($this->themes['dynoblock-page-title-default']['preview_image']);
     }
     return $this->layout;
 

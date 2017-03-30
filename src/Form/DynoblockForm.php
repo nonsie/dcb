@@ -26,7 +26,7 @@ class DynoblockForm extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state, $widgetForm = array()) {
     if (!empty($form_state->rebuild) && !empty($form_state->input['widget'])) {
       $core = \Drupal::service('dynoblock.core');
-      $handler = _dynoblock_find_form_handler($form_state->input['widget']);
+      $handler = $core->initPlugin($form_state->input['widget']);
       $widget = $core->getWidget($form_state->input['widget']);
       if ($handler && $widget) {
         $handler->rebuild = TRUE;
