@@ -2,13 +2,20 @@
 
 namespace Drupal\dynoblock\Controller;
 
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\AjaxResponseAttachmentsProcessor;
+use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Render\BubbleableMetadata;
+use Drupal\Core\Render\Element;
+use Drupal\Core\Render\HtmlResponse;
 use Drupal\dynoblock\DynoBlockForms;
 use Drupal\dynoblock\DynoblockWidgetModal;
 use Drupal\Component\Serialization\Json;
 use Drupal\dynoblock\Service\DynoblockCore;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 class DynoController extends ControllerBase {
 
@@ -43,6 +50,7 @@ class DynoController extends ControllerBase {
    */
   function generate($type, $rid, $nid) {
     $form = DynoBlockForms::generateForm($type, $rid, $nid);
+    $form['html'] = render($form['form']);
     return new JsonResponse(Json::encode($form));
   }
 
@@ -52,8 +60,6 @@ class DynoController extends ControllerBase {
   function selectorModal() {
     $modal = new DynoblockWidgetModal();
     $modal->init();
-    $modal->build();
-    //kint($modal);
     $response = array(Json::encode(array(
       'html' => render($modal->modal),
       'sections' => $modal->build(),
@@ -93,6 +99,7 @@ class DynoController extends ControllerBase {
    */
   function edit($rid, $bid, $nid) {
     $form = $this->dynoblockCore->editBlock($rid, $bid, $nid);
+    $form['html'] = render($form['form']);
     return new JsonResponse(Json::encode($form));
   }
 

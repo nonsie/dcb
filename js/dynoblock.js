@@ -145,6 +145,7 @@
         var data = this.addPageState();
         nid = !nid ? 'NA' : nid;
         this.postData('/dynoblock/edit/' + rid + '/' + bid + '/' + nid, data, function(data){
+          console.log(data);
           callback(data.html);
           if(data.commands.length > 0){
             if(typeof(data.commands) == 'string'){
@@ -178,38 +179,33 @@
 
       runAjaxCommands: function(commands){
         var status = 'ready';
+        var commander = {};
+        commander.commands = new Drupal.AjaxCommands();
         for (var i in commands) {
           if (commands.hasOwnProperty(i) && commands[i]['command']) {
             if(commands[i].command == 'insert'){
               this.loadAjaxJs(commands[i]);
+            } else if (commands[i].command == 'settings') {
+              Drupal.attachBehaviors(document, commands[i].settings);
             } else {
-              Drupal.ajax.prototype.commands[commands[i]['command']](this, commands[i], status);
+              commander.commands[commands[i].command](this, commands[i], status);
             }
           }
         }
-        Drupal.attachBehaviors(document);
       },
 
       loadAjaxJs: function(data){
-        $(data.selector).prepend(data.data);
+        if (data.selector) {
+          $(data.selector).prepend(data.data);
+        }
       },
 
       addPageState: function(){
-        var options = {
-          data: {
-            ajax_page_state: {
-              css: {},
-              js: {},
-            },
-          },
-        };
-        for (var key in this.drupalSettings.ajaxPageState.css) {
-          options.data['ajax_page_state'].css[key] = 1;
-        }
-        for (var key in this.drupalSettings.ajaxPageState.js) {
-          options.data['ajax_page_state'].js[key] = 1;
-        }
-        return options;
+        var ajax_page_state = this.drupalSettings.ajaxPageState;
+        // if (ajax_page_state.libraries && typeof(ajax_page_state.libraries) == 'string') {
+        //   ajax_page_state.libraries = ajax_page_state.libraries.split(',');
+        // }
+        return { ajax_page_state: ajax_page_state };
       }
 
     }
@@ -883,6 +879,7 @@
 
       this.editBlock = function(block){
         var $this = this;
+
         DynoBlocks.editBlock(this.region.rid, block.bid, this.region.nid, function(result){
           if(result){
             DynoFormUi.init($this.region, $this);

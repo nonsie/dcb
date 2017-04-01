@@ -336,7 +336,7 @@ class DynoblockWidgetModal {
     $item['title'] = array(
       '#type' => 'html_tag',
       '#tag' => 'h4',
-      '#value' => $widget['label'],
+      '#value' => $widget['id'],
       '#attributes' => array(
         'class' => array('list-group-item-heading'),
       ),

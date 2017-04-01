@@ -3,7 +3,9 @@
 namespace Drupal\dynoblock\Plugin\Dynoblock;
 
 use Drupal\Component\Plugin\PluginBase;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\dynoblock\DynoFieldInterface;
 use Drupal\dynoblock\DynoFieldManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\dynoblock\DynoblockInterface;
@@ -61,11 +63,24 @@ class DynoblockBase extends PluginBase implements DynoblockInterface, ContainerF
 
   /**
    * @param $id
-   * @return null
+   * @param bool $init
+   * @return mixed|null|object
    */
-  public function getField($id) {
+  public function getField($id, $init = FALSE) {
     $fields = $this->loadFields();
-    return array_key_exists($id, $fields) ? $fields[$id] : NULL;
+    $field = array_key_exists($id, $fields) ? $fields[$id] : NULL;
+    if ($field) {
+      if ($init) return $this->initField($field);
+      return $field;
+    }
+  }
+
+  /**
+   * @param DynoFieldInterface $field
+   * @return object
+   */
+  public function initField($field) {
+    return $this->dynoFieldManager->createInstance($field['id']);
   }
 
   /**
@@ -160,12 +175,13 @@ class DynoblockBase extends PluginBase implements DynoblockInterface, ContainerF
 
   }
 
-
   /**
    * {@inheritdoc}
    */
-  public function ajaxCallback() {
-
+  public function ajaxCallback($form, FormStateInterface &$form_state) {
+    $trigger = $form_state->getTriggeringElement();
+    // this returnes a group of fields after an extra field is selected in the UI.
+    return array('return_element' => $form[$this->getId()][$trigger['#attributes']['delta']]);
   }
 
   /**

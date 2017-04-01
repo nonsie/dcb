@@ -2,6 +2,8 @@
 
 namespace Drupal\dynoblock\Service;
 
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Extension\ModuleHandler;
 use Drupal\dynoblock\DynoBlockForms;
 use Drupal\dynoblock\DynoblockManager;
@@ -149,7 +151,8 @@ class DynoblockCore {
               'class' => array('dynoblock-content'),
             ),
           );
-          if ($data['theme']) {
+          // Render content in theme template if available.
+          if ($data['theme'] && !empty($plugin->themes[$data['theme']]['template_dir'])) {
             $render[$delta]['theme'] = array(
               '#theme' => $data['theme'],
               '#block' => $html,
@@ -445,6 +448,20 @@ class DynoblockCore {
       return $theme['full_path'] . '/' . $path;
     }
 
+  }
+
+  /**
+   * @param $data
+   * @return \Drupal\Core\Ajax\CommandInterface[]
+   */
+  public function getAjaxCommands($data) {
+    $response = new AjaxResponse();
+    $replace = new ReplaceCommand(NULL, $data);
+    $response->addCommand($replace);
+    $attachments_processor = \Drupal::service('ajax_response.attachments_processor');
+    $attachments_processor->processAttachments($response);
+    $commands = $response->getCommands();
+    return $commands;
   }
 
 }

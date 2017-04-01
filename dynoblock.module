@@ -1,6 +1,8 @@
 <?php
 
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Component\Utility\NestedArray;
 
 /**
  * Implements hook_entity_presave().
@@ -82,12 +84,14 @@ function dynoblock_theme($existing, $type, $theme, $path) {
     $plugin = $dynoblock->pluginManager->createInstance($key);
     if(!empty($plugin->themes)){
       foreach($plugin->themes as $tid => $properties){
-        $themes[$tid] = array(
-          'render element' => 'block',
-          'variables' => array('block' => NULL),
-          'path' => drupal_get_path('module', $plugin->module) . '/' . $properties['template_dir'],
-          'template' => $tid,
-        );
+        if (!empty($properties['template_dir'])) {
+          $themes[$tid] = array(
+            'render element' => 'block',
+            'variables' => array('block' => NULL),
+            'path' => drupal_get_path('module', $plugin->module) . '/' . $properties['template_dir'],
+            'template' => $tid,
+          );
+        }
       }
     }
   }
@@ -176,7 +180,6 @@ function theme_dynoblock_tabledrag($vars) {
     'relationship' => 'sibling',
     'group' => 'widget-table-sort',
   ));
-
   return $output;
 }
 
@@ -217,12 +220,12 @@ function dynoblock_dynoblock_themes() {
 /**
  * Default Dynoblocks core ajax callback handler
  */
-function dynoblock_core_form_ajax_callback($form, &$form_state) {
-  switch ($form_state['triggering_element']['#ajax']['type']) {
+function dynoblock_core_form_ajax_callback($form, FormStateInterface &$form_state) {
+  $trigger = $form_state->getTriggeringElement();
+  switch ($trigger['#ajax']['type']) {
     case 'add':
-      array_pop($form_state['triggering_element']['#array_parents']);
-      $element = drupal_array_get_nested_value($form, $form_state['triggering_element']['#array_parents']);
-      return $element;
+      array_pop($trigger['#array_parents']);
+      return NestedArray::getValue($form, $trigger['#array_parents']);
       break;
     case 'remove':
       $parents = array();
@@ -232,27 +235,27 @@ function dynoblock_core_form_ajax_callback($form, &$form_state) {
           break;
         }
       }
-      $element = drupal_array_get_nested_value($form, $parents);
-      return $element;
+      //$element = drupal_array_get_nested_value($form, $parents);
+      //return $element;
       break;
   }
+
 }
 
 /**
  * Default Dynoblocks core ajax callback handler
  */
-function dynoblock_widget_settings_callback($form, &$form_state) {
+function dynoblock_widget_settings_callback($form, FormStateInterface &$form_state) {
   array_pop($form_state['triggering_element']['#array_parents']);
   array_pop($form_state['triggering_element']['#array_parents']);
   $element = drupal_array_get_nested_value($form, $form_state['triggering_element']['#array_parents']);
   return $element;
-
 }
 
 /**
  * Default Dynoblocks core ajax submit
  */
-function dynoblock_core_form_ajax_submit($form, &$form_state) {
+function dynoblock_core_form_ajax_submit($form, FormStateInterface &$form_state) {
   $form_state['rebuild'] = TRUE;
   $type = $form_state['triggering_element']['#attributes']['#type'];
   $widget = $form_state['input']['widget'];
@@ -284,7 +287,7 @@ function dynoblock_core_form_ajax_submit($form, &$form_state) {
   }
 }
 
-function dynoblock_form_ajax_callback($form, &$form_state) {
+function dynoblock_form_ajax_callback($form, FormStateInterface &$form_state) {
   $core = \Drupal::service('dynoblock.core');
   $widget = $form_state['input']['widget'];
   $widget = $core->initPlugin($widget);
@@ -320,7 +323,7 @@ function dynoblock_form_ajax_callback($form, &$form_state) {
   }
 }
 
-function dynoblock_form_ajax_submit($form, &$form_state) {
+function dynoblock_form_ajax_submit($form, FormStateInterface &$form_state) {
   $core = \Drupal::service('dynoblock.core');
   $form_state['rebuild'] = TRUE;
   $widget = $form_state['input']['widget'];
@@ -331,7 +334,7 @@ function dynoblock_form_ajax_submit($form, &$form_state) {
 }
 
 
-function dynoblock_field_widget_ajax_callback($form, &$form_state) {
+function dynoblock_field_widget_ajax_callback($form, FormStateInterface &$form_state) {
   if (!empty($form_state['triggering_element']['#ajax']['handler'])) {
     $handler = new $form_state['triggering_element']['#ajax']['handler']($form_state);
     return $handler->onAjax($form, $form_state);
@@ -348,10 +351,8 @@ function _dynoblock_add_token_support() {
     ),
   );
   $token['container']['tokens'] = array(
-    '#type' => 'fieldset',
+    '#type' => 'details',
     '#title' => t('Tokens'),
-    '#collapsed' => TRUE,
-    '#collapsible' => TRUE,
   );
   $token['container']['tokens']['tree'] = array(
     '#theme' => 'token_tree',
@@ -441,79 +442,4 @@ function _dynoblock_weight_form($values = array()) {
     '#value' => isset($values['weight']) ? $values['weight'] : 0,
   );
   return $form;
-}
-
-function _dynoblocks_get_commands($data, &$commands) {
-//  $files = array();
-//  $commands = array();
-//  foreach (array('css', 'js') as $type) {
-//    // It is highly suspicious if $_POST['ajax_page_state'][$type] is empty,
-//    // since the base page ought to have at least one JS file and one CSS file
-//    // loaded. It probably indicates an error, and rather than making the page
-//    // reload all of the files, instead we return no new files.
-//    if (empty($data['ajax_page_state'][$type])) {
-//      $items[$type] = array();
-//    }
-//    else {
-//      $function = 'drupal_add_' . $type;
-//      $items[$type] = $function();
-//      drupal_alter($type, $items[$type]);
-//      // @todo Inline CSS and JS items are indexed numerically. These can't be
-//      //   reliably diffed with array_diff_key(), since the number can change
-//      //   due to factors unrelated to the inline content, so for now, we strip
-//      //   the inline items from Ajax responses, and can add support for them
-//      //   when drupal_add_css() and drupal_add_js() are changed to use a hash
-//      //   of the inline content as the array key.
-//      foreach ($items[$type] as $key => $item) {
-//        if (is_numeric($key)) {
-//          unset($items[$type][$key]);
-//        }
-//      }
-//      foreach ($items[$type] as $key => $f_data) {
-//        //if (((is_array($data['ajax_page_state'][$type]) && !array_key_exists($key, $data['ajax_page_state'][$type])) || $type == 'js') && !in_array($key, $exclude[$type])) {
-//        if (!array_key_exists($key, $data['ajax_page_state'][$type])) {
-//          $files[$type][$key] = $f_data;
-//        }
-//      }
-//    }
-//  }
-//
-//
-//  // Render the HTML to load these files, and add AJAX commands to insert this
-//  // HTML in the page. We pass TRUE as the $skip_alter argument to prevent the
-//  // data from being altered again, as we already altered it above. Settings are
-//  // handled separately, afterwards.
-//  if (isset($files['js']['settings'])) {
-//    unset($files['js']['settings']);
-//  }
-//  if (!empty($files['css'])) {
-//    $styles = drupal_get_css($files['css'], TRUE);
-//  }
-//  $scripts_footer = drupal_get_js('footer', $files['js'], TRUE);
-//  $scripts_header = drupal_get_js('header', $files['js'], TRUE);
-//
-//  $extra_commands = array();
-//  if (!empty($styles)) {
-//    $extra_commands[] = ajax_command_add_css($styles);
-//  }
-//  if (!empty($scripts_header)) {
-//    $extra_commands[] = ajax_command_prepend('head', $scripts_header);
-//  }
-//  if (!empty($scripts_footer)) {
-//    $extra_commands[] = ajax_command_append('body', $scripts_footer);
-//  }
-//  if (!empty($extra_commands)) {
-//    $commands = array_merge($extra_commands, $commands);
-//  }
-//
-//  // Now add a command to merge changes and additions to Drupal.settings.
-//  $scripts = drupal_add_js();
-//  if (!empty($scripts['settings'])) {
-//    $settings = $scripts['settings'];
-//    array_unshift($commands, ajax_command_settings(drupal_array_merge_deep_array($settings['data']), TRUE));
-//  }
-
-  $files = array();
-  return $files;
-
 }

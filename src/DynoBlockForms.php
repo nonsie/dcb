@@ -32,10 +32,8 @@ class DynoBlockForms {
       self::buildThemeSelection($widget, $plugin, $form_state);
       self::buildParentThemeSettings($widget, $plugin, $form_state);
       $form = \Drupal::formBuilder()->getForm('Drupal\dynoblock\Form\DynoblockForm', $plugin->form);
-      $html = render($form);
-      $commands = array();
-      _dynoblocks_get_commands($_POST['data'], $commands);
-      return compact('html', 'commands');
+      $commands = $core->getAjaxCommands($form);
+      return compact('form', 'commands');
     }
     else {
       return FALSE;
@@ -60,10 +58,8 @@ class DynoBlockForms {
           self::buildThemeSelection($widget, $plugin, $block);
           self::buildParentThemeSettings($widget, $plugin, $block);
           $form = \Drupal::formBuilder()->getForm('Drupal\dynoblock\Form\DynoblockForm', $plugin->form);
-          $html = render($form);
-          $commands = array();
-          _dynoblocks_get_commands($_POST['data'], $commands);
-          return compact('html', 'commands');
+          $commands = $core->getAjaxCommands($form);
+          return compact('form', 'commands');
 
         }
       }
@@ -121,7 +117,12 @@ class DynoBlockForms {
     $cardinality = isset($widget['form_settings']['cardinality']) ? $widget['form_settings']['cardinality'] : NULL;
     $variant_support = isset($widget['form_settings']['variant_support']) ? $widget['form_settings']['variant_support'] : NULL;
     if ($cardinality !== NULL) {
-      $items = empty($form_state['input'][$id]) && !empty($form_state[$id]) ? $form_state[$id] : $form_state['input'][$id];
+      if (is_object($form_state)) {
+        $items = $form_state->getUserInput($id) && !empty($form_state->$id) ? $form_state->$id : $form_state->getUserInput($id);
+        $items = $items[$id];
+      } else if(!empty($form_state[$id])){
+        $items = $form_state[$id][$id];
+      }
       $container_id = self::createId($widget, 'widget-group');
       $form->form[$id] = array(
         '#type' => 'container',
@@ -217,9 +218,11 @@ class DynoBlockForms {
           'id' => $preview_container_id,
         ),
       );
-      $default = !empty($form_state['input']['theme']) ? $form_state['input']['theme'] : NULL;
-      $default = !empty($form_state['theme_overview']['theme']) ? $form_state['theme_overview']['theme'] : $default;
-      $default = !empty($form_state['theme']) ? $form_state['theme'] : $default;
+      if(is_object($form_state)) {
+        $default = !empty($form_state->getUserInput('theme')) ? $form_state->getUserInput('theme') : NULL;
+        $default = !empty($form_state->getUserInput('theme_overview')['theme']) ? $form_state->getUserInput('theme_overview')['theme'] : $default;
+        $default = $form_state->theme ? $form_state->theme : $default;
+      }
       // # TODO: If they never want to show the default theme preview
       // # need to add hidden value to $this->form with the default theme.
       // Theme selection select list.
