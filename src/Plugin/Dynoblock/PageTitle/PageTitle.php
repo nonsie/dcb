@@ -30,6 +30,7 @@ use Drupal\dynoblock\DynoWidgetAPI;
  *   },
  *   form_settings = {
  *     "variant_support" = 1,
+ *     "cardinality" = -1,
  *   },
  *   properties = {
  *    "theme" = "dynoblock",
@@ -46,19 +47,39 @@ class PageTitle extends DynoblockBase {
   }
 
   public function build($form_state = array()) {
+
+    $this->form['fields']['#tree'] = TRUE;
+
     $this->form['fields']['title'] = array(
       '#type' => 'textfield',
       '#title' => t('Title'),
-      '#default_value' => !empty($form_state['title']) ? $form_state['title'] : NULL,
+      '#default_value' => !empty($form_state['fields']['title']) ? $form_state['fields']['title'] : NULL,
     );
-    $text_field = $this->getField('text_field', TRUE);
-    $this->form['fields']['anotherfield'] = $text_field->form();
 
-    $textarea_field = $this->getField('textarea_field', TRUE);
-    $this->form['fields']['textarea'] = $textarea_field->form();
+    $text_field = $this->getField('text_field', TRUE, $form_state);
+    $this->form['fields']['anotherfield'] = $text_field->form(
+      array(
+        "#title" => 'testing field title',
+        '#default_value' => !empty($form_state['fields']['anotherfield']['value']) ?  $form_state['fields']['anotherfield']['value'] : '',
+      )
+    );
 
-    $textarea_field = $this->getField('ckeditor_field', TRUE);
-    $this->form['fields']['textarea'] = $textarea_field->form();
+    $textarea_field = $this->getField('textarea_field', TRUE, $form_state);
+    $this->form['fields']['textarea'] = $textarea_field->form(
+      array(
+        "#title" => 'testing field title',
+        '#default_value' => !empty($form_state['fields']['textarea']['value']) ?  $form_state['fields']['textarea']['value'] : '',
+      )
+    );
+
+    $ckeditor_field = $this->getField('ckeditor_field', TRUE, $form_state);
+    $this->form['fields']['ckeditor'] = $ckeditor_field->form(
+      array(
+        "#title" => 'testing field title',
+        '#default_value' => !empty($form_state['fields']['ckeditor']['value']['value']) ?  $form_state['fields']['ckeditor']['value']['value'] : '',
+      )
+    );
+
   }
 
   public function preRender($values) {
@@ -68,7 +89,6 @@ class PageTitle extends DynoblockBase {
       $this->layout = $theme->display($values);
     }
     return $this->layout;
-
   }
 
   /**

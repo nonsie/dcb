@@ -12,7 +12,7 @@ services:
     parent: default_plugin_manager
 
   plugin.manager.dynofield:
-    class: Drupal\dynoblock\DynoFieldManager
+    class: Drupal\dynoblock\Plugin\DynoField\DynoFieldManager
     parent: default_plugin_manager
 
   dynoblock.dynoblocks:

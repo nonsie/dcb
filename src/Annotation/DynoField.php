@@ -16,7 +16,7 @@ use Drupal\Component\Annotation\Plugin;
  *
  * Plugin Namespace: Plugin\dynoblock\DynoField
  *
- * @see \Drupal\dynoblock\DynoFieldManager
+ * @see \Drupal\dynoblock\Plugin\DynoField\DynoFieldManager
  * @see plugin_api
  *
  * @Annotation

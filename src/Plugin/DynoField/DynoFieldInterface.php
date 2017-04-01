@@ -6,7 +6,7 @@
  * Time: 2:50 PM
  */
 
-namespace Drupal\dynoblock;
+namespace Drupal\dynoblock\Plugin\DynoField;
 
 
 use Drupal\Component\Plugin\PluginInspectionInterface;

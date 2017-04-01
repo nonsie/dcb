@@ -144,8 +144,4 @@ class DynoController extends ControllerBase {
     return $build;
   }
 
-/*  function create() {
-
-  }*/
-
 }
