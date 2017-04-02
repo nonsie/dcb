@@ -316,10 +316,12 @@ class DynoblockCore {
   /**
    * @param $rid
    * @param $bid
+   *
+   * @return mixed
    */
   public function updateBlock($rid, $bid) {
     $result = FALSE;
-    if ($block = DynoBlocksDb::getBlock($rid, $bid)) {
+    if ($block = $this->db->getBlock($rid, $bid)) {
       foreach ($_POST as $key => $value) {
         $block[$key] = $value;
       }
@@ -328,9 +330,9 @@ class DynoblockCore {
         'bid' => $bid,
         'data' => serialize($block)
       );
-      $result = DynoBlocksDb::update($record);
+      $result = $this->db->update($record);
     }
-    print drupal_json_encode(array('result' => $result));
+    return ['result' => $result];
   }
 
   /**

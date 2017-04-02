@@ -48,7 +48,7 @@ dynoblock.update:
   requirements:
     _permission: 'use dynoblocks'
 
-dynoblock.update:
+dynoblock.testpage:
   path: '/dynoblock/testpage'
   defaults:
     _controller: '\Drupal\dynoblock\Controller\DynoController::testpage'

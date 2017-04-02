@@ -114,9 +114,12 @@ class DynoController extends ControllerBase {
   /**
    * @param $rid
    * @param $bid
+   *
+   * @return JsonResponse
    */
   function update($rid, $bid) {
-
+    $result = $this->dynoblockCore->updateBlock($rid, $bid);
+    return new JsonResponse(Json::encode($result));
   }
 
   /**
