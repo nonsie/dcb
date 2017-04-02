@@ -123,6 +123,16 @@ class DynoController extends ControllerBase {
   }
 
   /**
+   * @param $etype
+   * @param $eid
+   * @return JsonResponse
+   */
+  function invalidateEntityCache($etype, $eid) {
+    $result = $this->dynoblockCore->invalidateCache($etype, $eid);
+    return new JsonResponse(Json::encode($result));
+  }
+
+  /**
    * @return array
    */
   function testpage() {

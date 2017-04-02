@@ -4,6 +4,7 @@ namespace Drupal\dynoblock\Service;
 
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\ReplaceCommand;
+use Drupal\Core\Cache\CacheTagsInvalidator;
 use Drupal\Core\Extension\ModuleHandler;
 use Drupal\dynoblock\DynoBlockForms;
 use Drupal\dynoblock\DynoblockManager;
@@ -45,6 +46,14 @@ class DynoblockCore {
   public $widgets = array();
 
   /**
+   * Core Cache Tag Invalidator
+   *
+   * @var CacheTagsInvalidator
+   */
+  public $cacheTagsInvalidator;
+
+
+  /**
    * DynoblockCore constructor.
    *
    * @param DynoblockManager $pluginManager
@@ -52,10 +61,11 @@ class DynoblockCore {
    * @param DynoblockDb $dynoblockDb
    *   Injected.
    */
-  public function __construct(DynoblockManager $pluginManager, DynoblockDb $dynoblockDb, ModuleHandler $moduleHandler) {
+  public function __construct(DynoblockManager $pluginManager, DynoblockDb $dynoblockDb, ModuleHandler $moduleHandler, CacheTagsInvalidator $cacheTagsInvalidator) {
     $this->pluginManager = $pluginManager;
     $this->db = $dynoblockDb;
     $this->moduleHandler = $moduleHandler;
+    $this->cacheTagsInvalidator = $cacheTagsInvalidator;
   }
 
   /**
@@ -464,6 +474,24 @@ class DynoblockCore {
     $attachments_processor->processAttachments($response);
     $commands = $response->getCommands();
     return $commands;
+  }
+
+
+  /**
+   * Invalidates cache for a specific entity ID.
+   *
+   * @param $entity_type
+   * @param $entity_id
+   */
+  public function invalidateCache($entity_type, $entity_id) {
+    if(!empty($entity_type) && !empty($entity_id)) {
+      $cache_tag = $entity_type . ':' . $entity_id;
+      $this->cacheTagsInvalidator->invalidateTags(array($cache_tag));
+      return "Success";
+    }
+    else {
+      return "Failure";
+    }
   }
 
 }
