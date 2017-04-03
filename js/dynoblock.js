@@ -130,7 +130,9 @@
       },
 
       saveBlock: function(form_state, method, callback){
+        var $this = this;
         this.postData('/dynoblock/save/' + method, form_state, function(data){
+          $this.clearCacheTag();
           if(callback){
             console.log(data);
             callback(data);
@@ -158,6 +160,7 @@
       removeBlock: function(rid, bid, callback){
         var $this = this;
         this.postData('/dynoblock/remove/' + rid + '/' + bid, [], function(data){
+          $this.clearCacheTag();
           if(data.removed){
             $this.getBlock(rid, bid, true);
           }
@@ -168,8 +171,10 @@
       },
 
       updateWeight: function(rid, bid, data, callback){
+        var $this = this;
         this.postData('/dynoblock/update/' + rid + '/' + bid, data, function(data){
-          if(callback){
+          $this.clearCacheTag();
+          if(callback) {
             callback(data);
           }
         });
@@ -201,7 +206,17 @@
       },
 
       addPageState: function(){
-        return { ajax_page_state: this.drupalSettings.ajaxPageState };
+        var ajax_page_state = this.drupalSettings.ajaxPageState;
+        // if (ajax_page_state.libraries && typeof(ajax_page_state.libraries) == 'string') {
+        //   ajax_page_state.libraries = ajax_page_state.libraries.split(',');
+        // }
+        return { ajax_page_state: ajax_page_state };
+      },
+      
+      clearCacheTag: function() {
+        if(globals.cache.entity && globals.cache.id) {
+          this.getData('/dynoblock/invalidate/' + globals.cache.entity + '/' + globals.cache.id, '');
+        }
       }
 
     }

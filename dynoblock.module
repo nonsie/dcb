@@ -59,8 +59,18 @@ function dynoblock_page_attachments(array &$page) {
   }
   $page['#attached']['library'][] = 'dynoblock/core';
 
+
   // Add configurable JS.
   $configs['ui_scroll'] = isset($configs['ui_scroll']) && $configs['ui_scroll'] === FALSE ? FALSE : TRUE;
+
+  // Add current path for defining cache tags on save.
+  $current_path = \Drupal::service('path.current')->getPath();
+  $exploded_path = explode('/', $current_path);
+  if (!empty($exploded_path[1]) && !empty($exploded_path[2])) {
+    $configs['cache']['entity'] = $exploded_path[1];
+    $configs['cache']['id'] = $exploded_path[2];
+  }
+
   $page['#attached']['drupalSettings']['dynoblock']['core'] = $configs;
 }
 

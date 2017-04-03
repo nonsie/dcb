@@ -72,13 +72,13 @@ class PageTitle extends DynoblockBase {
       )
     );
 
-    $ckeditor_field = $this->getField('ckeditor_field', TRUE, $form_state);
+    /*$ckeditor_field = $this->getField('ckeditor_field', TRUE, $form_state);
     $this->form['fields']['ckeditor'] = $ckeditor_field->form(
       array(
         "#title" => 'testing field title',
         '#default_value' => !empty($form_state['fields']['ckeditor']['value']['value']) ?  $form_state['fields']['ckeditor']['value']['value'] : '',
       )
-    );
+    );*/
 
   }
 
