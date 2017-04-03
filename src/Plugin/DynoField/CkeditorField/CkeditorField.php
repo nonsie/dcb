@@ -1,8 +1,8 @@
 <?php
 
-namespace Drupal\dynoblock\Plugin\DynoField;
+namespace Drupal\dynoblock\Plugin\DynoField\CkeditorField;
 
-use Drupal\dynoblock\DynoFieldBase;
+use Drupal\dynoblock\Plugin\DynoField\DynoFieldBase;
 
 /**
  * Provides a 'Ckeditor Field' DynoField Widget.

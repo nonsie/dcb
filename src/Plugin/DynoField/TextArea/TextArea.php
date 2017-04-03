@@ -1,8 +1,8 @@
 <?php
 
-namespace Drupal\dynoblock\Plugin\DynoField;
+namespace Drupal\dynoblock\Plugin\DynoField\TextArea;
 
-use Drupal\dynoblock\DynoFieldBase;
+use Drupal\dynoblock\Plugin\DynoField\DynoFieldBase;
 
 /**
  * Provides a 'Textarea Field' DynoField Widget.

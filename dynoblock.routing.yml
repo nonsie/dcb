@@ -48,7 +48,14 @@ dynoblock.update:
   requirements:
     _permission: 'use dynoblocks'
 
-dynoblock.update:
+dynoblock.invalidate_entity_cache:
+  path: '/dynoblock/invalidate/{etype}/{eid}'
+  defaults:
+    _controller: '\Drupal\dynoblock\Controller\DynoController::invalidateEntityCache'
+  requirements:
+    _permission: 'use dynoblocks'
+
+dynoblock.testpage:
   path: '/dynoblock/testpage'
   defaults:
     _controller: '\Drupal\dynoblock\Controller\DynoController::testpage'

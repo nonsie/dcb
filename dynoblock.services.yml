@@ -1,7 +1,7 @@
 services:
   dynoblock.core:
     class: Drupal\dynoblock\Service\DynoblockCore
-    arguments: ['@plugin.manager.dynoblock', '@dynoblock.database', '@module_handler']
+    arguments: ['@plugin.manager.dynoblock', '@dynoblock.database', '@module_handler', '@cache_tags.invalidator']
 
   dynoblock.database:
     class: Drupal\dynoblock\Service\DynoblockDb
@@ -12,7 +12,7 @@ services:
     parent: default_plugin_manager
 
   plugin.manager.dynofield:
-    class: Drupal\dynoblock\DynoFieldManager
+    class: Drupal\dynoblock\Plugin\DynoField\DynoFieldManager
     parent: default_plugin_manager
 
   dynoblock.dynoblocks:

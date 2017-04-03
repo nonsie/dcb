@@ -5,8 +5,8 @@ namespace Drupal\dynoblock\Plugin\Dynoblock;
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\dynoblock\DynoFieldInterface;
-use Drupal\dynoblock\DynoFieldManager;
+use Drupal\dynoblock\Plugin\DynoField\DynoFieldInterface;
+use Drupal\dynoblock\Plugin\DynoField\DynoFieldManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\dynoblock\DynoblockInterface;
 
@@ -66,11 +66,15 @@ class DynoblockBase extends PluginBase implements DynoblockInterface, ContainerF
    * @param bool $init
    * @return mixed|null|object
    */
-  public function getField($id, $init = FALSE) {
+  public function getField($id, $init = FALSE, $form_state = array()) {
     $fields = $this->loadFields();
     $field = array_key_exists($id, $fields) ? $fields[$id] : NULL;
     if ($field) {
-      if ($init) return $this->initField($field);
+      if ($init) {
+        $newfieldinstance = $this->initField($field);
+        $newfieldinstance->init($form_state);
+        return $newfieldinstance;
+      }
       return $field;
     }
   }

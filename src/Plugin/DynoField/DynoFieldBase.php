@@ -6,15 +6,17 @@
  * Time: 2:50 PM
  */
 
-namespace Drupal\dynoblock;
+namespace Drupal\dynoblock\Plugin\DynoField;
 
 use Drupal\Component\Plugin\PluginBase;
 
 class DynoFieldBase extends PluginBase implements DynoFieldInterface {
 
   public $form_state = array();
+  public $field;
+  public $display;
 
-  public function init(&$form_state) {
+  public function init($form_state) {
     $this->form_state = $form_state;
     $this->field = array(
       'handler' => array(

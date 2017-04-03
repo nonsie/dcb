@@ -1,11 +1,11 @@
 <?php
 
-namespace Drupal\dynoblock\Plugin\DynoField;
+namespace Drupal\dynoblock\Plugin\DynoField\TextField;
 
-use Drupal\dynoblock\DynoFieldBase;
+use Drupal\dynoblock\Plugin\DynoField\DynoFieldBase;
 
 /**
- * Provides a 'page Title' Dynoblock Widget.
+ * Provides a 'Text Field' DynoField Widget.
  *
  * @DynoField(
  *   id = "text_field",

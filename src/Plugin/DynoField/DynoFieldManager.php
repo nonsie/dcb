@@ -6,7 +6,7 @@
  * Time: 2:58 PM
  */
 
-namespace Drupal\dynoblock;
+namespace Drupal\dynoblock\Plugin\DynoField;
 
 
 use Drupal\Core\Plugin\DefaultPluginManager;
@@ -28,7 +28,7 @@ class DynoFieldManager extends DefaultPluginManager {
    */
 
   public function __construct(\Traversable $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler) {
-    parent::__construct('Plugin/DynoField', $namespaces, $module_handler, 'Drupal\dynoblock\DynoFieldInterface', 'Drupal\dynoblock\Annotation\DynoField');
+    parent::__construct('Plugin/DynoField', $namespaces, $module_handler, 'Drupal\dynoblock\Plugin\DynoField\DynoFieldInterface', 'Drupal\dynoblock\Annotation\DynoField');
 
     $this->alterInfo('dynoblock_field_info');
     $this->setCacheBackend($cache_backend, 'dynofield');

@@ -114,9 +114,22 @@ class DynoController extends ControllerBase {
   /**
    * @param $rid
    * @param $bid
+   *
+   * @return JsonResponse
    */
   function update($rid, $bid) {
+    $result = $this->dynoblockCore->updateBlock($rid, $bid);
+    return new JsonResponse(Json::encode($result));
+  }
 
+  /**
+   * @param $etype
+   * @param $eid
+   * @return JsonResponse
+   */
+  function invalidateEntityCache($etype, $eid) {
+    $result = $this->dynoblockCore->invalidateCache($etype, $eid);
+    return new JsonResponse(Json::encode($result));
   }
 
   /**
@@ -143,9 +156,5 @@ class DynoController extends ControllerBase {
 
     return $build;
   }
-
-/*  function create() {
-
-  }*/
 
 }
