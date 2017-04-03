@@ -84,7 +84,7 @@ class CardsDefaultTheme extends DynoWidgetTheme {
       foreach ($this->form_state[$this->form_state['widget']] as $delta => $value) {
         $items = $value['widget']['items'];
         $theme_settings = (isset($items['theme_settings']) ? $items['theme_settings'] : array());
-        $theme = new $items['theme']($this->form_state);
+        //$theme = new $items['theme']($this->form_state);
         $column['column'][$delta] = array(
           '#type' => 'container',
           '#attributes' => array(
@@ -94,7 +94,7 @@ class CardsDefaultTheme extends DynoWidgetTheme {
         if (isset($value['id'])) {
           $column['column'][$delta]['#attributes']['data-dyno-item-id'] = $value['id'];
         }
-        $column['column'][$delta][] = $theme->display($items, $theme_settings);
+        //$column['column'][$delta][] = $theme->display($items, $theme_settings);
       }
     }
     if (isset($values['BorderControl']['value']['show-vertical-borders'])) {

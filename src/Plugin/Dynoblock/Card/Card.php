@@ -157,7 +157,6 @@ class Card extends DynoblockBase {
       $this->layout = $theme->display($values);
     }
     return $this->layout;
-
   }
 
 }

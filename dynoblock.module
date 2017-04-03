@@ -163,8 +163,8 @@ function theme_dynoblock_tabledrag($vars) {
         '#title' => t('Weight for @title', array('@title' => 'Weight')),
         '#title_display' => 'invisible',
         '#default_value' => 0,
-        // Classify the weight element for #tabledrag.
-        '#attributes' => array('class' => array('table-order-weight')),
+          // Classify the weight element for #tabledrag.
+        '#attributes' => array('class' => array('table-order-weight', 'widget-table-sort')),
       );
       $content['table']['#rows'][$key]['data'][] = render($weight);
     }
