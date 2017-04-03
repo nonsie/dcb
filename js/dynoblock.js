@@ -186,12 +186,14 @@
             if(commands[i].command == 'insert'){
               this.loadAjaxJs(commands[i]);
             } else if (commands[i].command == 'settings') {
-              Drupal.attachBehaviors(document, commands[i].settings);
+              this.drupalSettings = commands[i].settings;
             } else {
               commander.commands[commands[i].command](this, commands[i], status);
             }
           }
         }
+        // Re-Attach Behaviors.
+        Drupal.attachBehaviors(document, this.drupalSettings);
       },
 
       loadAjaxJs: function(data){
@@ -201,11 +203,7 @@
       },
 
       addPageState: function(){
-        var ajax_page_state = this.drupalSettings.ajaxPageState;
-        // if (ajax_page_state.libraries && typeof(ajax_page_state.libraries) == 'string') {
-        //   ajax_page_state.libraries = ajax_page_state.libraries.split(',');
-        // }
-        return { ajax_page_state: ajax_page_state };
+        return { ajax_page_state: this.drupalSettings.ajaxPageState };
       }
 
     }
