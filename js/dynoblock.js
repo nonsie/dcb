@@ -467,7 +467,7 @@
         var $this = this;
         var ui = '<div class="menu dyno-ui closed">';
         ui += '<div class="dyno-toggle">';
-        ui += '<span class="dyno-label">DynoBlocks</span><span class="dyno-expand"><i class="fa fa-expand" aria-hidden="true" title="Expand"></span>';
+        ui += '<span class="dyno-label">DynoBlocks</span><span class="dyno-expand"></span>';
         ui += '</div>';
         ui += '<div class="dyno-ui-content nav"></div>';
         ui += '</div>';
@@ -482,6 +482,8 @@
 
       buildUi: function(){
         var $this = this;
+        // Add icon to open UI.
+        this.UiToggler.html('<i class="fa fa-expand" aria-hidden="true" title="Expand">');
         this.ui.css({
           minHeight: $(window).height(),
         });
@@ -489,7 +491,7 @@
           minHeight: $(window).height(),
         });
         this.UiToggler.on('click', function(){
-          $this.toggelUi();
+          $this.toggleUi();
         });
         this.UiBack.on('click', function(){
           switch ($this.step) {
@@ -512,14 +514,14 @@
 
       },
 
-      toggelUi: function(){
+      toggleUi: function() {
         var $this = this;
         var open = this.ui.hasClass('open') ? true : false;
         $('html').animate({
-          marginRight: open === true ? '0px' : '-400px',
+          marginRight: open === true ? '0px' : '-450px',
         }, 200);
         this.ui.animate({
-          width: open === true ? '35px' : '400px',
+          width: open === true ? '80px' : '530px',
         }, 200);
         setTimeout(function(){
           $this.ui.toggleClass('open');
@@ -539,10 +541,12 @@
           });
         }, 200);
         // remove ui content when closed
-        if(open){
+        if (open) {
           this.onUiClose();
-        } else {
+        }
+        else {
           this.ui.removeClass('closed');
+          this.UiToggler.html('<i class="fa fa-compress" aria-hidden="true" title="Collapse">');
         }
       },
 
@@ -559,6 +563,8 @@
         this.toggleNavigation('close');
         // close ui
         this.ui.addClass('closed');
+        // Add icon to expand.
+        this.UiToggler.html('<i class="fa fa-compress" aria-hidden="true" title="Collapse">');
         // remove ui html
         this.UiContent.html('');
       },
@@ -636,10 +642,10 @@
 
       toggleActiveRegion: function(rid){
         var region = DynoBlocks.getRegion(rid);
-        if(region){
+        if (region){
           region.region.toggleClass('active');
           var open = region.region.hasClass('active') ? true : false;
-          if(open && globals.ui_scroll){
+          if (open && globals.ui_scroll){
             this.scrollWindow(region.region.offset().top);
           }
         }
@@ -647,9 +653,9 @@
 
       toggleActiveBlock: function(rid, bid){
         var block = DynoBlocks.getBlock(rid, bid);
-        if(block){
+        if (block){
           block.element.toggleClass('active');
-          if(globals.ui_scroll){
+          if (globals.ui_scroll){
             this.scrollWindow(block.element.offset().top);
           }
         }
