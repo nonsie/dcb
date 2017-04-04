@@ -158,13 +158,13 @@ function theme_dynoblock_tabledrag($vars) {
       'id' => 'widget-table-sort',
     ),
   );
-
+  $i = 0;
   foreach (\Drupal\Core\Render\Element::children($element) as $key) {
     if ($key !== 'add_another') {
       // TableDrag: Mark the table row as draggable.
       $content['table']['#rows'][$key]['class'][] = 'draggable';
       // TableDrag: Sort the table row according to its existing/configured weight.
-      $content['table']['#rows'][$key]['#weight'] = 0;
+      $content['table']['#rows'][$key]['#weight'] = $i;
       // Some table columns containing raw markup.
       $content['table']['#rows'][$key]['data'][] = render($element[$key]);
       // TableDrag: Weight column element.
@@ -172,11 +172,12 @@ function theme_dynoblock_tabledrag($vars) {
         '#type' => 'textfield',
         '#title' => t('Weight for @title', array('@title' => 'Weight')),
         '#title_display' => 'invisible',
-        '#default_value' => 0,
+        '#value' => $i,
           // Classify the weight element for #tabledrag.
         '#attributes' => array('class' => array('table-order-weight', 'widget-table-sort')),
       );
       $content['table']['#rows'][$key]['data'][] = render($weight);
+      $i++;
     }
   }
 
