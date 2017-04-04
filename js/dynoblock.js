@@ -1,7 +1,5 @@
 (function ($) {
 
-  //$(document).ready(function(){
-
     var sortHoverTimer,
       actionsHoverTimer,
       globals = drupalSettings.dynoblock.core;
@@ -132,7 +130,9 @@
       },
 
       saveBlock: function(form_state, method, callback){
+        var $this = this;
         this.postData('/dynoblock/save/' + method, form_state, function(data){
+          $this.clearCacheTag();
           if(callback){
             console.log(data);
             callback(data);
@@ -160,6 +160,7 @@
       removeBlock: function(rid, bid, callback){
         var $this = this;
         this.postData('/dynoblock/remove/' + rid + '/' + bid, [], function(data){
+          $this.clearCacheTag();
           if(data.removed){
             $this.getBlock(rid, bid, true);
           }
@@ -170,8 +171,10 @@
       },
 
       updateWeight: function(rid, bid, data, callback){
+        var $this = this;
         this.postData('/dynoblock/update/' + rid + '/' + bid, data, function(data){
-          if(callback){
+          $this.clearCacheTag();
+          if(callback) {
             callback(data);
           }
         });
@@ -203,7 +206,17 @@
       },
 
       addPageState: function(){
-        return { ajax_page_state: this.drupalSettings.ajaxPageState };
+        var ajax_page_state = this.drupalSettings.ajaxPageState;
+        // if (ajax_page_state.libraries && typeof(ajax_page_state.libraries) == 'string') {
+        //   ajax_page_state.libraries = ajax_page_state.libraries.split(',');
+        // }
+        return { ajax_page_state: ajax_page_state };
+      },
+      
+      clearCacheTag: function() {
+        if(globals.cache.entity && globals.cache.id) {
+          this.getData('/dynoblock/invalidate/' + globals.cache.entity + '/' + globals.cache.id, '');
+        }
       }
 
     }
@@ -452,18 +465,17 @@
 
       init: function(){
         var $this = this;
-        var ui = '<div class="dyno-ui closed">';
+        var ui = '<div class="menu dyno-ui closed">';
         ui += '<div class="dyno-toggle">';
-        ui += '<span class="dyno-back"><img src="'+ globals.dir_uri +'/misc/back.png"/></span>';
-        ui += '<span class="dyno-label">DynoBlocks <span class="dyno-hamburger"><img src="'+ globals.dir_uri +'/misc/hamburger.png"/></span></span>';
+        ui += '<span class="dyno-label">DynoBlocks</span><span class="dyno-expand"><i class="fa fa-expand" aria-hidden="true" title="Expand"></span>';
         ui += '</div>';
-        ui += '<div class="dyno-ui-content"></div>';
+        ui += '<div class="dyno-ui-content nav"></div>';
         ui += '</div>';
         this.ui = $(ui);
         $('body').append(this.ui);
         this.UiSidebar = this.ui.find('.dyno-toggle');
-        this.UiToggler = this.UiSidebar.find('.dyno-hamburger');
-        this.UiBack = this.UiSidebar.find('.dyno-back');
+        this.UiToggler = this.ui.find('.dyno-expand');
+        this.UiBack = this.ui.find('.dyno-back');
         this.UiContent = this.ui.find('.dyno-ui-content');
         this.buildUi();
       },
@@ -585,8 +597,9 @@
         var bid = block.bid;
         var li = this.addListItem(bid, block.label);
         this.regions[rid].blocks[key] = block;
-        li.prepend(this.blockRemoveSupport(block, rid));
         li.append(this.blockEditSupport(block, rid));
+        li.append(this.blockRemoveSupport(block, rid));
+
         this.regions[rid].blocks[key].el = li;
         // click listener
         this.regions[rid].blocks[key].el.find('.dyno-list-item').on('click', function(){
@@ -663,13 +676,14 @@
 
       blockRemoveSupport: function(block, rid){
         var $this = this;
-        var removeable = $('<button type="button" class="btn btn-danger dynoblock-remove"><img src="'+ globals.dir_uri +'/misc/remove.png"/></button>');
-        removeable.on('click', function(){
+        var removeable = $('<a href="#" class="btn btn-danger dynoblock-remove"><i class="fa fa-trash-o" aria-hidden="true" title="Delete"></a>');
+        removeable.on('click', function(e){
+          e.preventDefault();
           var remove = confirm('Are you sure you want to delete this block?');
           if (remove == true) {
             block.remove();
-            for(var delta in $this.regions[rid].blocks){
-              if($this.regions[rid].blocks[delta].bid == block.bid){
+            for (var delta in $this.regions[rid].blocks) {
+              if ($this.regions[rid].blocks[delta].bid == block.bid) {
                 $this.regions[rid].blocks[delta].el.remove();
               }
             }
@@ -680,9 +694,10 @@
 
       blockEditSupport: function(block, rid){
         var $this = this;
-        var editable = $('<button type="button" class="btn btn-primary dynoblock-edit"><img src="'+ globals.dir_uri +'/misc/edit.png"/></button>');
+        var editable = $('<a href="#" class="btn btn-primary dynoblock-edit"><i class="fa fa-edit" aria-hidden="true" title="Edit"></a>');
         var bid = block.bid;
-        editable.on('click', function(){
+        editable.on('click', function(e) {
+          e.preventDefault();
           var selector = new DynoBlockSelector($this.activeRegion);
           selector.init(function(modal){
             $('body').append(modal);
@@ -781,7 +796,11 @@
           case 'region':
             var $this = this;
             var label = item.label ? item.label : item.rid;
+            if(label.length > 44) label = label.substring(0, 44) + '...';
             var actions = $('<div class="dyno-ui-actions"></div>').appendTo(header);
+            var back = '<span class="dyno-back"><i class="fa fa-arrow-left" aria-hidden="true" title="Back"></span>';
+            actions.append(back);
+
             var edit = $('<span><a class="dyno-ui-edit" title="Edit Blocks" href="#">Edit</a></span>');
             // edit on click listener
             edit.on('click', function(e){
@@ -797,9 +816,8 @@
             // cuts out one extra step.
             edit.click();
             actions.append(edit);
-            if(label.length > 44) label = label.substring(0, 44) + '...';
-            actions.append('<span>'+label+'</span>');
-            var add = $('<span class="dyno-add-block" title="Add Block"><img src="'+ globals.dir_uri +'/misc/plus.png"/></span>');
+
+            var add = $('<span class="dyno-add-block"><i class="fa fa-plus fa-fw" aria-hidden="true" title="Add Dynoblock"></i></span>');
             // display widget selector on click
             // this also handles the "no blocks found" trigger link
             $(document).off('click', '.dyno-add-block');
@@ -808,6 +826,7 @@
               item.displayWidgetModal();
             });
             actions.append(add);
+            actions.append(label);
             break;
           case 'block':
             var label = item.label ? item.label : item.rid;
