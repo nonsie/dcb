@@ -38,9 +38,6 @@ class DynoblockForm extends FormBase {
         DynoBlockForms::buildWidgetForm($widget, $handler, $form_state);
         DynoBlockForms::buildThemeSelection($widget, $handler, $form_state);
         $widgetForm = array_replace($widgetForm, $handler->form);
-        \Drupal::logger('my_module')->notice($handler->form);
-        \Drupal::logger('my_module')->notice(print_r($widgetForm, TRUE));
-        //$widgetForm = $handler->form;
         $form_state->widget = $widget;
       }
     }
@@ -61,7 +58,6 @@ class DynoblockForm extends FormBase {
         return $form[$form_state->getValue('widget')];
         break;
       case 'remove':
-        return $form;
         return $form[$form_state->getValue('widget')];
         break;
     }
