@@ -82,8 +82,6 @@ class DynoblockForm extends FormBase {
         $input = &$form_state->getUserInput();
         $plugin_id = $input['widget'];
         $plugin_values = &$input[$plugin_id];
-        print_r($input);
-        exit();
         $delta = $trigger['#ajax']['delta'];
         if (isset($plugin_values[$delta])) {
           unset($plugin_values[$delta]);
