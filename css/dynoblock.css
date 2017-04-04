@@ -104,45 +104,33 @@
 /**
  * Dyno Ui
  */
-.dyno-ui {
-  position: fixed;
-  left: 0px;
-  width: 35px;
-  top: 0px;
-  cursor: pointer;
-  left: 0px; }
-  .dyno-ui img {
-    width: auto !important; }
-  .dyno-ui .dyno-toggle {
-    font-size: 20px;
-    font-weight: bold;
-    top: 55%;
-    float: left;
-    width: 35px;
-    color: #000; }
-    .dyno-ui .dyno-toggle .dyno-label {
-      -webkit-transform: rotate(-90deg);
-      -webkit-transform-origin: top left 0;
-      transform: rotate(-90deg);
-      transform-origin: top left 0;
-      float: right;
-      position: absolute;
-      top: 50%;
-      left: 0px; }
-    .dyno-ui .dyno-toggle .dyno-expand {
-      float: right;
-      position: absolute;
-      top: 30%;
-      margin: 10px;
-      color: #333;
-      font-size: 18px; }
-    .dyno-ui .dyno-toggle .dyno-back {
-      display: none; }
-  .dyno-ui .dyno-ui-content {
-    background: white; }
-
-.dyno-ui.closed {
-  left: -35px; }
+.dyno-ui .dyno-toggle {
+  font-size: 20px;
+  font-weight: bold;
+  top: 55%;
+  width: 80px;
+  float: right;
+  color: #000; }
+  .dyno-ui .dyno-toggle .dyno-label {
+    -webkit-transform: rotate(-90deg);
+    -webkit-transform-origin: top left 0;
+    transform: rotate(-90deg);
+    transform-origin: top left 0;
+    float: right;
+    position: absolute;
+    top: 48%;
+    margin: 10px; }
+  .dyno-ui .dyno-toggle .dyno-expand {
+    float: right;
+    position: absolute;
+    top: 30%;
+    margin: 20px;
+    color: #333;
+    font-size: 18px; }
+  .dyno-ui .dyno-toggle .dyno-back {
+    display: none; }
+.dyno-ui .dyno-ui-content {
+  background: white; }
 
 .dyno-ui.open {
   background: white;
@@ -168,15 +156,16 @@
   height: 100%;
   position: fixed;
   z-index: 100;
+  top: 0px;
+  cursor: pointer;
   -webkit-box-shadow: 5px 0px 2px 0px rgba(0, 0, 0, 0.2);
   box-shadow: 5px 0px 2px 0px rgba(0, 0, 0, 0.2);
-  left: -450px;
+  left: 0;
   transition: all 0.3s;
   -webkit-transition: all 0.3s;
   color: #222; }
-  .dyno-ui.menu:hover, .dyno-ui.menu:focus {
-    transform: translate3d(450px, 0, 0);
-    animation-timing-function: 1s ease-in; }
+  .dyno-ui.menu.closed {
+    left: -450px; }
   .dyno-ui.menu .title {
     position: absolute;
     top: 40%;
