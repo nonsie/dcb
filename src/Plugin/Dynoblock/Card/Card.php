@@ -145,7 +145,10 @@ class Card extends DynoblockBase {
 //    ), $delta);
 
     $textarea_field = $this->getField('ckeditor_field', TRUE);
-    $item['body'] = $textarea_field->form();
+    $item['body'] = $textarea_field->form([
+      "#title" => 'testing field title',
+      '#default_value' => !empty($values['widget']['items']['body']['value']['value']) ? $values['widget']['items']['body']['value']['value'] : '',
+    ]);
     return $item;
   }
 

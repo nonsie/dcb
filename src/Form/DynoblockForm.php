@@ -79,6 +79,15 @@ class DynoblockForm extends FormBase {
     $storage['sub_widgets_amount'] = isset($storage['sub_widgets_amount']) ? $storage['sub_widgets_amount'] : 1;
     switch ($type) {
       case 'remove':
+        $input = &$form_state->getUserInput();
+        $plugin_id = $input['widget'];
+        $plugin_values = &$input[$plugin_id];
+        $delta = $trigger['#ajax']['delta'];
+        if (isset($plugin_values[$delta])) {
+          unset($plugin_values[$delta]);
+          $plugin_values = array_values($plugin_values);
+          $form_state->setUserInput($input);
+        }
         $storage['sub_widgets_amount']--;
         break;
       case 'add':
