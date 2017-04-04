@@ -517,6 +517,7 @@
       toggleUi: function() {
         var $this = this;
         var open = this.ui.hasClass('open') ? true : false;
+        console.log('toggleUI with ' + open);
         $('html').animate({
           marginRight: open === true ? '0px' : '-450px',
         }, 200);
@@ -576,12 +577,12 @@
       },
 
       initRegions: function(){
-        for(var rid in DynoBlocks.regions){
+        for (var rid in DynoBlocks.regions) {
           this.addRegion(DynoBlocks.regions[rid]);
         }
       },
 
-      loadRegionBlocks: function(region){
+      loadRegionBlocks: function(region) {
         var rid = region.rid;
         this.regions[rid].blocks = {};
         var blocks = [];
@@ -589,7 +590,7 @@
         region.refresh();
         // Put blocks in in array by weight.
         var i = 0;
-        for(var bid in region.blocks){
+        for (var bid in region.blocks) {
           var block_id = region.blocks[bid].bid;
           this.addBlock(region.blocks[i], i);
           i++;
@@ -804,13 +805,12 @@
             var label = item.label ? item.label : item.rid;
             if(label.length > 44) label = label.substring(0, 44) + '...';
             var actions = $('<div class="dyno-ui-actions"></div>').appendTo(header);
-            var back = '<span class="dyno-back"><i class="fa fa-arrow-left" aria-hidden="true" title="Back"></span>';
+            var back = '<span class="dyno-back action"><i class="fa fa-arrow-left" aria-hidden="true" title="Back"></span>';
             actions.append(back);
 
-            var edit = $('<span><a class="dyno-ui-edit" title="Edit Blocks" href="#">Edit</a></span>');
+            var edit = $('<span class="dyno-ui-edit action"><i class="fa fa-edit" aria-hidden="true" title="Edit Blocks"></span>');
             // edit on click listener
-            edit.on('click', function(e){
-              e.preventDefault();
+            edit.on('click', function() {
               if(!$this.sections.region.hasClass('dyno-editable')){
                 $this.addBlockSortSupport();
               } else {
@@ -823,16 +823,15 @@
             edit.click();
             actions.append(edit);
 
-            var add = $('<span class="dyno-add-block"><i class="fa fa-plus fa-fw" aria-hidden="true" title="Add Dynoblock"></i></span>');
+            var add = $('<span class="dyno-add-block action"><i class="fa fa-plus fa-fw" aria-hidden="true" title="Add Dynoblock"></i></span>');
             // display widget selector on click
             // this also handles the "no blocks found" trigger link
             $(document).off('click', '.dyno-add-block');
-            $(document).on('click', '.dyno-add-block', function(e){
-              e.preventDefault();
+            $(document).on('click', '.dyno-add-block', function() {
               item.displayWidgetModal();
             });
             actions.append(add);
-            actions.append(label);
+            actions.append('<span class="region-title">' + label + '</span>');
             break;
           case 'block':
             var label = item.label ? item.label : item.rid;
