@@ -41,6 +41,7 @@ class DynoblockForm extends FormBase {
         $form_state->widget = $widget;
       }
     }
+    $widgetForm['#token'] = FALSE;
     return $widgetForm;
   }
 
@@ -51,43 +52,40 @@ class DynoblockForm extends FormBase {
 
   }
 
+  /**
+   * @param array $form
+   * @param FormStateInterface $form_state
+   * @return mixed
+   */
   public function cardinalityCallback(array &$form, FormStateInterface &$form_state) {
     $trigger = $form_state->getTriggeringElement();
     switch ($trigger['#ajax']['type']) {
       case 'add':
-        return $form[$form_state->getValue('widget')];
-        break;
       case 'remove':
         return $form[$form_state->getValue('widget')];
         break;
     }
   }
 
+  /**
+   * @param array $form
+   * @param FormStateInterface $form_state
+   */
   public function cardinalitySubmit(array &$form, FormStateInterface &$form_state) {
     $form_state->setRebuild(TRUE);
     $trigger = $form_state->getTriggeringElement();
     $type = $trigger['#attributes']['#type'];
-    $widget = $form_state->getUserInput('widget');
+    $storage = &$form_state->getStorage();
+    $storage['sub_widgets_amount'] = isset($storage['sub_widgets_amount']) ? $storage['sub_widgets_amount'] : 1;
     switch ($type) {
       case 'remove':
-        $storage = &$form_state->getStorage();
-        if(isset($storage['sub_widgets_amount'])) {
-          $storage['sub_widgets_amount']--;
-        } else {
-          $storage['sub_widgets_amount'] = 0;
-        }
-        $form_state->setStorage($storage);
+        $storage['sub_widgets_amount']--;
         break;
       case 'add':
-        $storage = &$form_state->getStorage();
-        if(isset($storage['sub_widgets_amount'])) {
-          $storage['sub_widgets_amount']++;
-        } else {
-          $storage['sub_widgets_amount'] = 1;
-        }
-        $form_state->setStorage(array('sub_widgets_amount' => $storage['sub_widgets_amount']));
+        $storage['sub_widgets_amount']++;
         break;
     }
+    $form_state->setStorage($storage);
   }
 
 }

@@ -23,6 +23,7 @@ class DynoblockBase extends PluginBase implements DynoblockInterface, ContainerF
   public $namespace;
   public $dynoFieldManager;
   public $fields;
+  public $output;
 
   /**
    * DynoblockBase constructor.

@@ -177,11 +177,12 @@ class DynoblockCore {
   }
 
   /**
+   * @param $output
+   * @param $plugin
    * @param $block
-   * @param $html
    * @return mixed|null
    */
-  public function renderNewBlock($block, $html) {
+  public function renderNewBlock($output, $plugin, $block) {
     $render['container'] = array(
       '#type' => 'container',
       '#attributes' => array(
@@ -199,28 +200,44 @@ class DynoblockCore {
         'class' => array('dynoblock-content'),
       ),
     );
-    $render['container']['content']['block'] = array(
-      '#type' => 'markup',
-      '#markup' => $html,
-    );
+    if ($block['theme'] && !empty($plugin->themes[$block['theme']]['template_dir'])) {
+      $render['container']['content']['block'] = array(
+        '#theme' => $block['theme'],
+        '#block' => $output,
+      );
+    } else {
+      $render['container']['content']['block'] = [
+        '#type' => 'markup',
+        '#markup' => render($output),
+      ];
+    }
     return render($render);
   }
 
   /**
-   * @param $html
+   * @param $output
+   * @param $plugin
+   * @param $data
    * @return mixed|null
    */
-  public function wrapEditBlock($html) {
+  public function wrapEditBlock($output, $plugin, $data) {
     $wrapper = array(
       '#type' => 'container',
       '#attributes' => array(
         'class' => array('dynoblock-content'),
       ),
     );
-    $wrapper[] = array(
-      '#type' => 'markup',
-      '#markup' => $html,
-    );
+    if ($data['theme'] && !empty($plugin->themes[$data['theme']]['template_dir'])) {
+      $wrapper[] = array(
+        '#theme' => $data['theme'],
+        '#block' => $output,
+      );
+    } else {
+      $wrapper[] = [
+        '#type' => 'markup',
+        '#markup' => render($output),
+      ];
+    }
     return render($wrapper);
   }
 
@@ -381,26 +398,25 @@ class DynoblockCore {
         if ($action) {
           $layout = $this->initPlugin($_POST['widget']);
           if ($layout) {
-            $html = $layout->init($_POST)->preRender($_POST);
+            $output = $layout->init($_POST)->preRender($_POST);
             // Call theme preRender so it can modify final output.
             $widget = $this->getWidget($_POST['widget']);
             if (!empty($widget['parent_theme']['handler'])) {
               $theme_settings = !empty($_POST['global_theme_settings']) ? $_POST['global_theme_settings'] : array();
-              $widget['parent_theme']['handler']->preRender($widget, $_POST, $html, $theme_settings);
+              $widget['parent_theme']['handler']->preRender($widget, $_POST, $output, $theme_settings);
             }
-            $html = render($html);
             if ($method == 'new') {
-              $html = $this->renderNewBlock($_POST, $html);
+              $output = $this->renderNewBlock($output, $form, $_POST);
             }
             else {
-              $html = $this->wrapEditBlock($html);
+              $output = $this->wrapEditBlock($output, $form, $_POST);
             }
             $output = array(
               'saved' => TRUE,
               'bid' => $_POST['bid'],
               'rid' => $_POST['rid'],
               'handler' => $_POST['widget'],
-              'block' => $html,
+              'block' => $output,
             );
           }
         }
