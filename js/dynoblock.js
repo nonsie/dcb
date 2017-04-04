@@ -604,8 +604,9 @@
         var bid = block.bid;
         var li = this.addListItem(bid, block.label);
         this.regions[rid].blocks[key] = block;
-        li.append(this.blockEditSupport(block, rid));
-        li.append(this.blockRemoveSupport(block, rid));
+        var actions = li.find('.d-icons');
+        actions.append(this.blockEditSupport(block, rid));
+        actions.append(this.blockRemoveSupport(block, rid));
 
         this.regions[rid].blocks[key].el = li;
         // click listener
@@ -677,7 +678,7 @@
         // add tag if needed
         if(tag) li.append('<span class="badge label label-default label-pill pull-right">' + tag + '</span>');
         // add li text
-        li.append('<span class="dyno-list-item">' + label + '</span>');
+        li.append('<span class="dyno-list-item">' + label + '</span><span class="d-icons"></span>');
         return $(li);
       },
 
