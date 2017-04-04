@@ -815,7 +815,7 @@
           case 'region':
             var $this = this;
             var actions = $('<div class="dyno-ui-actions"></div>').appendTo(header);
-            var back = '<span class="dyno-back action"><i class="fa fa-arrow-left" aria-hidden="true" title="Back"></span>';
+            var back = '<span class="dyno-back action"><i class="fa fa-home" aria-hidden="true" title="Back"></span>';
             actions.append(back);
 
             var edit = $('<span class="dyno-ui-edit action"><i class="fa fa-edit" aria-hidden="true" title="Edit Blocks"></span>');
@@ -845,7 +845,7 @@
             break;
           case 'block':
             var actions = $('<div class="dyno-ui-actions"></div>').appendTo(header);
-            var back = '<span class="dyno-back action"><i class="fa fa-arrow-left" aria-hidden="true" title="Back"></span>';
+            var back = '<span class="dyno-back action"><i class="fa fa-home" aria-hidden="true" title="Back"></span>';
             actions.append(back);
             actions.append('<div><strong>ID: </strong><span>'+ label +'</span></div>');
             actions.append('<div><strong>Component: </strong><span>'+ item.handler +'</span></div>');
