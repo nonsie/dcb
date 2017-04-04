@@ -86,9 +86,9 @@ class PageTitle extends DynoblockBase {
     $this->form_state = $values;
     $theme = !empty($this->themes[$values['theme']]['handler']) ? $this->themes[$values['theme']]['handler'] : NULL;
     if ($theme = $this->loadTheme($theme)) {
-      $this->layout = $theme->display($values);
+      $this->output = $theme->display($values);
     }
-    return $this->layout;
+    return $this->output;
   }
 
   /**

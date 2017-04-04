@@ -18,6 +18,7 @@ edit:
     - core/drupal.form
     - core/drupal.ajax
     - core/drupalSettings
+    - core/drupal.dialog
 
 font-awesome:
   remote: https://fortawesome.github.io/Font-Awesome/
