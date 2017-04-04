@@ -2,7 +2,6 @@
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Component\Utility\NestedArray;
 
 /**
  * Implements hook_entity_presave().
@@ -217,31 +216,6 @@ function dynoblock_dynoblock_themes() {
       'path' => 'src/Plugin/Dynoblock',
     ),
   );
-}
-
-/**
- * Default Dynoblocks core ajax callback handler
- */
-function dynoblock_core_form_ajax_callback($form, FormStateInterface &$form_state) {
-  $trigger = $form_state->getTriggeringElement();
-  switch ($trigger['#ajax']['type']) {
-    case 'add':
-      array_pop($trigger['#array_parents']);
-      return NestedArray::getValue($form, $trigger['#array_parents']);
-      break;
-    case 'remove':
-      $parents = array();
-      foreach ($form_state['triggering_element']['#parents'] as $parent) {
-        $parents[] = $parent;
-        if ($parent == $form_state['triggering_element']['#ajax']['widget']) {
-          break;
-        }
-      }
-      //$element = drupal_array_get_nested_value($form, $parents);
-      //return $element;
-      break;
-  }
-
 }
 
 /**

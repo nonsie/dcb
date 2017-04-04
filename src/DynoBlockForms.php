@@ -4,8 +4,8 @@ namespace Drupal\dynoblock;
 
 class DynoBlockForms {
 
-  const coreAjaxCallback = 'dynoblock_core_form_ajax_callback';
-  const coreAjaxSubmit = 'dynoblock_core_form_ajax_submit';
+  const cardinalityCallback = '::cardinalityCallback';
+  const cardinalitySubmit = '::cardinalitySubmit';
   const fieldAjaxCallback = 'dynoblock_form_ajax_callback';
   const fieldAjaxSubmit = 'dynoblock_form_ajax_submit';
   const fieldWidgetAjaxCallback = 'dynoblock_field_widget_ajax_callback';
@@ -121,7 +121,12 @@ class DynoBlockForms {
         $items = $form_state->getUserInput($id) && !empty($form_state->$id) ? $form_state->$id : $form_state->getUserInput($id);
         $items = $items[$id];
       } else if(!empty($form_state[$id])){
-        $items = $form_state[$id][$id];
+        $items = $form_state[$id];
+      }
+      $sub_widgets_amounts = count($items);
+      if(is_object($form_state) && $form->rebuild) {
+        $storage = $form_state->getStorage();
+        $sub_widgets_amounts = isset($storage['sub_widgets_amount']) ? $storage['sub_widgets_amount'] : 1;
       }
       $container_id = self::createId($widget, 'widget-group');
       $form->form[$id] = array(
@@ -133,9 +138,11 @@ class DynoBlockForms {
           'id' => $container_id,
         ),
       );
+
       if ($cardinality == -1) {
-        $cardinality = empty($items) ? 1 : count($items);
+        $cardinality = empty($items) ? 1 : $sub_widgets_amounts;
       }
+
       $add_another_name = $id . '[' . self::$widget_deltas[$id] . '][add]';
       $form->form[$id]['add_another'] = self::addAnotherBtn($container_id, $add_another_name);
 
@@ -155,15 +162,15 @@ class DynoBlockForms {
         );
         $form->form[$id][$i]['widget'] = $form->widgetForm($form_state, $items, $i);
 
-        if ($cardinality > 1) {
+        //if ($cardinality > 1) {
           $name = $id . '[' . self::$widget_deltas[$id] . '][remove][' . $i . ']';
           $form->form[$id][$i]['widget']['items']['remove'] = self::removeItemBtn($id, $i, $container_id, $name);
-        }
+        //}
 
         if ($variant_support) {
           $form->form[$id][$i]['id'] = array(
             '#type' => 'hidden',
-            '#default_value' => (empty($items[$i]['id']) ? DynoBlockForms::randId() :  $items[$i]['id']),
+            '#default_value' => (empty($items[$i]['id']) ? DynoBlockForms::randId() : $items[$i]['id']),
           );
         }
       }
@@ -385,20 +392,21 @@ class DynoBlockForms {
   private static function addAnotherBtn($id, $name) {
     return array(
       '#type' => 'submit',
-      '#submit' => array(self::coreAjaxSubmit),
+      '#submit' => [self::cardinalitySubmit],
       '#value' => t('Add Another'),
       '#weight' => 100,
       '#name' => $name,
+      '#button_type' => 'primary',
       '#ajax' => array(
         'wrapper' => $id,
-        'callback' => self::coreAjaxCallback,
+        'callback' => self::cardinalityCallback,
         'method' => 'replace',
         'effect' => 'fade',
         'type' => 'add',
       ),
       '#attributes' => array(
         '#type' => 'add',
-        'target' => $id,
+        'data-drupal-target' => $id,
       ),
     );
   }
@@ -406,7 +414,7 @@ class DynoBlockForms {
   private static function removeItemBtn($widget, $delta, $ajax_target, $name) {
     return array(
       '#type' => 'submit',
-      '#submit' => array(self::coreAjaxSubmit),
+      '#submit' => array(self::cardinalitySubmit),
       '#value' => t('Remove'),
       '#weight' => 100,
       '#name' => $name,
@@ -417,7 +425,7 @@ class DynoBlockForms {
       ),
       '#ajax' => array(
         'wrapper' => $ajax_target,
-        'callback' => self::coreAjaxCallback,
+        'callback' => self::cardinalityCallback,
         'method' => 'replace',
         'effect' => 'fade',
         'type' => 'remove',
