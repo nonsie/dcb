@@ -475,7 +475,6 @@
         $('body').append(this.ui);
         this.UiSidebar = this.ui.find('.dyno-toggle');
         this.UiToggler = this.ui.find('.dyno-expand');
-        this.UiBack = this.ui.find('.dyno-back');
         this.UiContent = this.ui.find('.dyno-ui-content');
         this.buildUi();
       },
@@ -493,13 +492,9 @@
         this.UiToggler.on('click', function(){
           $this.toggleUi();
         });
+        this.UiBack = this.ui.find('.dyno-back');
         this.UiBack.on('click', function(){
           switch ($this.step) {
-            case 'region':
-              $this.initUi();
-              $this.toggleNavigation('close');
-              $this.activeRegion.region.removeClass('active');
-              break;
             case 'block':
               $this.activeBlock.element.removeClass('active');
               if($this.sections.region){
@@ -517,12 +512,11 @@
       toggleUi: function() {
         var $this = this;
         var open = this.ui.hasClass('open') ? true : false;
-        console.log('toggleUI with ' + open);
         $('html').animate({
           marginRight: open === true ? '0px' : '-450px',
         }, 200);
         this.ui.animate({
-          width: open === true ? '80px' : '530px',
+          width: open === true ? '530px' : '530px',
         }, 200);
         setTimeout(function(){
           $this.ui.toggleClass('open');
@@ -611,7 +605,7 @@
         this.regions[rid].blocks[key].el = li;
         // click listener
         this.regions[rid].blocks[key].el.find('.dyno-list-item').on('click', function(){
-          $this.blockSelected(rid, $(this).parents('li').data('dyno-ui-item'));
+          $this.blockSelected(rid, $(this).parents('li').data('dyno-ui-item'), $this);
         });
         // mouseenter litener listener
         this.regions[rid].blocks[key].el.on('mouseenter mouseleave', function(){
@@ -634,7 +628,7 @@
 
         // click listener
         this.regions[rid].el.on('click', function(){
-          $this.regionSelected($(this).data('dyno-ui-item'));
+          $this.regionSelected($(this).data('dyno-ui-item'), $this);
         });
         // mouseenter litener listener
         this.regions[rid].el.on('mouseenter mouseleave', function(){
@@ -772,9 +766,9 @@
 
       },
 
-      regionSelected: function(rid){
+      regionSelected: function(rid, container){
         var region = DynoBlocks.getRegion(rid);
-        if(region){
+        if (region) {
           this.activeRegion = region;
           this.sections.region = $('<div class="dyno-ui-region"></div>');
           this.sections.region.append(this.sectionHeader('region', region));
@@ -782,12 +776,19 @@
           this.UiContent.html(this.sections.region);
           this.step = 'region';
           this.toggleNavigation('open');
+          // Add handler for back button.
+          this.UiBack = this.UiContent.find('.dyno-back');
+          this.UiBack.on('click', function() {
+            container.initUi();
+            container.toggleNavigation('close');
+            container.activeRegion.region.removeClass('active');
+          });
         }
       },
 
-      blockSelected: function(rid, bid){
+      blockSelected: function(rid, bid, container){
         var block = DynoBlocks.getBlock(rid, bid);
-        if(block){
+        if (block) {
           this.sections.block = $('<div class="dyno-ui-block"></div>');
           this.sections.block.append(this.sectionHeader('block', block));
           this.sections.block.append(this.buildBlockDisplay(block));
@@ -795,16 +796,24 @@
           this.UiContent.html(this.sections.block);
           this.activeBlock = block;
           this.step = 'block';
+          // Add handler for back button.
+          this.UiBack = this.UiContent.find('.dyno-back');
+          this.UiBack.on('click', function() {
+            container.activeBlock.element.removeClass('active');
+            if (container.sections.region) {
+              container.regionSelected(container.activeRegion.rid);
+            }
+          });
         }
       },
 
       sectionHeader: function(type, item){
         var header = $('<div class="dyno-ui-header"></div>');
+        var label = item.label ? item.label : item.rid;
+        if (label.length > 44) label = label.substring(0, 44) + '...';
         switch (type) {
           case 'region':
             var $this = this;
-            var label = item.label ? item.label : item.rid;
-            if(label.length > 44) label = label.substring(0, 44) + '...';
             var actions = $('<div class="dyno-ui-actions"></div>').appendTo(header);
             var back = '<span class="dyno-back action"><i class="fa fa-arrow-left" aria-hidden="true" title="Back"></span>';
             actions.append(back);
@@ -835,9 +844,11 @@
             actions.append('<span class="region-title">' + label + '</span>');
             break;
           case 'block':
-            var label = item.label ? item.label : item.rid;
-            header.append('<div><strong>Block: </strong><span>'+ label +'</span></div>');
-            header.append('<div><strong>Widget: </strong><span>'+ item.handler +'</span></div>');
+            var actions = $('<div class="dyno-ui-actions"></div>').appendTo(header);
+            var back = '<span class="dyno-back action"><i class="fa fa-arrow-left" aria-hidden="true" title="Back"></span>';
+            actions.append(back);
+            actions.append('<div><strong>ID: </strong><span>'+ label +'</span></div>');
+            actions.append('<div><strong>Component: </strong><span>'+ item.handler +'</span></div>');
             break;
         }
         return header;
