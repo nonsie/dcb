@@ -56,29 +56,28 @@ class PageTitle extends DynoblockBase {
       '#default_value' => !empty($form_state['fields']['title']) ? $form_state['fields']['title'] : NULL,
     );
 
-    $text_field = $this->getField('text_field', TRUE, $form_state);
-    $this->form['fields']['anotherfield'] = $text_field->form(
+    $select_field = $this->getField('select_field', TRUE, $form_state);
+    $this->form['fields']['tag'] = $select_field->form(
       array(
-        "#title" => 'testing field title',
-        '#default_value' => !empty($form_state['fields']['anotherfield']['value']) ?  $form_state['fields']['anotherfield']['value'] : '',
+        "#title" => t('HTML tag'),
+        '#default_value' => !empty($form_state['fields']['tag']) ?
+          $form_state['fields']['tag'] : 'h2',
+        '#options' => array(
+          'h1' => 'h1',
+          'h2' => 'h2',
+          'h3' => 'h3',
+          'h4' => 'h4',
+        ),
       )
     );
 
-    $textarea_field = $this->getField('textarea_field', TRUE, $form_state);
-    $this->form['fields']['textarea'] = $textarea_field->form(
-      array(
-        "#title" => 'testing field title',
-        '#default_value' => !empty($form_state['fields']['textarea']['value']) ?  $form_state['fields']['textarea']['value'] : '',
-      )
+    $this->form['fields']['class_name'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Optional class(es)'),
+      '#description' => t('One or more classes to apply to the title tag'),
+      '#default_value' => !empty($form_state['fields']['class_name']) ?
+        $form_state['fields']['class_name'] : '',
     );
-
-    /*$ckeditor_field = $this->getField('ckeditor_field', TRUE, $form_state);
-    $this->form['fields']['ckeditor'] = $ckeditor_field->form(
-      array(
-        "#title" => 'testing field title',
-        '#default_value' => !empty($form_state['fields']['ckeditor']['value']['value']) ?  $form_state['fields']['ckeditor']['value']['value'] : '',
-      )
-    );*/
 
   }
 
