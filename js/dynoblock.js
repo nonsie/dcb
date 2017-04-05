@@ -1,11 +1,9 @@
 (function ($) {
 
-    var sortHoverTimer,
-      actionsHoverTimer,
-      globals = drupalSettings.dynoblock.core;
+    var globals = drupalSettings.dynoblock.core;
 
     /*
-     * Dynamic blocks controller
+     * Dynamic blocks controller.
      */
     var DynoBlocks = {
 
@@ -14,7 +12,7 @@
 
       init: function(load_ui, settings){
         this.drupalSettings = settings;
-        if(load_ui && globals.load_ui){
+        if (load_ui && globals.load_ui) {
           DynoUi.init();
         }
         this.regions = [];
@@ -34,7 +32,7 @@
       addRegion: function(region, ajax_load_blocks, rid){
         var $this = this;
         this.regions.push(new DynoRegion(region));
-        if(rid && ajax_load_blocks){
+        if (rid && ajax_load_blocks) {
           this.ajaxLoadBlocks(rid, function(data){
             var region = $this.getRegion(rid);
             region.region.append(data.html);
@@ -44,23 +42,24 @@
       },
 
       getRegion: function(rid){
-        for(var rrid in this.regions){
-          if(this.regions[rrid].rid == rid){
+        for (var rrid in this.regions) {
+          if (this.regions[rrid].rid == rid) {
             return this.regions[rrid];
           }
         }
       },
 
       getBlock: function(rid, bid, remove){
-        for(var rrid in this.regions){
-          if(this.regions[rrid].rid == rid){
-            for(var bbid in this.regions[rrid].blocks){
-              if(typeof(this.regions[rrid].blocks[bbid]) != 'undefined'){
-                if(this.regions[rrid].blocks[bbid].bid == bid){
-                  if(remove){
+        for (var rrid in this.regions) {
+          if (this.regions[rrid].rid == rid) {
+            for (var bbid in this.regions[rrid].blocks) {
+              if (typeof(this.regions[rrid].blocks[bbid]) != 'undefined') {
+                if (this.regions[rrid].blocks[bbid].bid == bid) {
+                  if (remove) {
                     delete this.regions[rrid].blocks[bbid];
                     this.regions[rrid].blocks = this.regions[rrid].blocks.filter(function(){return true;});
-                  } else {
+                  }
+                  else {
                     return this.regions[rrid].blocks[bbid];
                   }
                 }
@@ -82,7 +81,7 @@
       loadStaticBlocks: function(){
         var $this = this;
         $('.dynoblock-region').each(function(){
-          if($(this).data('dyno-ajax-load') != undefined){
+          if ($(this).data('dyno-ajax-load') != undefined) {
             var _this = $(this);
             $this.ajaxLoadBlocks($(this).data('dyno-rid'), function(data){
               _this.append(data.html);
@@ -103,10 +102,11 @@
         nid = !nid ? 'NA' : nid;
         this.postData('/dynoblock/generate/' + layout + '/' + rid + '/' + nid, data, function(data){
           callback(data.html);
-          if(data.commands.length > 0){
-            if(typeof(data.commands) == 'string'){
+          if (data.commands.length > 0) {
+            if (typeof(data.commands) == 'string') {
               $this.runAjaxCommands(JSON.parse(data.commands));
-            } else {
+            }
+            else {
               $this.runAjaxCommands(data.commands);
             }
           }
@@ -115,7 +115,7 @@
 
       getData: function(url, callback){
         $.get(url).done(function(data) {
-          if(callback){
+          if (callback) {
             callback(data);
           }
         });
@@ -123,7 +123,7 @@
 
       postData: function(url, data, callback){
         $.post(url, data).done(function(data) {
-          if(callback){
+          if (callback) {
             callback(JSON.parse(data));
           }
         }, 'json');
@@ -133,8 +133,7 @@
         var $this = this;
         this.postData('/dynoblock/save/' + method, form_state, function(data){
           $this.clearCacheTag();
-          if(callback){
-            console.log(data);
+          if (callback) {
             callback(data);
           }
         });
@@ -147,10 +146,11 @@
         this.postData('/dynoblock/edit/' + rid + '/' + bid + '/' + nid, data, function(data){
           console.log(data);
           callback(data.html);
-          if(data.commands.length > 0){
-            if(typeof(data.commands) == 'string'){
+          if (data.commands.length > 0) {
+            if (typeof(data.commands) == 'string') {
               $this.runAjaxCommands(JSON.parse(data.commands));
-            } else {
+            }
+            else {
               $this.runAjaxCommands(data.commands);
             }
           }
@@ -161,10 +161,10 @@
         var $this = this;
         this.postData('/dynoblock/remove/' + rid + '/' + bid, [], function(data){
           $this.clearCacheTag();
-          if(data.removed){
+          if (data.removed) {
             $this.getBlock(rid, bid, true);
           }
-          if(callback){
+          if (callback) {
             callback(data);
           }
         });
@@ -174,7 +174,7 @@
         var $this = this;
         this.postData('/dynoblock/update/' + rid + '/' + bid, data, function(data){
           $this.clearCacheTag();
-          if(callback) {
+          if (callback) {
             callback(data);
           }
         });
@@ -230,7 +230,7 @@
       this.rid = region.data('dyno-rid');
       this.nid = region.data('dyno-nid');
       this.label = region.data('dyno-label');
-      var $this = this, sortHoverTimer;
+      var $this = this;
 
       this.init = function(){
         this.loadDynoBlocks();
@@ -817,21 +817,6 @@
             var actions = $('<div class="dyno-ui-actions"></div>').appendTo(header);
             var back = '<span class="dyno-back action"><i class="fa fa-home" aria-hidden="true" title="Back"></span>';
             actions.append(back);
-
-            var edit = $('<span class="dyno-ui-edit action"><i class="fa fa-edit" aria-hidden="true" title="Edit Blocks"></span>');
-            // edit on click listener
-            edit.on('click', function() {
-              if(!$this.sections.region.hasClass('dyno-editable')){
-                $this.addBlockSortSupport();
-              } else {
-                $this.removeBlockSortSupport();
-              }
-              $this.sections.region.toggleClass('dyno-editable');
-            });
-            // click the edit link.
-            // cuts out one extra step.
-            edit.click();
-            actions.append(edit);
 
             var add = $('<span class="dyno-add-block action"><i class="fa fa-plus fa-fw" aria-hidden="true" title="Add Dynoblock"></i></span>');
             // display widget selector on click
