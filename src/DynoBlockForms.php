@@ -9,7 +9,7 @@ class DynoBlockForms {
   const fieldAjaxCallback = '::fieldAjaxCallback';
   const fieldAjaxSubmit = '::fieldAjaxSubmit';
   const fieldWidgetAjaxCallback = 'dynoblock_field_widget_ajax_callback';
-  const widgetSettingsCallback = 'dynoblock_widget_settings_callback';
+  const extraFieldCallback = '::extraFieldCallback';
 
   public static $widget;
   public static $sub_widget_ids = array();
@@ -123,14 +123,14 @@ class DynoBlockForms {
         $storage = $form_state->getStorage();
         $sub_widgets_amounts = isset($storage['sub_widgets_amount']) ? $storage['sub_widgets_amount'] : 1;
       }
-      $container_id = self::createId($widget, 'widget-group');
+      $container_id = 'widget-field-groups';
       $form->form[$id] = array(
         '#type' => 'container',
         '#tree' => TRUE,
         '#theme_wrappers' => array('dynoblock_tabledrag'),
         '#attributes' => array(
           'class' => array('widget-field-groups'),
-          'id' => $container_id,
+          'id' => 'widget-field-groups',
         ),
       );
 
@@ -298,8 +298,7 @@ class DynoBlockForms {
     }
   }
 
-  public static function themeOptions($plugin, &$item, $delta, $values, $themes) {
-    $container_id = !empty(self::$sub_widget_ids[$delta]) ? self::$sub_widget_ids[$delta] : 'widget-group-' . $delta;
+  public static function themeOptions($plugin, &$item, $delta, $values, $container_id, $themes) {
     $number_of_themes = count($themes['themes']);
     $item['preview'] = array(
       '#weight' => -99,
@@ -310,7 +309,7 @@ class DynoBlockForms {
         'class' => array('dyno-sub-item', 'dyno-sub-theme-preview'),
       ),
     );
-    $theme_selected = !empty($values['widget']['items']['theme']) ? $values['widget']['items']['theme'] : $themes['default'];
+    $theme_selected = !empty($values['theme']) ? $values['theme'] : $themes['default'];
     $item['theme'] = array(
       '#type' => 'select',
       '#weight' => -100,
@@ -329,6 +328,7 @@ class DynoBlockForms {
         'data-drupal-target' => $container_id,
       ),
     );
+
     if ($theme_selected && $theme_selected != 'default') {
       $theme = $plugin ->loadTheme($theme_selected);
       //if ($number_of_themes > 1 && (self::$method != 'edit' || !is_object(self::$form_state) && !empty(self::$form_state['dyno_system']['themes_selected'][$container_id]))) {
@@ -349,11 +349,11 @@ class DynoBlockForms {
     }
   }
 
-  public static function fieldOptions(&$form, $values, $wrapper, $fields, $delta = 0) {
+  public static function fieldOptions($plugin, &$form, $values, $wrapper, $fields, $delta = 0) {
     $fields_selected = !empty($values['field_options']) ? $values['field_options'] : array();
     $field_options = array();
     foreach ($fields as $key => $field) {
-      $field_options[$field['handler'] . '|' . $field['field_name'] . '|' . $key] = $field['label'];
+      $field_options[$field['plugin'] . '|' . $field['field_name'] . '|' . $key] = $field['label'];
     }
     $form['field_options'] = array(
       '#type' => 'checkboxes',
@@ -365,7 +365,7 @@ class DynoBlockForms {
       //'#value' => $fields_selected,
       '#default_value' => $fields_selected,
       '#ajax' => array(
-        'callback' => self::widgetSettingsCallback,
+        'callback' => self::extraFieldCallback,
         'wrapper' => $wrapper,
         'method' => 'replace',
         'event' => 'change',
@@ -380,8 +380,9 @@ class DynoBlockForms {
     if (!empty($fields_selected)) {
       foreach ($fields_selected as $class) {
         if (!empty($class)) {
-          $field_ids = list($class, $field_name, $delta) = explode('|', $class);
-          $form[$field_name] = DynoWidgetAPI::element($values, $class, !empty($fields[$delta]['properties']) ? $fields[$delta]['properties'] : array());
+          list($field_plugin, $field_name, $delta) = explode('|', $class);
+          $field = $plugin->getField($field_plugin, TRUE, self::$form_state);
+          $form[$field_name] = $field->form(!empty($fields[$delta]['properties']) ? $fields[$delta]['properties'] : []);
         }
       }
     }

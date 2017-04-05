@@ -53,20 +53,6 @@ class Card extends DynoblockBase {
       ),
     );
 
-//    $this->form['fields']['BackgroundColor'] = DynoWidgetAPI::element($this->form_state, 'AAABackgroundColorSelectField', array(
-//      '#title' => t('Background Color'),
-//      '#default_value' => !empty($values['fields']['BackgroundColor']['value']) ? $values['fields']['BackgroundColor']['value'] : '',
-//    ));
-//    if (empty($this->form_state)) {
-//      $border_default_value = array('show-vertical-borders');
-//    }
-//    else {
-//      $border_default_value = (!empty($values['fields']['BorderControl']['value']) ? $values['fields']['BorderControl']['value'] : '');
-//    }
-//    $this->form['fields']['BorderControl'] = DynoWidgetAPI::element($this->form_state, 'AAABorderControlField', array(
-//      '#title' => t('Border Options'),
-//      '#default_value' => $border_default_value,
-//    ));
     return $this;
   }
 
@@ -149,13 +135,24 @@ class Card extends DynoblockBase {
       "#title" => 'testing field title',
       '#default_value' => !empty($values['widget']['items']['body']['value']['value']) ? $values['widget']['items']['body']['value']['value'] : '',
     ]);
-    DynoBlockForms::themeOptions($this, $item, $delta, $values, array(
+    DynoBlockForms::themeOptions($this, $item, $delta, $values, $container_id, array(
       'themes' => array(
         'AAACardDefaultItemTheme' => t('Default (text align left)'),
         'AAACardTextCenterItemTheme' => t('Center (text align center)'),
       ),
       'default' => 'AAACardDefaultItemTheme',
     ));
+    DynoBlockForms::fieldOptions($this, $item, $values, $container_id, array(
+      array(
+        'plugin' => 'text_field',
+        'field_name' => 'test',
+        'label' => t('Textfield'),
+        'properties' => array(
+          '#title' => t('Textfield'),
+          '#default_value' => !empty($values['widget']['items']['test']['value']) ? $values['widget']['items']['test']['value'] : '',
+        ),
+      ),
+    ), $delta);
     return $item;
   }
 

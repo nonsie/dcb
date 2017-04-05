@@ -238,42 +238,6 @@ function dynoblock_widget_settings_callback($form, FormStateInterface &$form_sta
   return $element;
 }
 
-function dynoblock_form_ajax_callback($form, FormStateInterface &$form_state) {
-  $core = \Drupal::service('dynoblock.core');
-  $widget = $form_state['input']['widget'];
-  $widget = $core->initPlugin($widget);
-  $trigger = $form_state['triggering_element'];
-  if ($widget) {
-    if (!empty($trigger['#ajax']['type']) && $trigger['#ajax']['type'] == 'widget_theme') {
-      $new_parents = array();
-      foreach ($trigger['#array_parents'] as $delta => $parent) {
-        $new_parents[$delta] = $parent;
-        if ($parent === 'theme_overview') {
-          break;
-        }
-      }
-      return drupal_array_get_nested_value($form, $new_parents);
-    }
-    elseif (!empty($trigger['#ajax']['type']) && $trigger['#ajax']['type'] == 'sub_item_theme') {
-      array_pop($trigger['#array_parents']);
-      array_pop($trigger['#array_parents']);
-      array_pop($trigger['#array_parents']);
-      $element = drupal_array_get_nested_value($form, $trigger['#array_parents']);
-      return $element;
-    }
-    else {
-      $result = $widget->ajaxCallback($form, $form_state);
-      if (!empty($result['return_element'])) {
-        return $result['return_element'];
-      }
-      elseif (!empty($result['commands'])) {
-          print ajax_render($result['commands']);
-          drupal_exit();
-        }
-    }
-  }
-}
-
 function dynoblock_form_ajax_submit($form, FormStateInterface &$form_state) {
   $core = \Drupal::service('dynoblock.core');
   $form_state['rebuild'] = TRUE;

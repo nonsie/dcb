@@ -126,4 +126,17 @@ class DynoblockForm extends FormBase {
 
   }
 
+  /**
+   * @param array $form
+   * @param FormStateInterface $form_state
+   */
+  public function extraFieldCallback(array $form = array(), FormStateInterface $form_state) {
+    $trigger = $form_state->getTriggeringElement();
+    array_pop($trigger['#array_parents']);
+    array_pop($trigger['#array_parents']);
+    array_pop($trigger['#array_parents']);
+    array_pop($trigger['#array_parents']);
+    return NestedArray::getValue($form, $trigger['#array_parents']);
+  }
+
 }
