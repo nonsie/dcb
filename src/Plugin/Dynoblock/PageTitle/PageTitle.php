@@ -47,7 +47,7 @@ class PageTitle extends DynoblockBase {
   }
 
   public function build($form_state = array()) {
-
+    $form_state = is_object($form_state) ? (array) $form_state : $form_state;
     $this->form['fields']['#tree'] = TRUE;
 
     $this->form['fields']['title'] = array(
