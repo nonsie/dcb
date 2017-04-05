@@ -35,10 +35,6 @@ class DynoBlockForms {
       $commands = $core->getAjaxCommands($form);
       return compact('form', 'commands');
     }
-    else {
-      return FALSE;
-      watchdog('dynoblock', 'CANT FIND WIDGET ' . $type);
-    }
   }
 
   public static function editForm($rid, $bid, $nid) {
@@ -302,7 +298,7 @@ class DynoBlockForms {
     }
   }
 
-  public static function themeOptions(&$item, $delta, $values, $themes) {
+  public static function themeOptions($plugin, &$item, $delta, $values, $themes) {
     $container_id = !empty(self::$sub_widget_ids[$delta]) ? self::$sub_widget_ids[$delta] : 'widget-group-' . $delta;
     $number_of_themes = count($themes['themes']);
     $item['preview'] = array(
@@ -314,7 +310,7 @@ class DynoBlockForms {
         'class' => array('dyno-sub-item', 'dyno-sub-theme-preview'),
       ),
     );
-    $theme_selected = !empty($values['theme']) ? $values['theme'] : $themes['default'];
+    $theme_selected = !empty($values['widget']['items']['theme']) ? $values['widget']['items']['theme'] : $themes['default'];
     $item['theme'] = array(
       '#type' => 'select',
       '#weight' => -100,
@@ -330,14 +326,14 @@ class DynoBlockForms {
       ),
       '#attributes' => array(
         'delta' => $delta,
-        'target' => $container_id,
+        'data-drupal-target' => $container_id,
       ),
     );
     if ($theme_selected && $theme_selected != 'default') {
-      $theme = new $theme_selected($values);
-      if ($number_of_themes > 1 && (self::$method != 'edit' || !empty(self::$form_state['dyno_system']['themes_selected'][$container_id]))) {
+      $theme = $plugin ->loadTheme($theme_selected);
+      //if ($number_of_themes > 1 && (self::$method != 'edit' || !is_object(self::$form_state) && !empty(self::$form_state['dyno_system']['themes_selected'][$container_id]))) {
         $item['preview']['#value'] = $theme->preview();
-      }
+      //}
       if ($number_of_themes <= 1) {
         $item['theme'] = array(
           '#type' => 'hidden',
@@ -346,8 +342,10 @@ class DynoBlockForms {
       }
       $theme->form($item);
     }
-    if (empty(self::$form_state['dyno_system']['themes_selected'][$container_id])) {
-      self::$form_state['dyno_system']['themes_selected'][$container_id] = $theme_selected;
+    if(!is_object(self::$form_state)) {
+      if (empty(self::$form_state['dyno_system']['themes_selected'][$container_id])) {
+        self::$form_state['dyno_system']['themes_selected'][$container_id] = $theme_selected;
+      }
     }
   }
 

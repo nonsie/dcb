@@ -97,12 +97,31 @@ class DynoblockForm extends FormBase {
     $form_state->setStorage($storage);
   }
 
+  /**
+   * @param array $form
+   * @param FormStateInterface $form_state
+   * @return mixed
+   */
   public function fieldAjaxCallback(array $form = array(), FormStateInterface $form_state) {
-    //print_r($form['PageTitle']);
-
-    return $form['theme_overview'];
+    $trigger = $form_state->getTriggeringElement();
+    $type = $trigger['#ajax']['type'];
+    switch ($type) {
+      case 'sub_item_theme':
+        array_pop($trigger['#array_parents']);
+        array_pop($trigger['#array_parents']);
+        array_pop($trigger['#array_parents']);
+        return NestedArray::getValue($form, $trigger['#array_parents']);
+        break;
+      case 'widget_theme':
+          return $form['theme_overview'];
+          break;
+    }
   }
 
+  /**
+   * @param array $form
+   * @param FormStateInterface $form_state
+   */
   public function fieldAjaxSubmit(array $form = array(), FormStateInterface $form_state) {
 
   }

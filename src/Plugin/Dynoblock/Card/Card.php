@@ -19,7 +19,7 @@ use Drupal\dynoblock\DynoWidgetAPI;
  *     "dynoblock-cards-default" = {
  *        "label" = "Default",
  *        "handler" = "CardsDefaultTheme",
- *        "preview_image" = "card.png",
+ *        "preview_image" = "cards.png",
  *     },
  *   },
  *   form_settings = {
@@ -143,12 +143,19 @@ class Card extends DynoblockBase {
 //        ),
 //      ),
 //    ), $delta);
-
+    $values = $values['widget']['items'];
     $textarea_field = $this->getField('ckeditor_field', TRUE);
     $item['body'] = $textarea_field->form([
       "#title" => 'testing field title',
       '#default_value' => !empty($values['widget']['items']['body']['value']['value']) ? $values['widget']['items']['body']['value']['value'] : '',
     ]);
+    DynoBlockForms::themeOptions($this, $item, $delta, $values, array(
+      'themes' => array(
+        'AAACardDefaultItemTheme' => t('Default (text align left)'),
+        'AAACardTextCenterItemTheme' => t('Center (text align center)'),
+      ),
+      'default' => 'AAACardDefaultItemTheme',
+    ));
     return $item;
   }
 
