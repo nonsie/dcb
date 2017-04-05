@@ -159,16 +159,15 @@
       transform-origin: top left 0;
       float: right;
       position: absolute;
-      top: 50%;
-      margin: 10px;
+      top: 52%;
+      margin: 20px;
     }
     .dyno-expand {
       float: right;
       position: absolute;
       top: 30%;
-      margin: 20px;
+      margin: 30px;
       color: #333;
-      font-size: 18px;
     }
     .dyno-back {
       display: none;
@@ -307,6 +306,16 @@
         color: #333;
       }
     }
+  }
+  .badge {
+    padding: 4px;
+    min-width: 1.5em;
+    border-radius: 1rem;
+    text-align: center;
+    background: #767676;
+    color: #fefefe;
+    float: right;
+    font-size: 12px;
   }
 }
 

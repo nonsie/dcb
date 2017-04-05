@@ -524,7 +524,7 @@
           if(!open){
             $this.initUi();
             $this.ui.css({
-              top: '75px',
+              top: '0px',
             });
             offset = 29;
             $this.event('ui_toggled');
@@ -599,6 +599,7 @@
         var li = this.addListItem(bid, block.label);
         this.regions[rid].blocks[key] = block;
         var actions = li.find('.d-icons');
+        actions.append(this.blockSortSupport(block, rid));
         actions.append(this.blockEditSupport(block, rid));
         actions.append(this.blockRemoveSupport(block, rid));
 
@@ -707,6 +708,16 @@
           });
         });
         return editable;
+      },
+
+      blockSortSupport: function(block, rid){
+        var $this = this;
+        var sortable = $('<a href="#"><i class="fa fa-arrows sort-row" aria-hidden="true" title="Sort"></a>');
+        var bid = block.bid;
+        sortable.on('click', function(e) {
+          e.preventDefault();
+        });
+        return sortable;
       },
 
       addBlockSortSupport: function(){
