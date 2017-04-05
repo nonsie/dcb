@@ -277,13 +277,13 @@
       }
 
       /**
-       * Re-orgonizes the regions blocks after a sort (drag and drop) event.
+       * Re-organizes the regions blocks after a sort (drag and drop) event.
        */
       this.sortBlocks = function(){
         var $this = this,
           blocks = [];
 
-        for(var i in this.blocks){
+        for (var i in this.blocks) {
           blocks[this.blocks[i].weight] = this.blocks[i];
         }
 
@@ -298,7 +298,7 @@
           return 0;
         });
 
-        for(var weight in blocks){
+        for (var weight in blocks) {
           this.region.append(blocks[weight].element);
           DynoBlocks.updateWeight($this.rid, blocks[weight].bid, {"weight" : weight}, function(result){});
         }
@@ -719,7 +719,7 @@
               var i = 0;
               $(this).children().each(function(){
                 var block = DynoBlocks.getBlock(rid, $(this).data('dyno-ui-item'));
-                if(block){
+                if (block) {
                   block.weight = i;
                 }
                 i++;
@@ -814,6 +814,13 @@
         switch (type) {
           case 'region':
             var $this = this;
+            if (!$this.sections.region.hasClass('dyno-editable')) {
+              $this.addBlockSortSupport();
+            }
+            else {
+              $this.removeBlockSortSupport();
+            }
+            $this.sections.region.toggleClass('dyno-editable');
             var actions = $('<div class="dyno-ui-actions"></div>').appendTo(header);
             var back = '<span class="dyno-back action"><i class="fa fa-home" aria-hidden="true" title="Back"></span>';
             actions.append(back);
