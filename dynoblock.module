@@ -238,41 +238,6 @@ function dynoblock_widget_settings_callback($form, FormStateInterface &$form_sta
   return $element;
 }
 
-/**
- * Default Dynoblocks core ajax submit
- */
-function dynoblock_core_form_ajax_submit($form, FormStateInterface &$form_state) {
-  $form_state['rebuild'] = TRUE;
-  $type = $form_state['triggering_element']['#attributes']['#type'];
-  $widget = $form_state['input']['widget'];
-  switch ($type) {
-  case 'remove':
-    array_pop($form_state['triggering_element']['#array_parents']);
-    $num_of_parents = count($form_state['triggering_element']['#array_parents']);
-    if ($num_of_parents > 3) {
-      $parents = array_slice($form_state['triggering_element']['#array_parents'], 0, ($num_of_parents - 3));
-    }
-    else {
-      $parents = array($form_state['triggering_element']['#array_parents'][0]);
-    }
-    $form_state['triggering_element']['#array_parents'] = $parents;
-    $element = &drupal_array_get_nested_value($form_state['input'], $parents);
-    $delta = $form_state['triggering_element']['#ajax']['delta'];
-    if (is_array($element)) {
-      unset($element[$delta]);
-    }
-    $element = array_values($element);
-    break;
-  case 'add':
-    array_pop($form_state['triggering_element']['#array_parents']);
-    $element = &drupal_array_get_nested_value($form_state['input'], $form_state['triggering_element']['#array_parents']);
-    if (is_array($element)) {
-      $element[] = array();
-    }
-    break;
-  }
-}
-
 function dynoblock_form_ajax_callback($form, FormStateInterface &$form_state) {
   $core = \Drupal::service('dynoblock.core');
   $widget = $form_state['input']['widget'];

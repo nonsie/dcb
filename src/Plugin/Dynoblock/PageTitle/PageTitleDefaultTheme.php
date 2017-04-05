@@ -11,7 +11,9 @@ use Drupal\dynoblock\DynoWidgetTheme;
  */
 class PageTitleDefaultTheme extends DynoWidgetTheme {
 
-  public function form(&$widget_form, $settings = array()) {}
+  public function form(&$widget_form, $settings = array()) {
+
+  }
 
   public function display($values = array(), $settings = array()) {
 

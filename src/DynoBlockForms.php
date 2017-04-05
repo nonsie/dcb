@@ -6,8 +6,8 @@ class DynoBlockForms {
 
   const cardinalityCallback = '::cardinalityCallback';
   const cardinalitySubmit = '::cardinalitySubmit';
-  const fieldAjaxCallback = 'dynoblock_form_ajax_callback';
-  const fieldAjaxSubmit = 'dynoblock_form_ajax_submit';
+  const fieldAjaxCallback = '::fieldAjaxCallback';
+  const fieldAjaxSubmit = '::fieldAjaxSubmit';
   const fieldWidgetAjaxCallback = 'dynoblock_field_widget_ajax_callback';
   const widgetSettingsCallback = 'dynoblock_widget_settings_callback';
 
@@ -60,7 +60,6 @@ class DynoBlockForms {
           $form = \Drupal::formBuilder()->getForm('Drupal\dynoblock\Form\DynoblockForm', $plugin->form);
           $commands = $core->getAjaxCommands($form);
           return compact('form', 'commands');
-
         }
       }
     }
@@ -229,6 +228,8 @@ class DynoBlockForms {
         $default = !empty($form_state->getUserInput('theme')) ? $form_state->getUserInput('theme') : NULL;
         $default = !empty($form_state->getUserInput('theme_overview')['theme']) ? $form_state->getUserInput('theme_overview')['theme'] : $default;
         $default = $form_state->theme ? $form_state->theme : $default;
+      } else {
+        $default = !empty($form_state['theme']) ? $form_state['theme'] : NULL;
       }
       // # TODO: If they never want to show the default theme preview
       // # need to add hidden value to $this->form with the default theme.
