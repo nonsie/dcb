@@ -1,5 +1,13 @@
-{{ block.fields.title }} <br/>
-{{ block.fields.anotherfield.value }}<br/>
-{{ block.fields.textarea.value }}<br/>
-{{ block.fields.ckeditor.value.value | raw }}<br/>
-
+{% set tag = block.fields.tag.value %}
+  {% if tag is not empty %}
+    {% set classes = block.fields.class_name %}
+    {% if classes is not empty %}
+      <{{ tag }} class="{{ classes }}">
+        {{ block.fields.title }}
+      </{{ tag }}>
+    {% else %}
+      <{{ tag }}>
+        {{ block.fields.title }}
+      </{{ tag }}>
+    {% endif %}
+{% endif %}
