@@ -45,32 +45,35 @@ function dynoblock_entity_presave(EntityInterface $entity) {
  * Adds Dynoblock javascript and css to the page.
  */
 function dynoblock_page_attachments(array &$page) {
-  if (\Drupal::currentUser()->hasPermission('use dynoblocks')) {
-    $page['#attached']['library'][] = 'dynoblock/edit';
-    $page['#attached']['library'][] = 'dynoblock/font-awesome';
-    $configs['load_ui'] = TRUE;
-    $configs['dir_uri'] = '/' . drupal_get_path('module', 'dynoblock');
-    $page['#attached']['library'][] = 'core/jquery';
-    $page['#attached']['library'][] = 'core/jquery.ui.sortable';
+  $is_admin = \Drupal::service('router.admin_context')->isAdminRoute();
+  if (!$is_admin) {
+    if (\Drupal::currentUser()->hasPermission('use dynoblocks')) {
+      $page['#attached']['library'][] = 'dynoblock/edit';
+      $page['#attached']['library'][] = 'dynoblock/font-awesome';
+      $configs['load_ui'] = TRUE;
+      $configs['dir_uri'] = '/' . drupal_get_path('module', 'dynoblock');
+      $page['#attached']['library'][] = 'core/jquery';
+      $page['#attached']['library'][] = 'core/jquery.ui.sortable';
+    }
+    else {
+      $configs = array('load_ui' => FALSE);
+    }
+    $page['#attached']['library'][] = 'dynoblock/core';
+
+
+    // Add configurable JS.
+    $configs['ui_scroll'] = isset($configs['ui_scroll']) && $configs['ui_scroll'] === FALSE ? FALSE : TRUE;
+
+    // Add current path for defining cache tags on save.
+    $current_path = \Drupal::service('path.current')->getPath();
+    $exploded_path = explode('/', $current_path);
+    if (!empty($exploded_path[1]) && !empty($exploded_path[2])) {
+      $configs['cache']['entity'] = $exploded_path[1];
+      $configs['cache']['id'] = $exploded_path[2];
+    }
+
+    $page['#attached']['drupalSettings']['dynoblock']['core'] = $configs;
   }
-  else {
-    $configs = array('load_ui' => FALSE);
-  }
-  $page['#attached']['library'][] = 'dynoblock/core';
-
-
-  // Add configurable JS.
-  $configs['ui_scroll'] = isset($configs['ui_scroll']) && $configs['ui_scroll'] === FALSE ? FALSE : TRUE;
-
-  // Add current path for defining cache tags on save.
-  $current_path = \Drupal::service('path.current')->getPath();
-  $exploded_path = explode('/', $current_path);
-  if (!empty($exploded_path[1]) && !empty($exploded_path[2])) {
-    $configs['cache']['entity'] = $exploded_path[1];
-    $configs['cache']['id'] = $exploded_path[2];
-  }
-
-  $page['#attached']['drupalSettings']['dynoblock']['core'] = $configs;
 }
 
 
