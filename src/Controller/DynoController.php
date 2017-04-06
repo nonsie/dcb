@@ -2,20 +2,16 @@
 
 namespace Drupal\dynoblock\Controller;
 
-use Drupal\Core\Ajax\AjaxResponse;
-use Drupal\Core\Ajax\AjaxResponseAttachmentsProcessor;
-use Drupal\Core\Ajax\ReplaceCommand;
+
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\Render\BubbleableMetadata;
-use Drupal\Core\Render\Element;
-use Drupal\Core\Render\HtmlResponse;
+use Drupal\Core\Url;
 use Drupal\dynoblock\DynoBlockForms;
 use Drupal\dynoblock\DynoblockWidgetModal;
 use Drupal\Component\Serialization\Json;
 use Drupal\dynoblock\Service\DynoblockCore;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\Response;
+
 
 class DynoController extends ControllerBase {
 
@@ -25,6 +21,7 @@ class DynoController extends ControllerBase {
    * @var \Drupal\dynoblock\Service\DynoblockCore
    */
   public $dynoblockCore;
+
 
   /**
    * {@inheritdoc}
@@ -136,23 +133,17 @@ class DynoController extends ControllerBase {
    * @return array
    */
   function testpage() {
-    //$content['dynoblocks_test_region'] = DynoBlocks::dynoRegion('dynoblocks-test', NULL, 'Test Region');
-    //$content['dynoblocks_test_region']['blocks'] = DynoBlocks::renderDynoBlocks('dynoblocks-test');
 
-    $manager = \Drupal::service('plugin.manager.dynoblock');
-    $plugins = $manager->getDefinitions();
-    $instance = $manager->createInstance($plugins['page_title']['id']);
-    //kint($instance->getId());
-
-    $manager = \Drupal::service('plugin.manager.dynofield');
-    $plugins = $manager->getDefinitions();
-    $instance = $manager->createInstance($plugins['text_field']['id']);
-    //kint($instance->getId());
-
-    $build = array(
-      '#type' => 'markup',
-      '#markup' => t('Hello World!'),
-    );
+    $build = [
+      '#type' => 'link',
+      '#title' => $this->t('Add Item'),
+      '#url' => Url::fromRoute('dynoblock.admin.wizard'),
+      '#attributes' => [
+        'class' => ['button', 'use-ajax'],
+        'data-dialog-type' => 'modal',
+        'data-dialog-options' => Json::encode(['width' => 700, 'height' => 400]),
+      ],
+    ];
 
     return $build;
   }
