@@ -72,15 +72,6 @@ class AdminFormWizard extends FormWizardBase {
     parent::finish($form, $form_state);
   }
 
-  public function getStep($cached_values) {
-    if (!$this->step) {
-      $operations = $this->getOperations($cached_values);
-      $steps = array_keys($operations);
-      $this->step = reset($steps);
-    }
-    return $this->step;
-  }
-
   public function getPrevOp() {
     return $this->t('Previous');
   }
