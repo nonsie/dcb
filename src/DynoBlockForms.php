@@ -157,10 +157,10 @@ class DynoBlockForms {
         );
         $form->form[$id][$i]['widget'] = $form->widgetForm($form_state, $items, $i);
 
-        //if ($cardinality > 1) {
+        if ($cardinality > 1) {
           $name = $id . '[' . self::$widget_deltas[$id] . '][remove][' . $i . ']';
           $form->form[$id][$i]['widget']['items']['remove'] = self::removeItemBtn($id, $i, $container_id, $name);
-        //}
+        }
 
         if ($variant_support) {
           $form->form[$id][$i]['id'] = array(

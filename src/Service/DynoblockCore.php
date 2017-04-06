@@ -468,13 +468,8 @@ class DynoblockCore {
     if (array_key_exists($widget, $widgets)) {
       $widget = $widgets[$widget];
       $theme = $this->getTheme($widget['properties']['theme']);
-      $path = $widget['layout']['file'];
-      $dirs = explode('/', $path);
-      if (count($dirs) > 1) {
-        array_pop($dirs);
-        $path = implode('/', $dirs);
-      }
-      return $theme['full_path'] . '/' . $path;
+
+      return $theme['full_path'] . '/';
     }
 
   }

@@ -229,4 +229,19 @@ class DynoblockBase extends PluginBase implements DynoblockInterface, ContainerF
     return new $theme($this->form_state, $this);
   }
 
+  /**
+   * @param $form_state
+   * @return bool
+   */
+  public function getWidgetDetailsState($form_state) {
+    $open = FALSE;
+    if(is_object($form_state)) $trigger = $form_state->getTriggeringElement();
+    if (is_object($form_state) && isset($trigger['#attributes']['delta'])) {
+      if ($trigger_delta == $delta) {
+        $open = TRUE;
+      }
+    }
+    return $open;
+  }
+
 }

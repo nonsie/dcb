@@ -6,6 +6,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\dynoblock\Plugin\Dynoblock\DynoblockBase;
 use Drupal\dynoblock\DynoBlockForms;
 use Drupal\dynoblock\DynoWidgetAPI;
+use Drupal\dynoblock\Service\DynoblockCore;
 
 /**
  * Provides a 'Card' Dynoblock Widget.
@@ -57,14 +58,13 @@ class Card extends DynoblockBase {
   }
 
   public function widgetForm(&$form_state = array(), $items, $delta) {
-    $collapsed = TRUE;
     $container_id = DynoBlockForms::randId();
     $element['items'] = array(
         '#type' => 'details',
         '#title' => t('Item @delta', array(
           '@delta' => ($delta + 1),
         )),
-        '#collapsed' => $collapsed,
+        '#open'  => $this->getWidgetDetailsState($form_state),
         '#collapsible' => TRUE,
         '#attributes' => array(
           'id' => $container_id,
