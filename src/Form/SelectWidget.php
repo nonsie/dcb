@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\dynoblock\AdminSteps;
+namespace Drupal\dynoblock\Form;
 
 
 use Drupal\Core\Form\FormBase;
@@ -33,7 +33,6 @@ class SelectWidget extends FormBase {
    *   The form structure.
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    parent::buildForm($form, &$form_state);
     $cached_values = $form_state->getTemporaryValue('wizard');
     $form['two'] = [
       '#title' => $this->t('Two'),

@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\dynoblock\Form\AdminSteps;
+namespace Drupal\dynoblock\Form;
 
 
 use Drupal\Core\Form\FormBase;
@@ -34,6 +34,11 @@ class SelectGroup extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $cached_values = $form_state->getTemporaryValue('wizard');
+    $form['one'] = [
+      '#title' => $this->t('One'),
+      '#type' => 'textfield',
+      '#default_value' => !empty($cached_values['one']) ? $cached_values['one'] : '',
+    ];
     $form['one'] = [
       '#title' => $this->t('One'),
       '#type' => 'textfield',
