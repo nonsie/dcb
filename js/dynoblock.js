@@ -726,6 +726,8 @@
         var rid = this.activeRegion.rid;
         setTimeout(function(){
           $this.sections.region.find('.list-group').addClass('dyno-sortable active').sortable({
+            axis: "y",
+            cursor: "progress",
             stop: function(event, ui){
               var i = 0;
               $(this).children().each(function(){
