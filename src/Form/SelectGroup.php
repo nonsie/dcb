@@ -5,11 +5,38 @@ namespace Drupal\dynoblock\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\dynoblock\Service\DynoblockCore;
+use \Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Simple wizard step form.
  */
 class SelectGroup extends FormBase {
+
+
+  /**
+   * @var \Drupal\dynoblock\Service\DynoblockCore
+   */
+  public $core;
+
+
+  /**
+   * SelectGroup constructor.
+   * @param \Drupal\dynoblock\Service\DynoblockCore $core
+   */
+  public function __construct(DynoblockCore $core) {
+    $this->core = $core;
+  }
+
+  /**
+   * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
+   * @return static
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('dynoblock.core')
+    );
+  }
 
   /**
    * Returns a unique string identifying the form.
@@ -34,21 +61,26 @@ class SelectGroup extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $cached_values = $form_state->getTemporaryValue('wizard');
-    $form['one'] = [
-      '#title' => $this->t('One'),
-      '#type' => 'textfield',
-      '#default_value' => !empty($cached_values['one']) ? $cached_values['one'] : '',
-    ];
-    $form['one'] = [
-      '#title' => $this->t('One'),
-      '#type' => 'textfield',
-      '#default_value' => !empty($cached_values['one']) ? $cached_values['one'] : '',
-    ];
-    $form['dynamic'] = [
-      '#title' => $this->t('Dynamic value'),
+    $themes = $this->core->getThemes();
+    $selected_theme =  $cached_values['theme']['id'];
+
+    foreach ($themes as $theme) {
+      $options[$theme['id']] = $theme['label'] . ' - ' . $theme['description_short'];
+    }
+
+    $form['theme'] = array(
+      '#type' => 'radios',
+      '#title' => $this->t('Select Component Group'),
+      '#default_value' => $selected_theme,
+      '#options' => $options,
+    );
+
+    $form['rid'] = [
+      '#title' => $this->t('rid'),
       '#type' => 'item',
-      '#markup' => !empty($cached_values['dynamic']) ? $cached_values['dynamic'] : '',
+      '#markup' => (!empty($cached_values['rid'])) ? $cached_values['rid'] : '',
     ];
+
     return $form;
   }
 
@@ -61,16 +93,10 @@ class SelectGroup extends FormBase {
    *   The current state of the form.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $keys = array(
-      'one',
-    );
+    $themes = $this->core->getThemes();
     $cached_values = $form_state->getTemporaryValue('wizard');
-    foreach ($keys as $key) {
-      $cached_values[$key] = $form_state->getValue($key);
-    }
+    $cached_values['theme'] =  $themes[$form_state->getValue('theme')];
     $form_state->setTemporaryValue('wizard', $cached_values);
-
-    //drupal_set_message($this->t('Dynamic value submitted: @value', ['@value' => $cached_values['dynamic']]));;
   }
 
 }

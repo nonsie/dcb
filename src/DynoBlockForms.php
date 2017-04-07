@@ -111,7 +111,7 @@ class DynoBlockForms {
     );
     $cardinality = isset($widget['form_settings']['cardinality']) ? $widget['form_settings']['cardinality'] : NULL;
     $variant_support = isset($widget['form_settings']['variant_support']) ? $widget['form_settings']['variant_support'] : NULL;
-    if ($cardinality !== NULL) {
+    if ($cardinality !== NULL && $cardinality !== 0) {
       if (is_object($form_state)) {
         $items = $form_state->getUserInput($id) && !empty($form_state->$id) ? $form_state->$id : $form_state->getUserInput($id);
         $items = $items[$id];

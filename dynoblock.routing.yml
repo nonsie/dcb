@@ -56,13 +56,15 @@ dynoblock.invalidate_entity_cache:
     _permission: 'use dynoblocks'
 
 # new wizard admin form
+
 dynoblock.admin.wizard:
-  path: '/dynoblock/admin-wizard/{step}'
+  path: '/dynoblock/admin-wizard/{step}/{rid}'
   defaults:
     _wizard: '\Drupal\dynoblock\Wizard\AdminFormWizard'
     _title: 'Dynoblocks'
     tempstore_id: 'dynoblock.admin.wizard'
     machine_name: 'adminformwizard'
+    rid: 'none'
     js: 'ajax'
   requirements:
     _access: 'TRUE'

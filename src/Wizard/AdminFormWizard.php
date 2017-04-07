@@ -3,10 +3,22 @@
 namespace Drupal\dynoblock\Wizard;
 
 
+use Drupal\Core\DependencyInjection\ClassResolverInterface;
+use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\ctools\Wizard\FormWizardBase;
+use Drupal\user\SharedTempStoreFactory;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class AdminFormWizard extends FormWizardBase {
+
+  protected $rid;
+
+  public function __construct(SharedTempStoreFactory $tempstore, FormBuilderInterface $builder, ClassResolverInterface $class_resolver, EventDispatcherInterface $event_dispatcher, RouteMatchInterface $route_match, $tempstore_id, $machine_name = NULL, $step = NULL, $rid = NULL) {
+    $this->rid = $rid;
+    parent::__construct($tempstore,  $builder,  $class_resolver,  $event_dispatcher,  $route_match, $tempstore_id, $machine_name, $step);
+  }
 
   /**
    * {@inheritdoc}
@@ -26,49 +38,28 @@ class AdminFormWizard extends FormWizardBase {
    * {@inheritdoc}
    */
   public function getOperations($cached_values) {
-    return array(
+    $operations = array(
       'selectgroup' => [
         'form' => 'Drupal\dynoblock\Form\SelectGroup',
         'title' => $this->t('Select a Group'),
-        'values' => ['dynamic' => 'Xylophone'],
-        'validate' => ['::stepOneValidate'],
-        'submit' => ['::stepOneSubmit'],
       ],
       'selectwidget' => [
         'form' => 'Drupal\dynoblock\Form\SelectWidget',
         'title' => $this->t('Select a widget'),
-        'values' => ['dynamic' => 'Zebra'],
       ],
     );
-  }
 
-  /**
-   * Validation callback for the first step.
-   */
-  public function stepOneValidate($form, FormStateInterface $form_state) {
-    if ($form_state->getValue('one') == 'wrong') {
-      $form_state->setErrorByName('one', $this->t('Cannot set the value to "wrong".'));
+    if ($this->step == 'selectgroup' && $this->rid != 'none') {
+      $operations['selectgroup']['values']['rid'] = $this->rid;
     }
-  }
 
-  /**
-   * Submission callback for the first step.
-   */
-  public function stepOneSubmit($form, FormStateInterface $form_state) {
-    $cached_values = $form_state->getTemporaryValue('wizard');
-    if ($form_state->getValue('one') == 'magic') {
-      $cached_values['one'] = 'Abraham';
-    }
-    $form_state->setTemporaryValue('wizard', $cached_values);
+    return $operations;
   }
 
   /**
    * {@inheritdoc}
    */
   public function finish(array &$form, FormStateInterface $form_state) {
-    $cached_values = $form_state->getTemporaryValue('wizard');
-    //drupal_set_message($this->t('Value One: @one', ['@one' => $cached_values['one']]));
-    //drupal_set_message($this->t('Value Two: @two', ['@two' => $cached_values['two']]));
     parent::finish($form, $form_state);
   }
 
