@@ -37,6 +37,14 @@ class AdminFormWizard extends FormWizardBase {
   /**
    * {@inheritdoc}
    */
+  public function getRouteName() {
+    return 'dynoblock.admin.wizard.ajax.step';
+  }
+
+
+  /**
+   * {@inheritdoc}
+   */
   public function getOperations($cached_values) {
     $operations = array(
       'selectgroup' => [
@@ -47,6 +55,10 @@ class AdminFormWizard extends FormWizardBase {
         'form' => 'Drupal\dynoblock\Form\SelectWidget',
         'title' => $this->t('Select a widget'),
       ],
+      'editform' => [
+        'form' => 'Drupal\dynoblock\Form\Create',
+        'title' => $this->t('Create'),
+      ]
     );
 
     if ($this->step == 'selectgroup' && $this->rid != 'none') {

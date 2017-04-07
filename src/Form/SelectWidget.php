@@ -2,7 +2,11 @@
 
 namespace Drupal\dynoblock\Form;
 
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Url;
+use Drupal\dynoblock\DynoBlockForms;
 
 /**
  * Simple wizard step form.
@@ -32,18 +36,74 @@ class SelectWidget extends ComponentWizardBaseForm {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $cached_values = $form_state->getTemporaryValue('wizard');
-    $form['two'] = [
-      '#title' => $this->t('Two'),
-      '#type' => 'textfield',
-      '#default_value' => !empty($cached_values['two']) ? $cached_values['two'] : '',
+
+    if(!empty($form_state->getValue('selected_component'))) {
+      $cached_values['selected_component'] = $form_state->getValue('selected_component');
+    }
+
+    $selected_component =
+      (isset($cached_values['selected_component']) && !empty($cached_values['selected_component']))
+        ? $cached_values['selected_component'] : '';
+
+    $widgets = $this->core->loadWidgets();
+    $options[''] = 'Select One';
+    foreach ($widgets as $machine => &$component) {
+      $options[$machine] = $component['name'];
+    }
+
+    $form['#attributes']['id'][]='special-wrapper';
+
+    $form['selected_component'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Select a component type:'),
+      '#default_value' => $selected_component,
+      '#options' => $options,
+      '#ajax' => [
+        'callback' => 'Drupal\dynoblock\Form\SelectWidget::ajaxPreviewCallback',
+        'url' => Url::fromRoute('dynoblock.admin.wizard.ajax.step', array('step' => 'selectwidget')),
+        'wrapper' => 'preview-container',
+      ],
     ];
-    $form['dynamic'] = [
-      '#title' => $this->t('Dynamic value'),
-      '#type' => 'item',
-      '#markup' => !empty($cached_values['dynamic']) ? $cached_values['dynamic'] : '',
+
+    $form['preview_placeholder'] = [
+      '#type' => 'container',
+      '#attributes' => [
+        'id' => 'preview-container',
+      ],
     ];
+
+    if(!empty($selected_component)) {
+      $layout = $this->core->initPlugin($selected_component);
+      $preview = DynoBlockForms::getPreview($layout);
+      $form['preview_placeholder'] += [
+        'preview_description' => [
+          '#type' => 'container',
+          '#attributes' => [
+            'class' => [
+              'preview-title'
+            ],
+          ],
+          'name' => [
+            '#type' => 'markup',
+            '#markup' => $this->t("Preview for: @component", ['@component' => $widgets[$selected_component]['name']]),
+          ],
+          'description' => [
+            '#type' => 'html_tag',
+            '#tag' => 'p',
+            '#value' => $widgets[$selected_component]['description_short'],
+          ],
+        ],
+        'preview_image' => $preview,
+      ];
+    }
+
     return $form;
   }
+
+  public function ajaxPreviewCallback($form, $form_state) {
+    return $form['preview_placeholder'];
+  }
+
 
   /**
    * Form submission handler.
@@ -54,13 +114,8 @@ class SelectWidget extends ComponentWizardBaseForm {
    *   The current state of the form.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $keys = array(
-      'two',
-    );
     $cached_values = $form_state->getTemporaryValue('wizard');
-    foreach ($keys as $key) {
-      $cached_values[$key] = $form_state->getValue($key);
-    }
+    $cached_values['selected_component'] =  $form_state->getValue('selected_component');
     $form_state->setTemporaryValue('wizard', $cached_values);
   }
 
