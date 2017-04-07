@@ -141,7 +141,7 @@ class DynoController extends ControllerBase {
       '#attributes' => [
         'class' => ['button', 'use-ajax'],
         'data-dialog-type' => 'modal',
-        'data-dialog-options' => Json::encode(['width' => 700, 'height' => 400]),
+        'data-dialog-options' => Json::encode(['width' => 800, 'height' => 600]),
       ],
     ];
 

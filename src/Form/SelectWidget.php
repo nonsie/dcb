@@ -2,14 +2,12 @@
 
 namespace Drupal\dynoblock\Form;
 
-
-use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Simple wizard step form.
  */
-class SelectWidget extends FormBase {
+class SelectWidget extends ComponentWizardBaseForm {
 
   /**
    * Returns a unique string identifying the form.

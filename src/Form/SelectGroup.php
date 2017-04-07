@@ -2,41 +2,13 @@
 
 namespace Drupal\dynoblock\Form;
 
-
-use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\dynoblock\Service\DynoblockCore;
-use \Symfony\Component\DependencyInjection\ContainerInterface;
+
 
 /**
  * Simple wizard step form.
  */
-class SelectGroup extends FormBase {
-
-
-  /**
-   * @var \Drupal\dynoblock\Service\DynoblockCore
-   */
-  public $core;
-
-
-  /**
-   * SelectGroup constructor.
-   * @param \Drupal\dynoblock\Service\DynoblockCore $core
-   */
-  public function __construct(DynoblockCore $core) {
-    $this->core = $core;
-  }
-
-  /**
-   * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
-   * @return static
-   */
-  public static function create(ContainerInterface $container) {
-    return new static(
-      $container->get('dynoblock.core')
-    );
-  }
+class SelectGroup extends ComponentWizardBaseForm {
 
   /**
    * Returns a unique string identifying the form.
