@@ -41,7 +41,6 @@ class AdminFormWizard extends FormWizardBase {
     return 'dynoblock.admin.wizard.ajax.step';
   }
 
-
   /**
    * {@inheritdoc}
    */
@@ -69,12 +68,41 @@ class AdminFormWizard extends FormWizardBase {
   }
 
   /**
+   * We have to duplicate code so $this can be passed into buildForm().
+   *
+   * {@inheritdoc}
+   */
+  public function buildForm(array $form, FormStateInterface $form_state) {
+    $cached_values = $form_state->getTemporaryValue('wizard');
+    // Get the current form operation.
+    $operation = $this->getOperation($cached_values);
+    $form = $this->customizeForm($form, $form_state);
+    /* @var $formClass \Drupal\Core\Form\FormInterface */
+    $formClass = $this->classResolver->getInstanceFromDefinition($operation['form']);
+    // Pass include any custom values for this operation.
+    if (!empty($operation['values'])) {
+      $cached_values = array_merge($cached_values, $operation['values']);
+      $form_state->setTemporaryValue('wizard', $cached_values);
+    }
+    // Build the form.
+    $form = $formClass->buildForm($form, $form_state, $this);
+    if (isset($operation['title'])) {
+      $form['#title'] = $operation['title'];
+    }
+    $form['actions'] = $this->actions($formClass, $form_state);
+    return $form;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function finish(array &$form, FormStateInterface $form_state) {
     parent::finish($form, $form_state);
   }
 
+  /**
+   * @return \Drupal\Core\StringTranslation\TranslatableMarkup
+   */
   public function getPrevOp() {
     return $this->t('Previous');
   }

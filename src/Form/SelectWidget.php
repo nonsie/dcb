@@ -2,10 +2,10 @@
 
 namespace Drupal\dynoblock\Form;
 
-use Drupal\Core\Ajax\AjaxResponse;
-use Drupal\Core\Ajax\ReplaceCommand;
+use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
+use Drupal\ctools\Wizard\FormWizardBase;
 use Drupal\dynoblock\DynoBlockForms;
 
 /**
@@ -30,11 +30,13 @@ class SelectWidget extends ComponentWizardBaseForm {
    *   An associative array containing the structure of the form.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current state of the form.
+   * @param \Drupal\ctools\Wizard\FormWizardBase $wizard
+   *   The wizard form.
    *
    * @return array
    *   The form structure.
    */
-  public function buildForm(array $form, FormStateInterface $form_state) {
+  public function buildForm(array $form, FormStateInterface $form_state, FormWizardBase $wizard = NULL) {
     $cached_values = $form_state->getTemporaryValue('wizard');
 
     if(!empty($form_state->getValue('selected_component'))) {
@@ -53,14 +55,17 @@ class SelectWidget extends ComponentWizardBaseForm {
 
     $form['#attributes']['id'][]='special-wrapper';
 
+    $parameters = $wizard->getNextParameters($cached_values);
+    $parameters['step'] = $wizard->getStep($cached_values);
     $form['selected_component'] = [
       '#type' => 'select',
       '#title' => $this->t('Select a component type:'),
       '#default_value' => $selected_component,
       '#options' => $options,
       '#ajax' => [
-        'callback' => 'Drupal\dynoblock\Form\SelectWidget::ajaxPreviewCallback',
-        'url' => Url::fromRoute('dynoblock.admin.wizard.ajax.step', array('step' => 'selectwidget')),
+        'url' => Url::fromRoute('dynoblock.admin.wizard.ajax.step', $parameters),
+        'options' => ['query' => \Drupal::request()->query->all() + [FormBuilderInterface::AJAX_FORM_REQUEST => TRUE]],
+        'callback' => [$this, 'ajaxPreviewCallback'],
         'wrapper' => 'preview-container',
       ],
     ];
@@ -100,7 +105,7 @@ class SelectWidget extends ComponentWizardBaseForm {
     return $form;
   }
 
-  public function ajaxPreviewCallback($form, $form_state) {
+  public function ajaxPreviewCallback(array &$form, FormStateInterface $form_state) {
     return $form['preview_placeholder'];
   }
 

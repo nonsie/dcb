@@ -5,6 +5,7 @@
 namespace Drupal\dynoblock\Form;
 
 use Drupal\Core\Form\FormBase;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\dynoblock\Service\DynoblockCore;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
