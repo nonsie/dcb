@@ -13,7 +13,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class AdminFormWizard extends FormWizardBase {
 
-  protected $rid;
+  public $rid;
 
   public function __construct(SharedTempStoreFactory $tempstore, FormBuilderInterface $builder, ClassResolverInterface $class_resolver, EventDispatcherInterface $event_dispatcher, RouteMatchInterface $route_match, $tempstore_id, $machine_name = NULL, $step = NULL, $rid = NULL) {
     $this->rid = $rid;

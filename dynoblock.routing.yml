@@ -69,18 +69,6 @@ dynoblock.admin.wizard:
   requirements:
     _access: 'TRUE'
 
-dynoblock.admin.wizard.ajax:
-  path: '/dynoblock/admin-wizard/ajax/{rid}'
-  defaults:
-    _wizard: '\Drupal\dynoblock\Wizard\AdminFormWizard'
-    _title: 'Dynoblocks'
-    tempstore_id: 'dynoblock.admin.wizard'
-    machine_name: 'adminformwizard'
-    rid: 'none'
-    js: 'ajax'
-  requirements:
-    _access: 'TRUE'
-
 dynoblock.admin.wizard.ajax.step:
   path: '/dynoblock/admin-wizard/ajax/{step}/{rid}'
   defaults:

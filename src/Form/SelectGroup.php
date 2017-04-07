@@ -3,6 +3,7 @@
 namespace Drupal\dynoblock\Form;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\ctools\Wizard\FormWizardBase;
 
 
 /**
@@ -31,8 +32,9 @@ class SelectGroup extends ComponentWizardBaseForm {
    * @return array
    *   The form structure.
    */
-  public function buildForm(array $form, FormStateInterface $form_state) {
+  public function buildForm(array $form, FormStateInterface $form_state, FormWizardBase $wizard = NULL) {
     $cached_values = $form_state->getTemporaryValue('wizard');
+
     $themes = $this->core->getThemes();
     $selected_theme =  $cached_values['theme']['id'];
 
@@ -49,8 +51,8 @@ class SelectGroup extends ComponentWizardBaseForm {
 
     $form['rid'] = [
       '#title' => $this->t('rid'),
-      '#type' => 'item',
-      '#markup' => (!empty($cached_values['rid'])) ? $cached_values['rid'] : '',
+      '#type' => 'textfield',
+      '#default_value' => $cached_values['rid'],
     ];
 
     return $form;
@@ -68,6 +70,7 @@ class SelectGroup extends ComponentWizardBaseForm {
     $themes = $this->core->getThemes();
     $cached_values = $form_state->getTemporaryValue('wizard');
     $cached_values['theme'] =  $themes[$form_state->getValue('theme')];
+    $cached_values['rid'] = $form_state->getValue('rid');
     $form_state->setTemporaryValue('wizard', $cached_values);
   }
 

@@ -55,7 +55,7 @@ class SelectWidget extends ComponentWizardBaseForm {
 
     $form['#attributes']['id'][]='special-wrapper';
 
-    $parameters = $wizard->getNextParameters($cached_values);
+
     $parameters['step'] = $wizard->getStep($cached_values);
     $form['selected_component'] = [
       '#type' => 'select',

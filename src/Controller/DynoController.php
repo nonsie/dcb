@@ -137,7 +137,7 @@ class DynoController extends ControllerBase {
     $build = [
       '#type' => 'link',
       '#title' => $this->t('Add Item'),
-      '#url' => Url::fromRoute('dynoblock.admin.wizard.ajax', array('rid' => 'testrid')),
+      '#url' => Url::fromRoute('dynoblock.admin.wizard.ajax.step', array('step' => 'selectgroup', 'rid' => 'testrid')),
       '#attributes' => [
         'class' => ['button', 'use-ajax'],
         'data-dialog-type' => 'modal',
