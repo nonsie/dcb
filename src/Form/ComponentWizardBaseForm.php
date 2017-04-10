@@ -4,17 +4,26 @@
 
 namespace Drupal\dynoblock\Form;
 
+use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Form\FormBase;
+use Drupal\Core\Form\FormBuilderInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Url;
+use Drupal\ctools\Wizard\FormWizardBase;
+use Drupal\dynoblock\Plugin\Dynoblock\DynoblockBase;
 use Drupal\dynoblock\Service\DynoblockCore;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 abstract class ComponentWizardBaseForm extends FormBase {
 
-  /**
-   * @var \Drupal\dynoblock\Service\DynoblockCore
-   */
+  public static $widget;
+  public static $sub_widget_ids = array();
+  public static $method;
+  public static $form_state;
+  public static $widget_deltas = array();
   public $core;
-
+  public $wizard;
+  public $parameters;
 
   /**
    * SelectGroup constructor.
@@ -34,68 +43,18 @@ abstract class ComponentWizardBaseForm extends FormBase {
     );
   }
 
-  const cardinalityCallback = '::cardinalityCallback';
-  const cardinalitySubmit = '::cardinalitySubmit';
-  const fieldAjaxCallback = '::fieldAjaxCallback';
-  const fieldAjaxSubmit = '::fieldAjaxSubmit';
-  const fieldWidgetAjaxCallback = 'dynoblock_field_widget_ajax_callback';
-  const extraFieldCallback = '::extraFieldCallback';
 
-  public static $widget;
-  public static $sub_widget_ids = array();
-  public static $method;
-  public static $form_state;
-  public static $widget_deltas = array();
-
-
-  public static function generateForm($type, $rid, $nid) {
-    self::$method = 'new';
-    $core = \Drupal::service('dynoblock.core');
-    $plugin = $core->initPlugin($type);
-    $widget = $core->getWidget($type);
-    if ($plugin && $widget) {
-      $form_state = array();
-      $plugin->init()->build();
-      self::addDefaultFields($plugin, $widget, $nid);
-      self::addExtraSettings($plugin);
-      self::buildWidgetForm($widget, $plugin, $form_state);
-      self::buildThemeSelection($widget, $plugin, $form_state);
-      self::buildParentThemeSettings($widget, $plugin, $form_state);
-      $form = \Drupal::formBuilder()->getForm('Drupal\dynoblock\Form\DynoblockForm', $plugin->form);
-      $commands = $core->getAjaxCommands($form);
-      return compact('form', 'commands');
-    }
+  /**
+   * @param \Drupal\ctools\Wizard\FormWizardBase $wizard
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   */
+  public function initwizard(FormWizardBase $wizard, FormStateInterface $form_state) {
+    $cached_values = $form_state->getTemporaryValue('wizard');
+    $this->wizard = $wizard;
+    $this->parameters['step'] = $this->wizard->getStep($cached_values);
   }
 
-  public static function editForm($rid, $bid, $nid) {
-    self::$method = 'edit';
-    $core = \Drupal::service('dynoblock.core');
-    if ($bid) {
-      $block = $core->db->getBlock($rid, $bid);
-      if ($block) {
-        $widget = !empty($block['widget']) ? $block['widget'] : $block['layout_id'];
-        $plugin = $core->initPlugin($widget);
-        $widget = $core->getWidget($widget);
-        if ($plugin && $widget) {
-          $plugin->init()->build($block);
-          self::addDefaultFields($plugin, $widget, $nid);
-          self::addExtraSettings($plugin, $block);
-          self::buildWidgetForm($widget, $plugin, $block);
-          self::buildThemeSelection($widget, $plugin, $block);
-          self::buildParentThemeSettings($widget, $plugin, $block);
-          $form = \Drupal::formBuilder()->getForm('Drupal\dynoblock\Form\DynoblockForm', $plugin->form);
-          $commands = $core->getAjaxCommands($form);
-          return compact('form', 'commands');
-        }
-      }
-    }
-    return array(
-      '#type' => 'markup',
-      '#markup' => '',
-    );
-  }
-
-  protected static function addDefaultFields(&$form, $widget, $nid) {
+  protected function addDefaultFields(&$form, $widget, $nid) {
     $form->form['widget_label'] = array(
       '#weight' => -100,
       '#type' => 'html_tag',
@@ -115,7 +74,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
     );
   }
 
-  protected static function addExtraSettings(&$form, $default_values = array()) {
+  protected function addExtraSettings(&$form, $default_values = array()) {
     $form->form['extra_settings'] = array(
       '#type' => 'details',
       '#title' => t('Widget Settings'),
@@ -130,7 +89,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
     $form->form['extra_settings'] += _dynoblock_add_token_support();
   }
 
-  public static function buildWidgetForm($widget, &$form, &$form_state) {
+  public function buildWidgetForm($widget, DynoblockBase &$form, FormStateInterface &$form_state) {
     $id = $widget['id'];
     self::$widget = $widget;
     self::$form_state = $form_state;
@@ -206,7 +165,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
     return md5(random_bytes(32) . time());
   }
 
-  public static function buildParentThemeSettings($widget, &$form, &$form_state) {
+  public function buildParentThemeSettings($widget, &$form, &$form_state) {
     if (!empty($widget['parent_theme']['handler'])) {
       $settings_form = $widget['parent_theme']['handler']->globalSettings($form->form, $form_state);
       if (!empty($settings_form)) {
@@ -227,7 +186,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
     }
   }
 
-  public static function buildThemeSelection($widget, &$form, &$form_state) {
+  public function buildThemeSelection($widget, &$form, FormStateInterface &$form_state) {
     if (!empty($form->themes)) {
       $number_of_themes = count($form->themes);
       $container_id = self::createId($widget, 'theme_overview');
@@ -275,7 +234,9 @@ abstract class ComponentWizardBaseForm extends FormBase {
           'target' => $container_id,
         ),
         '#ajax' => array(
-          'callback' => self::fieldAjaxCallback,
+          'url' => Url::fromRoute('dynoblock.admin.wizard.ajax.step', $this->parameters),
+          'options' => ['query' => \Drupal::request()->query->all() + [FormBuilderInterface::AJAX_FORM_REQUEST => TRUE]],
+          'callback' => [$this, 'fieldAjaxCallback'],
           'wrapper' => $container_id,
           'method' => 'replace',
           'type' => 'widget_theme',
@@ -317,7 +278,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
     }
   }
 
-  public static function getPreview($widget) {
+  public function getPreview($widget) {
     if (!empty($widget->preview_image)) {
       $image_path = $widget->preview_image;
       return array(
@@ -327,7 +288,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
     }
   }
 
-  public static function themeOptions($plugin, &$item, $delta, $values, $container_id, $themes) {
+  public function themeOptions($plugin, &$item, $delta, $values, $container_id, $themes) {
     $number_of_themes = count($themes['themes']);
     $item['preview'] = array(
       '#weight' => -99,
@@ -347,7 +308,9 @@ abstract class ComponentWizardBaseForm extends FormBase {
       '#options' => $themes['themes'],
       '#default_value' => $theme_selected,
       '#ajax' => array(
-        'callback' => self::fieldAjaxCallback,
+        'url' => Url::fromRoute('dynoblock.admin.wizard.ajax.step', $this->parameters),
+        'options' => ['query' => \Drupal::request()->query->all() + [FormBuilderInterface::AJAX_FORM_REQUEST => TRUE]],
+        'callback' => [$this, 'fieldAjaxCallback'],
         'wrapper' => $container_id,
         'method' => 'replace',
         'type' => 'sub_item_theme',
@@ -371,14 +334,14 @@ abstract class ComponentWizardBaseForm extends FormBase {
       }
       $theme->form($item);
     }
-    if(!is_object(self::$form_state)) {
-      if (empty(self::$form_state['dyno_system']['themes_selected'][$container_id])) {
-        self::$form_state['dyno_system']['themes_selected'][$container_id] = $theme_selected;
+    if(!is_object($this->form_state)) {
+      if (empty($this->form_state['dyno_system']['themes_selected'][$container_id])) {
+        $this->form_state['dyno_system']['themes_selected'][$container_id] = $theme_selected;
       }
     }
   }
 
-  public static function fieldOptions($plugin, &$form, $values, $wrapper, $fields, $delta = 0) {
+  public function fieldOptions($plugin, &$form, $values, $wrapper, $fields, $delta = 0) {
     $fields_selected = !empty($values['field_options']) ? $values['field_options'] : array();
     $field_options = array();
     foreach ($fields as $key => $field) {
@@ -394,7 +357,9 @@ abstract class ComponentWizardBaseForm extends FormBase {
       //'#value' => $fields_selected,
       '#default_value' => $fields_selected,
       '#ajax' => array(
-        'callback' => self::extraFieldCallback,
+        'url' => Url::fromRoute('dynoblock.admin.wizard.ajax.step', $this->parameters),
+        'options' => ['query' => \Drupal::request()->query->all() + [FormBuilderInterface::AJAX_FORM_REQUEST => TRUE]],
+        'callback' => [$this, 'extraFieldCallback'],
         'wrapper' => $wrapper,
         'method' => 'replace',
         'event' => 'change',
@@ -410,7 +375,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
       foreach ($fields_selected as $class) {
         if (!empty($class)) {
           list($field_plugin, $field_name, $delta) = explode('|', $class);
-          $field = $plugin->getField($field_plugin, TRUE, self::$form_state);
+          $field = $plugin->getField($field_plugin, TRUE, $this->form_state);
           $form[$field_name] = $field->form(!empty($fields[$delta]['properties']) ? $fields[$delta]['properties'] : []);
         }
       }
@@ -418,17 +383,19 @@ abstract class ComponentWizardBaseForm extends FormBase {
   }
 
 
-  protected static function addAnotherBtn($id, $name) {
+  public function addAnotherBtn($id, $name) {
     return array(
       '#type' => 'submit',
-      '#submit' => [self::cardinalitySubmit],
+      '#submit' => [[$this, 'cardinalitySubmit']],
       '#value' => t('Add Another'),
       '#weight' => 100,
       '#name' => $name,
       '#button_type' => 'primary',
       '#ajax' => array(
+        'url' => Url::fromRoute('dynoblock.admin.wizard.ajax.step', $this->parameters),
+        'options' => ['query' => \Drupal::request()->query->all() + [FormBuilderInterface::AJAX_FORM_REQUEST => TRUE]],
         'wrapper' => $id,
-        'callback' => self::cardinalityCallback,
+        'callback' => [$this, 'cardinalityCallback'],
         'method' => 'replace',
         'effect' => 'fade',
         'type' => 'add',
@@ -440,10 +407,10 @@ abstract class ComponentWizardBaseForm extends FormBase {
     );
   }
 
-  protected static function removeItemBtn($widget, $delta, $ajax_target, $name) {
+  public function removeItemBtn($widget, $delta, $ajax_target, $name) {
     return array(
       '#type' => 'submit',
-      '#submit' => array(self::cardinalitySubmit),
+      '#submit' => [[$this, 'cardinalitySubmit']],
       '#value' => t('Remove'),
       '#weight' => 100,
       '#name' => $name,
@@ -453,8 +420,10 @@ abstract class ComponentWizardBaseForm extends FormBase {
         'target' => $ajax_target,
       ),
       '#ajax' => array(
+        'url' => Url::fromRoute('dynoblock.admin.wizard.ajax.step', $this->parameters),
+        'options' => ['query' => \Drupal::request()->query->all() + [FormBuilderInterface::AJAX_FORM_REQUEST => TRUE]],
         'wrapper' => $ajax_target,
-        'callback' => self::cardinalityCallback,
+        'callback' => [$this, 'cardinalityCallback'],
         'method' => 'replace',
         'effect' => 'fade',
         'type' => 'remove',
@@ -464,10 +433,132 @@ abstract class ComponentWizardBaseForm extends FormBase {
     );
   }
 
-  public static function createId($widget, $type) {
+  public function createId($widget, $type) {
     $id = !empty(self::$widget_deltas[$widget['id']]) ? self::$widget_deltas[$widget['id']] : 0;
     return $widget['id'] . '-' . $id . '-' . $type;
   }
+
+
+
+  /**
+   * @param array $form
+   * @param FormStateInterface $form_state
+   * @return mixed
+   */
+  public function cardinalityCallback(array &$form, FormStateInterface &$form_state) {
+    $trigger = $form_state->getTriggeringElement();
+    switch ($trigger['#ajax']['type']) {
+      case 'add':
+      case 'remove':
+        return $form[$form_state->getValue('widget')];
+        break;
+    }
+  }
+
+  /**
+   * @param array $form
+   * @param FormStateInterface $form_state
+   */
+  public function cardinalitySubmit(array &$form, FormStateInterface &$form_state) {
+    $form_state->setRebuild(TRUE);
+    $trigger = $form_state->getTriggeringElement();
+    $type = $trigger['#attributes']['#type'];
+    $storage = &$form_state->getStorage();
+    $storage['sub_widgets_amount'] = isset($storage['sub_widgets_amount']) ? $storage['sub_widgets_amount'] : 1;
+    switch ($type) {
+      case 'remove':
+        $input = &$form_state->getUserInput();
+        $plugin_id = $input['widget'];
+        $plugin_values = &$input[$plugin_id];
+        $delta = $trigger['#ajax']['delta'];
+        if (isset($plugin_values[$delta])) {
+          unset($plugin_values[$delta]);
+          $plugin_values = array_values($plugin_values);
+          $form_state->setUserInput($input);
+        }
+        $storage['sub_widgets_amount']--;
+        break;
+      case 'add':
+        $storage['sub_widgets_amount']++;
+        break;
+    }
+    $form_state->setStorage($storage);
+  }
+
+  /**
+   * @param array $form
+   * @param FormStateInterface $form_state
+   * @return mixed
+   */
+  public function fieldAjaxCallback(array $form = array(), FormStateInterface $form_state) {
+    $trigger = $form_state->getTriggeringElement();
+    $type = $trigger['#ajax']['type'];
+    switch ($type) {
+      case 'sub_item_theme':
+        array_pop($trigger['#array_parents']);
+        array_pop($trigger['#array_parents']);
+        array_pop($trigger['#array_parents']);
+        return NestedArray::getValue($form, $trigger['#array_parents']);
+        break;
+      case 'widget_theme':
+        return $form['theme_overview'];
+        break;
+    }
+  }
+
+  /**
+   * @param array $form
+   * @param FormStateInterface $form_state
+   */
+  public function fieldAjaxSubmit(array $form = array(), FormStateInterface $form_state) {
+
+  }
+
+  /**
+   * @param array $form
+   * @param FormStateInterface $form_state
+   */
+  public function extraFieldCallback(array $form = array(), FormStateInterface $form_state) {
+    ksm(__METHOD__);
+    $trigger = $form_state->getTriggeringElement();
+    array_pop($trigger['#array_parents']);
+    array_pop($trigger['#array_parents']);
+    array_pop($trigger['#array_parents']);
+    array_pop($trigger['#array_parents']);
+    return NestedArray::getValue($form, $trigger['#array_parents']);
+  }
+
+
+
+
+
+  /* public function editForm($rid, $bid, $nid) {
+   self::$method = 'edit';
+   $core = \Drupal::service('dynoblock.core');
+   if ($bid) {
+     $block = $core->db->getBlock($rid, $bid);
+     if ($block) {
+       $widget = !empty($block['widget']) ? $block['widget'] : $block['layout_id'];
+       $plugin = $core->initPlugin($widget);
+       $widget = $core->getWidget($widget);
+       if ($plugin && $widget) {
+         $plugin->init()->build($block);
+         self::addDefaultFields($plugin, $widget, $nid);
+         self::addExtraSettings($plugin, $block);
+         self::buildWidgetForm($widget, $plugin, $block);
+         self::buildThemeSelection($widget, $plugin, $block);
+         self::buildParentThemeSettings($widget, $plugin, $block);
+         $form = \Drupal::formBuilder()->getForm('Drupal\dynoblock\Form\DynoblockForm', $plugin->form);
+         $commands = $core->getAjaxCommands($form);
+         return compact('form', 'commands');
+       }
+     }
+   }
+   return array(
+     '#type' => 'markup',
+     '#markup' => '',
+   );
+ }*/
 
 
 }

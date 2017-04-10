@@ -3,6 +3,7 @@
 namespace Drupal\dynoblock\Form;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\ctools\Wizard\FormWizardBase;
 
 
 /**
@@ -31,128 +32,48 @@ class Create extends ComponentWizardBaseForm {
    * @return array
    *   The form structure.
    */
-  public function buildForm(array $form, FormStateInterface $form_state) {
+  public function buildForm(array $form, FormStateInterface $form_state, FormWizardBase $wizard = NULL) {
     $cached_values = $form_state->getTemporaryValue('wizard');
-
+    $this->initwizard($wizard, $form_state);
     $nid = '12345';
-
     self::$method = 'new';
     $core = $this->core;
-    $plugin = $core->initPlugin($cached_values['selected_component']);
-    $widget = $core->getWidget($cached_values['selected_component']);
-    if ($plugin && $widget) {
-      $plugin->init()->build();
-      parent::addDefaultFields($plugin, $widget, $nid);
-      parent::addExtraSettings($plugin);
-      parent::buildWidgetForm($widget, $plugin, $form_state);
-      parent::buildThemeSelection($widget, $plugin, $form_state);
-      parent::buildParentThemeSettings($widget, $plugin, $form_state);
-      $widgetForm = $plugin->form;
-    }
 
-    if (!empty($form_state->getUserInput('widget'))) {
+    if (!empty($form_state->getUserInput('widget')['widget'])) {
+      $handler = $core->initPlugin($form_state->getUserInput('widget')['widget']);
+      $widget = $core->getWidget($form_state->getUserInput('widget')['widget']);
+      if ($handler && $widget) {
+        $handler->rebuild = TRUE;
+        $handler->form = array();
+        $handler->init()->build($form_state);
+        $this->addDefaultFields($handler, $widget, $nid);
+        $this->addExtraSettings($handler);
+        $this->buildWidgetForm($widget, $handler, $form_state);
+        $this->buildThemeSelection($widget, $handler, $form_state);
+        $this->buildParentThemeSettings($widget, $handler, $form_state);
+        $widgetForm = $handler->form;
+        //$form_state->widget = $widget;
+      }
+    }
+    else {
+      $plugin = $core->initPlugin($cached_values['selected_component']);
+      $widget = $core->getWidget($cached_values['selected_component']);
       if ($plugin && $widget) {
-        $plugin->rebuild = TRUE;
-        $plugin->form = array();
-        $plugin->init()->build($form_state);
-        parent::buildWidgetForm($widget, $plugin, $form_state);
-        parent::buildThemeSelection($widget, $plugin, $form_state);
-        $widgetForm = array_replace($widgetForm, $plugin->form);
-        $form_state->widget = $widget;
+        $plugin->init()->build();
+        $this->addDefaultFields($plugin, $widget, $nid);
+        $this->addExtraSettings($plugin);
+        $this->buildWidgetForm($widget, $plugin, $form_state);
+        $this->buildThemeSelection($widget, $plugin, $form_state);
+        $this->buildParentThemeSettings($widget, $plugin, $form_state);
+        $widgetForm = $plugin->form;
       }
     }
 
-    $widgetForm['#token'] = FALSE;
     return $widgetForm;
 
   }
 
-  /**
-   * @param array $form
-   * @param FormStateInterface $form_state
-   * @return mixed
-   */
-  public function cardinalityCallback(array &$form, FormStateInterface &$form_state) {
-    $trigger = $form_state->getTriggeringElement();
-    switch ($trigger['#ajax']['type']) {
-      case 'add':
-      case 'remove':
-        return $form[$form_state->getValue('widget')];
-        break;
-    }
-  }
 
-  /**
-   * @param array $form
-   * @param FormStateInterface $form_state
-   */
-  public function cardinalitySubmit(array &$form, FormStateInterface &$form_state) {
-    $form_state->setRebuild(TRUE);
-    $trigger = $form_state->getTriggeringElement();
-    $type = $trigger['#attributes']['#type'];
-    $storage = &$form_state->getStorage();
-    $storage['sub_widgets_amount'] = isset($storage['sub_widgets_amount']) ? $storage['sub_widgets_amount'] : 1;
-    switch ($type) {
-      case 'remove':
-        $input = &$form_state->getUserInput();
-        $plugin_id = $input['widget'];
-        $plugin_values = &$input[$plugin_id];
-        $delta = $trigger['#ajax']['delta'];
-        if (isset($plugin_values[$delta])) {
-          unset($plugin_values[$delta]);
-          $plugin_values = array_values($plugin_values);
-          $form_state->setUserInput($input);
-        }
-        $storage['sub_widgets_amount']--;
-        break;
-      case 'add':
-        $storage['sub_widgets_amount']++;
-        break;
-    }
-    $form_state->setStorage($storage);
-  }
-
-  /**
-   * @param array $form
-   * @param FormStateInterface $form_state
-   * @return mixed
-   */
-  public function fieldAjaxCallback(array $form = array(), FormStateInterface $form_state) {
-    $trigger = $form_state->getTriggeringElement();
-    $type = $trigger['#ajax']['type'];
-    switch ($type) {
-      case 'sub_item_theme':
-        array_pop($trigger['#array_parents']);
-        array_pop($trigger['#array_parents']);
-        array_pop($trigger['#array_parents']);
-        return NestedArray::getValue($form, $trigger['#array_parents']);
-        break;
-      case 'widget_theme':
-        return $form['theme_overview'];
-        break;
-    }
-  }
-
-  /**
-   * @param array $form
-   * @param FormStateInterface $form_state
-   */
-  public function fieldAjaxSubmit(array $form = array(), FormStateInterface $form_state) {
-
-  }
-
-  /**
-   * @param array $form
-   * @param FormStateInterface $form_state
-   */
-  public function extraFieldCallback(array $form = array(), FormStateInterface $form_state) {
-    $trigger = $form_state->getTriggeringElement();
-    array_pop($trigger['#array_parents']);
-    array_pop($trigger['#array_parents']);
-    array_pop($trigger['#array_parents']);
-    array_pop($trigger['#array_parents']);
-    return NestedArray::getValue($form, $trigger['#array_parents']);
-  }
 
 
   /**
