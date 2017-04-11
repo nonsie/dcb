@@ -86,7 +86,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
     );
     $form->form['extra_settings'] += _dynoblock_condition_form($default_values);
     $form->form['extra_settings'] += _dynoblock_weight_form($default_values);
-    $form->form['extra_settings'] += _dynoblock_add_token_support();
+    //$form->form['extra_settings'] += _dynoblock_add_token_support();
   }
 
   public function buildWidgetForm($widget, DynoblockBase &$form, FormStateInterface &$form_state) {

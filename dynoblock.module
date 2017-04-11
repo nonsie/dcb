@@ -190,6 +190,7 @@ function theme_dynoblock_tabledrag($vars) {
   $output .= '</div>';
 
   drupal_attach_tabledrag($content['table'], array(
+    'table_id' => 'widget-table-sort',
     'action' => 'order',
     'relationship' => 'sibling',
     'group' => 'widget-table-sort',
