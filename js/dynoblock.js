@@ -800,7 +800,7 @@
             container.toggleNavigation('close');
             container.activeRegion.region.removeClass('active');
           });
-          // Re-attach behaviors for modal link. 
+          // Re-attach behaviors for modal link.
           Drupal.attachBehaviors(document);
         }
       },
@@ -843,14 +843,7 @@
             var actions = $('<div class="dyno-ui-actions"></div>').appendTo(header);
             var back = '<span class="dyno-back action"><i class="fa fa-home" aria-hidden="true" title="Back"></span>';
             actions.append(back);
-
             var add = $('<a href="/dynoblock/admin-wizard/ajax/selectgroup/' + item.rid + '" class="use-ajax" data-dialog-type="modal" data-accepts="application/vnd.drupal-modal" data-dialog-options=\'{"width":800,"height":600}\'><i class="fa fa-plus fa-fw" aria-hidden="true" title="Add Dynoblock"></i></a>');
-            // display widget selector on click
-            // this also handles the "no blocks found" trigger link
-            /*$(document).off('click', '.dyno-add-block');
-            $(document).on('click', '.dyno-add-block', function() {
-              item.displayWidgetModal();
-            });*/
             actions.append(add);
             actions.append('<span class="region-title">' + label + '</span>');
             break;
