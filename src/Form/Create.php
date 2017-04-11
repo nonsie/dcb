@@ -52,7 +52,6 @@ class Create extends ComponentWizardBaseForm {
         $this->addDefaultFields($handler, $widget, $nid);
         $this->addExtraSettings($handler);
         $widgetForm = $handler->form;
-        //$form_state->widget = $widget;
       }
     }
     else {
@@ -68,6 +67,9 @@ class Create extends ComponentWizardBaseForm {
         $widgetForm = $plugin->form;
       }
     }
+
+    // unknown: If form_state is not unset here, ajax errors occur with complicated forms.
+    unset($this->form_state);
 
     return $widgetForm;
 
@@ -85,7 +87,10 @@ class Create extends ComponentWizardBaseForm {
    *   The current state of the form.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-
+    $cached_values = $form_state->getTemporaryValue('wizard');
+    ksm($cached_values['rid']);
+    ksm($form_state->getValues());
+    ksm($form_state->getValues()['Card'][0]['widget']['items']['body']);
   }
 
 }

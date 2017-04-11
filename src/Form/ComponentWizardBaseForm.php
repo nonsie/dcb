@@ -469,7 +469,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
     $form_state->setRebuild(TRUE);
     $trigger = $form_state->getTriggeringElement();
     $type = $trigger['#attributes']['#type'];
-    $storage = &$form_state->getStorage();
+    $storage = $form_state->getStorage();
     $storage['sub_widgets_amount'] = isset($storage['sub_widgets_amount']) ? $storage['sub_widgets_amount'] : 1;
     switch ($type) {
       case 'remove':
