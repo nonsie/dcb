@@ -50,8 +50,7 @@ class SelectGroup extends ComponentWizardBaseForm {
     );
 
     $form['rid'] = [
-      '#title' => $this->t('rid'),
-      '#type' => 'textfield',
+      '#type' => 'hidden',
       '#default_value' => $cached_values['rid'],
     ];
 

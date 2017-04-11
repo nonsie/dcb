@@ -68,15 +68,12 @@ class Create extends ComponentWizardBaseForm {
       }
     }
 
-    // unknown: If form_state is not unset here, ajax errors occur with complicated forms.
+    // TODO: If form_state is not unset here, ajax errors occur with complicated forms.
     unset($this->form_state);
 
     return $widgetForm;
 
   }
-
-
-
 
   /**
    * Form submission handler.
@@ -90,7 +87,6 @@ class Create extends ComponentWizardBaseForm {
     $cached_values = $form_state->getTemporaryValue('wizard');
     ksm($cached_values['rid']);
     ksm($form_state->getValues());
-    ksm($form_state->getValues()['Card'][0]['widget']['items']['body']);
   }
 
 }

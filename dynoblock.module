@@ -54,6 +54,7 @@ function dynoblock_page_attachments(array &$page) {
       $configs['dir_uri'] = '/' . drupal_get_path('module', 'dynoblock');
       $page['#attached']['library'][] = 'core/jquery';
       $page['#attached']['library'][] = 'core/jquery.ui.sortable';
+      $page['#attached']['library'][] = 'core/drupal.dialog.ajax';
     }
     else {
       $configs = array('load_ui' => FALSE);
