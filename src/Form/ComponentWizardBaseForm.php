@@ -101,14 +101,14 @@ abstract class ComponentWizardBaseForm extends FormBase {
     $cardinality = isset($widget['form_settings']['cardinality']) ? $widget['form_settings']['cardinality'] : NULL;
     $variant_support = isset($widget['form_settings']['variant_support']) ? $widget['form_settings']['variant_support'] : NULL;
     if ($cardinality !== NULL && $cardinality !== 0) {
-      if (is_object($form_state)) {
-        $items = $form_state->getUserInput($id) && !empty($form_state->$id) ? $form_state->$id : $form_state->getUserInput($id);
-        $items = $items[$id];
-      } else if(!empty($form_state[$id])){
-        $items = $form_state[$id];
+      if (!empty($form_state->getValue($id))) {
+        $items = $form_state->getValue($id);
+      }
+      else {
+        $items = [];
       }
       $sub_widgets_amounts = count($items);
-      if(is_object($form_state) && $form->rebuild) {
+      if(is_object($form_state) && isset($form->rebuild) && $form->rebuild == TRUE) {
         $storage = $form_state->getStorage();
         $sub_widgets_amounts = isset($storage['sub_widgets_amount']) ? $storage['sub_widgets_amount'] : 1;
       }
@@ -128,7 +128,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
       }
 
       $add_another_name = $id . '[' . $this->widget_deltas[$id] . '][add]';
-      $form->form[$id]['add_another'] = self::addAnotherBtn($container_id, $add_another_name);
+      $form->form['add_another'] = self::addAnotherBtn($container_id, $add_another_name);
 
       if (is_array($items)) {
         $items = array_values($items);
@@ -209,12 +209,10 @@ abstract class ComponentWizardBaseForm extends FormBase {
           'id' => $preview_container_id,
         ),
       );
-      if(is_object($form_state)) {
-        $default = !empty($form_state->getUserInput('theme')) ? $form_state->getUserInput('theme') : NULL;
-        $default = !empty($form_state->getUserInput('theme_overview')['theme']) ? $form_state->getUserInput('theme_overview')['theme'] : $default;
-        $default = $form_state->theme ? $form_state->theme : $default;
+      if(!empty($form_state->getValue('theme'))) {
+        $default = $form_state->getValue('theme');
       } else {
-        $default = !empty($form_state['theme']) ? $form_state['theme'] : NULL;
+        $default = NULL;
       }
       // # TODO: If they never want to show the default theme preview
       // # need to add hidden value to $this->form with the default theme.
@@ -385,24 +383,34 @@ abstract class ComponentWizardBaseForm extends FormBase {
 
   public function addAnotherBtn($id, $name) {
     return array(
-      '#type' => 'submit',
-      '#submit' => [[$this, 'cardinalitySubmit']],
-      '#value' => t('Add Another'),
-      '#weight' => 100,
-      '#name' => $name,
-      '#button_type' => 'primary',
-      '#ajax' => array(
-        'url' => Url::fromRoute('dynoblock.admin.wizard.ajax.step', $this->parameters),
-        'options' => ['query' => \Drupal::request()->query->all() + [FormBuilderInterface::AJAX_FORM_REQUEST => TRUE]],
-        'wrapper' => $id,
-        'callback' => [$this, 'cardinalityCallback'],
-        'method' => 'replaceWith',
-        'effect' => 'fade',
-        'type' => 'add',
-      ),
-      '#attributes' => array(
-        '#type' => 'add',
-        'data-drupal-target' => $id,
+      'outer' => array(
+        '#type' => 'container',
+        '#attributes' => array(
+          'style' => array(
+            'padding: 0px 0px 15px 15px',
+          ),
+        ),
+        'submit' => array(
+          '#type' => 'submit',
+          '#submit' => [[$this, 'cardinalitySubmit']],
+          '#value' => t('Add Another'),
+          '#weight' => 100,
+          '#name' => $name,
+          '#button_type' => 'primary',
+          '#ajax' => array(
+            'url' => Url::fromRoute('dynoblock.admin.wizard.ajax.step', $this->parameters),
+            'options' => ['query' => \Drupal::request()->query->all() + [FormBuilderInterface::AJAX_FORM_REQUEST => TRUE]],
+            'wrapper' => $id,
+            'callback' => [$this, 'cardinalityCallback'],
+            'method' => 'replaceWith',
+            'effect' => 'fade',
+            'type' => 'add',
+          ),
+          '#attributes' => array(
+            '#type' => 'add',
+            'data-drupal-target' => $id,
+          ),
+        ),
       ),
     );
   }

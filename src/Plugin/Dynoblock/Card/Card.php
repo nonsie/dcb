@@ -39,7 +39,7 @@ class Card extends DynoblockBase {
 
 
   /**
-   * @var
+   * @var \Drupal\dynoblock\Form\ComponentWizardBaseForm
    */
   public $componentform;
 
@@ -142,7 +142,7 @@ class Card extends DynoblockBase {
 //        ),
 //      ),
 //    ), $delta);
-    $values = $values['widget']['items'];
+    $values = isset($values['widget']['items']) ? $values['widget']['items'] : array();
     $textarea_field = $this->getField('ckeditor_field', TRUE);
     $item['body'] = $textarea_field->form([
       "#title" => 'testing field title',

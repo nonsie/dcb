@@ -29,7 +29,6 @@ use Drupal\dynoblock\Plugin\Dynoblock\DynoblockBase;
  *   },
  *   form_settings = {
  *     "variant_support" = 1,
- *     "cardinality" = -1,
  *   },
  *   properties = {
  *    "theme" = "dynoblock",

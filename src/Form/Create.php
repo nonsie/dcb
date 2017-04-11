@@ -52,7 +52,7 @@ class Create extends ComponentWizardBaseForm {
         $this->addDefaultFields($handler, $widget, $nid);
         $this->addExtraSettings($handler);
         $widgetForm = $handler->form;
-        $form_state->widget = $widget;
+        //$form_state->widget = $widget;
       }
     }
     else {
