@@ -3,6 +3,7 @@
 namespace Drupal\dynoblock\Plugin\Dynoblock\Card;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\dynoblock\Form\ComponentWizardBaseForm;
 use Drupal\dynoblock\Plugin\Dynoblock\DynoblockBase;
 use Drupal\dynoblock\DynoBlockForms;
 use Drupal\dynoblock\DynoWidgetAPI;
@@ -36,14 +37,26 @@ use Drupal\dynoblock\Service\DynoblockCore;
  */
 class Card extends DynoblockBase {
 
+
+  /**
+   * @var
+   */
+  public $componentform;
+
+
   public function init() {
-    // TODO: ....
+
     return $this;
   }
 
-  public function build($form_state = array()) {
+  /**
+   * @param \Drupal\dynoblock\Form\ComponentWizardBaseForm $componentform
+   * @return $this
+   */
+  public function build(ComponentWizardBaseForm $componentform) {
     // sets the $form_state that may or may not be used in other places.
-    $this->form_state = $form_state;
+    $this->form_state = $componentform->form_state;
+    $this->componentform = $componentform;
 
     $this->form['fields'] = array(
       '#type' => 'container',
@@ -58,7 +71,7 @@ class Card extends DynoblockBase {
   }
 
   public function widgetForm(&$form_state = array(), $items, $delta) {
-    $container_id = DynoBlockForms::randId();
+    $container_id = $this->componentform->randId();
     $element['items'] = array(
         '#type' => 'details',
         '#title' => t('Item @delta', array(
@@ -135,14 +148,14 @@ class Card extends DynoblockBase {
       "#title" => 'testing field title',
       '#default_value' => !empty($values['widget']['items']['body']['value']['value']) ? $values['widget']['items']['body']['value']['value'] : '',
     ]);
-    DynoBlockForms::themeOptions($this, $item, $delta, $values, $container_id, array(
+    $this->componentform->themeOptions($this, $item, $delta, $values, $container_id, array(
       'themes' => array(
         'AAACardDefaultItemTheme' => t('Default (text align left)'),
         'AAACardTextCenterItemTheme' => t('Center (text align center)'),
       ),
       'default' => 'AAACardDefaultItemTheme',
     ));
-    DynoBlockForms::fieldOptions($this, $item, $values, $container_id, array(
+    $this->componentform->fieldOptions($this, $item, $values, $container_id, array(
       array(
         'plugin' => 'text_field',
         'field_name' => 'test',

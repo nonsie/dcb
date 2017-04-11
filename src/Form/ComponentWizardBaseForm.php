@@ -16,11 +16,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 abstract class ComponentWizardBaseForm extends FormBase {
 
-  public static $widget;
-  public static $sub_widget_ids = array();
-  public static $method;
-  public static $form_state;
-  public static $widget_deltas = array();
+  public $widget;
+  public $sub_widget_ids = array();
+  public $method;
+  public $form_state;
+  public $widget_deltas = array();
   public $core;
   public $wizard;
   public $parameters;
@@ -91,9 +91,9 @@ abstract class ComponentWizardBaseForm extends FormBase {
 
   public function buildWidgetForm($widget, DynoblockBase &$form, FormStateInterface &$form_state) {
     $id = $widget['id'];
-    self::$widget = $widget;
-    self::$form_state = $form_state;
-    self::$widget_deltas[$id] = isset(self::$widget_deltas[$id]) && is_numeric(self::$widget_deltas[$id]) ? self::$widget_deltas[$id] + 1 : 0;
+    $this->widget = $widget;
+    $this->form_state = $form_state;
+    $this->widget_deltas[$id] = isset($this->widget_deltas[$id]) && is_numeric($this->widget_deltas[$id]) ? $this->widget_deltas[$id] + 1 : 0;
     $form->form['widget'] = array(
       '#type' => 'hidden',
       '#value' => $id,
@@ -127,7 +127,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
         $cardinality = empty($items) ? 1 : $sub_widgets_amounts;
       }
 
-      $add_another_name = $id . '[' . self::$widget_deltas[$id] . '][add]';
+      $add_another_name = $id . '[' . $this->widget_deltas[$id] . '][add]';
       $form->form[$id]['add_another'] = self::addAnotherBtn($container_id, $add_another_name);
 
       if (is_array($items)) {
@@ -136,7 +136,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
 
       for ($i = 0; $i < $cardinality; $i++) {
         $sub_widget_id = self::createId($widget, $i . '-sub-widgets');
-        self::$sub_widget_ids[$i] = $sub_widget_id;
+        $this->sub_widget_ids[$i] = $sub_widget_id;
         $form->form[$id][$i] = array(
           '#type' => 'container',
           '#attributes' => array(
@@ -147,7 +147,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
         $form->form[$id][$i]['widget'] = $form->widgetForm($form_state, $items, $i);
 
         if ($cardinality > 1) {
-          $name = $id . '[' . self::$widget_deltas[$id] . '][remove][' . $i . ']';
+          $name = $id . '[' . $this->widget_deltas[$id] . '][remove][' . $i . ']';
           $form->form[$id][$i]['widget']['items']['remove'] = self::removeItemBtn($id, $i, $container_id, $name);
         }
 
@@ -361,7 +361,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
         'options' => ['query' => \Drupal::request()->query->all() + [FormBuilderInterface::AJAX_FORM_REQUEST => TRUE]],
         'callback' => [$this, 'extraFieldCallback'],
         'wrapper' => $wrapper,
-        'method' => 'replace',
+        'method' => 'replaceWith',
         'event' => 'change',
         'delta' => $delta,
       ),
@@ -396,7 +396,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
         'options' => ['query' => \Drupal::request()->query->all() + [FormBuilderInterface::AJAX_FORM_REQUEST => TRUE]],
         'wrapper' => $id,
         'callback' => [$this, 'cardinalityCallback'],
-        'method' => 'replace',
+        'method' => 'replaceWith',
         'effect' => 'fade',
         'type' => 'add',
       ),
@@ -424,7 +424,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
         'options' => ['query' => \Drupal::request()->query->all() + [FormBuilderInterface::AJAX_FORM_REQUEST => TRUE]],
         'wrapper' => $ajax_target,
         'callback' => [$this, 'cardinalityCallback'],
-        'method' => 'replace',
+        'method' => 'replaceWith',
         'effect' => 'fade',
         'type' => 'remove',
         'delta' => $delta,
@@ -434,11 +434,9 @@ abstract class ComponentWizardBaseForm extends FormBase {
   }
 
   public function createId($widget, $type) {
-    $id = !empty(self::$widget_deltas[$widget['id']]) ? self::$widget_deltas[$widget['id']] : 0;
+    $id = !empty($this->widget_deltas[$widget['id']]) ? $this->widget_deltas[$widget['id']] : 0;
     return $widget['id'] . '-' . $id . '-' . $type;
   }
-
-
 
   /**
    * @param array $form
@@ -519,7 +517,6 @@ abstract class ComponentWizardBaseForm extends FormBase {
    * @param FormStateInterface $form_state
    */
   public function extraFieldCallback(array $form = array(), FormStateInterface $form_state) {
-    ksm(__METHOD__);
     $trigger = $form_state->getTriggeringElement();
     array_pop($trigger['#array_parents']);
     array_pop($trigger['#array_parents']);

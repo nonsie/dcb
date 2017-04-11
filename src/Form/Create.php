@@ -36,35 +36,35 @@ class Create extends ComponentWizardBaseForm {
     $cached_values = $form_state->getTemporaryValue('wizard');
     $this->initwizard($wizard, $form_state);
     $nid = '12345';
-    self::$method = 'new';
+    $this->method = 'new';
     $core = $this->core;
 
-    if (!empty($form_state->getUserInput('widget')['widget'])) {
-      $handler = $core->initPlugin($form_state->getUserInput('widget')['widget']);
-      $widget = $core->getWidget($form_state->getUserInput('widget')['widget']);
+    if (!empty($form_state->getUserInput()['widget'])) {
+      $handler = $core->initPlugin($form_state->getUserInput()['widget']);
+      $widget = $core->getWidget($form_state->getUserInput()['widget']);
       if ($handler && $widget) {
         $handler->rebuild = TRUE;
         $handler->form = array();
-        $handler->init()->build($form_state);
-        $this->addDefaultFields($handler, $widget, $nid);
-        $this->addExtraSettings($handler);
+        $handler->init()->build($this);
         $this->buildWidgetForm($widget, $handler, $form_state);
         $this->buildThemeSelection($widget, $handler, $form_state);
         $this->buildParentThemeSettings($widget, $handler, $form_state);
+        $this->addDefaultFields($handler, $widget, $nid);
+        $this->addExtraSettings($handler);
         $widgetForm = $handler->form;
-        //$form_state->widget = $widget;
+        $form_state->widget = $widget;
       }
     }
     else {
       $plugin = $core->initPlugin($cached_values['selected_component']);
       $widget = $core->getWidget($cached_values['selected_component']);
       if ($plugin && $widget) {
-        $plugin->init()->build();
-        $this->addDefaultFields($plugin, $widget, $nid);
-        $this->addExtraSettings($plugin);
+        $plugin->init()->build($this);
         $this->buildWidgetForm($widget, $plugin, $form_state);
         $this->buildThemeSelection($widget, $plugin, $form_state);
         $this->buildParentThemeSettings($widget, $plugin, $form_state);
+        $this->addDefaultFields($plugin, $widget, $nid);
+        $this->addExtraSettings($plugin);
         $widgetForm = $plugin->form;
       }
     }

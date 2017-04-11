@@ -3,6 +3,7 @@
 namespace Drupal\dynoblock;
 
 use Drupal\Component\Plugin\PluginInspectionInterface;
+use Drupal\dynoblock\Form\ComponentWizardBaseForm;
 
 interface DynoblockInterface extends PluginInspectionInterface {
 
@@ -46,7 +47,7 @@ interface DynoblockInterface extends PluginInspectionInterface {
    *
    * @return float
    */
-  public function build($form_state = array());
+  public function build(ComponentWizardBaseForm $componentform);
 
   /**
    * Build the widget form.

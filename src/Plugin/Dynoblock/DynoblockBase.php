@@ -5,6 +5,7 @@ namespace Drupal\dynoblock\Plugin\Dynoblock;
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\dynoblock\Form\ComponentWizardBaseForm;
 use Drupal\dynoblock\Plugin\DynoField\DynoFieldInterface;
 use Drupal\dynoblock\Plugin\DynoField\DynoFieldManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -162,7 +163,7 @@ class DynoblockBase extends PluginBase implements DynoblockInterface, ContainerF
   /**
    * {@inheritdoc}
    */
-  public function build($form_state = array()) {
+  public function build(ComponentWizardBaseForm $componentform) {
 
   }
 

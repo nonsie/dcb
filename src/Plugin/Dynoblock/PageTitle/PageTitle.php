@@ -2,9 +2,8 @@
 
 namespace Drupal\dynoblock\Plugin\Dynoblock\PageTitle;
 
+use Drupal\dynoblock\Form\ComponentWizardBaseForm;
 use Drupal\dynoblock\Plugin\Dynoblock\DynoblockBase;
-use Drupal\dynoblock\DynoBlockForms;
-use Drupal\dynoblock\DynoWidgetAPI;
 
 /**
  * Provides a 'page Title' Dynoblock Widget.
@@ -46,8 +45,8 @@ class PageTitle extends DynoblockBase {
     return $this;
   }
 
-  public function build($form_state = array()) {
-    $form_state = is_object($form_state) ? (array) $form_state : $form_state;
+  public function build(ComponentWizardBaseForm $componentform) {
+    $form_state = is_object($componentform->form_state) ? (array) $componentform->form_state : $componentform->form_state;
     $this->form['fields']['#tree'] = TRUE;
 
     $this->form['fields']['title'] = array(
