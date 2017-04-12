@@ -3,6 +3,8 @@
 namespace Drupal\dynoblock\Wizard;
 
 
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\CloseModalDialogCommand;
 use Drupal\Core\DependencyInjection\ClassResolverInterface;
 use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -14,11 +16,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class AdminFormWizard extends FormWizardBase {
 
   public $rid;
-
-  public function __construct(SharedTempStoreFactory $tempstore, FormBuilderInterface $builder, ClassResolverInterface $class_resolver, EventDispatcherInterface $event_dispatcher, RouteMatchInterface $route_match, $tempstore_id, $machine_name = NULL, $step = NULL, $rid = NULL) {
-    $this->rid = $rid;
-    parent::__construct($tempstore,  $builder,  $class_resolver,  $event_dispatcher,  $route_match, $tempstore_id, $machine_name, $step);
-  }
 
   /**
    * {@inheritdoc}
@@ -59,10 +56,6 @@ class AdminFormWizard extends FormWizardBase {
         'title' => $this->t('Create'),
       ]
     );
-
-    if ($this->step == 'selectgroup' && $this->rid != 'none') {
-      $operations['selectgroup']['values']['rid'] = $this->rid;
-    }
 
     return $operations;
   }
@@ -105,6 +98,18 @@ class AdminFormWizard extends FormWizardBase {
    */
   public function getPrevOp() {
     return $this->t('Previous');
+  }
+
+  /**
+   * {@inheritdoc}
+   * Override parent method to add our own commands when the wizard finishes.
+   */
+  public function ajaxFinish(array $form, FormStateInterface $form_state) {
+    $response = new AjaxResponse();
+    $newCommand = $form_state->getValue('ajaxcommand');
+    $response->addCommand(new CloseModalDialogCommand());
+    $response->addCommand($newCommand);
+    return $response;
   }
 
   /**

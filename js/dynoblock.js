@@ -275,9 +275,6 @@
           selector.toggle();
         });
 
-
-
-
       }
 
       /**
@@ -830,6 +827,9 @@
         var header = $('<div class="dyno-ui-header"></div>');
         var label = item.label ? item.label : item.rid;
         if (label.length > 44) label = label.substring(0, 44) + '...';
+        var actions = $('<div class="dyno-ui-actions"></div>').appendTo(header);
+        var back = '<span class="dyno-back action"><i class="fa fa-home" aria-hidden="true" title="Back"></span>';
+
         switch (type) {
           case 'region':
             var $this = this;
@@ -840,16 +840,12 @@
               $this.removeBlockSortSupport();
             }
             $this.sections.region.toggleClass('dyno-editable');
-            var actions = $('<div class="dyno-ui-actions"></div>').appendTo(header);
-            var back = '<span class="dyno-back action"><i class="fa fa-home" aria-hidden="true" title="Back"></span>';
             actions.append(back);
-            var add = $('<a href="/dynoblock/admin-wizard/ajax/selectgroup/' + item.rid + '" class="use-ajax" data-dialog-type="modal" data-accepts="application/vnd.drupal-modal" data-dialog-options=\'{"width":800,"height":600}\'><i class="fa fa-plus fa-fw" aria-hidden="true" title="Add Dynoblock"></i></a>');
+            var add = $this.makeAJAXLink('new','<i class="fa fa-plus fa-fw" aria-hidden="true" title="Add Dynoblock"></i>', 'selectgroup', item);
             actions.append(add);
             actions.append('<span class="region-title">' + label + '</span>');
             break;
           case 'block':
-            var actions = $('<div class="dyno-ui-actions"></div>').appendTo(header);
-            var back = '<span class="dyno-back action"><i class="fa fa-home" aria-hidden="true" title="Back"></span>';
             actions.append(back);
             actions.append('<div><strong>ID: </strong><span>'+ label +'</span></div>');
             actions.append('<div><strong>Component: </strong><span>'+ item.handler +'</span></div>');
@@ -872,213 +868,22 @@
       render: function(){
         // render the regions into the sidebar
         this.renderRegions();
-      }
+      },
 
+      makeAJAXLink: function(bid, text, step, item){
+        var href = '/dynoblock/admin-wizard/ajax/' + step + '?bid=' + bid + '&rid=' + item.rid + '&etype=' + globals.cache.entity + '&eid=' + globals.cache.id;
+
+        return $('<a>', {
+          'html': text,
+          'href': href,
+          'data-dialog-type': 'modal',
+          'class': 'use-ajax',
+          'data-dialog-options': '{"width":800,"height":600}'
+        });
+
+      }
 
     }
-
-
-    /*/!**
-     * DynoBlocks Selector UI
-     * Modal ui for selecting widgets
-     *!/
-    function DynoBlockSelector(region){
-
-      this.region = region;
-      this.modal = null;
-      this.section = null;
-      this.steps = null;
-      this.step = null;
-      var $this = this;
-
-
-
-      this.init = function(callback){
-        DynoBlocks.getData('/dynoblock/selector-modal', function(modal){
-          modal = JSON.parse(modal);
-          $this.remove();
-          $this.modal = $(modal.html);
-          $this.sections = modal.sections;
-          $this.widgets = modal.widgets;
-          $this.themes = modal.themes;
-          $this.initSection(modal.default_active);
-
-          callback($this.modal);
-
-          $this.modal.on('click', 'a', function(e){
-            e.preventDefault();
-            $this.routAction($(this));
-          });
-          $this.modal.on('click', '.dyno-nav', function(){
-            $this.stepInit($this.step.step - 1);
-          });
-        });
-      }
-
-      this.editBlock = function(block){
-        var $this = this;
-
-        DynoBlocks.editBlock(this.region.rid, block.bid, this.region.nid, function(result){
-          if(result){
-            DynoFormUi.init($this.region, $this);
-            var form = DynoFormUi.buildForm(result, block.bid, 'edit');
-            $this.clearItems(form);
-            $this.toggle();
-          }
-        });
-      }
-
-      this.close = function(){
-        $('.ui-dialog').remove();
-        $('#dyno-widget-selector').remove();
-        this.resetCkEditors();
-      }
-
-      this.initSection = function(section){
-        this.steps = this.sections[section].steps;
-        this.section = section;
-        for(var id in this.steps){
-          if(this.steps[id]['default_active']){
-            this.stepInit(id);
-          }
-        }
-      }
-
-      this.stepInit = function(step){
-        this.clearItems();
-        step = this.steps[step];
-        this.step = step;
-        if(step.dynamic){
-          switch(step.type){
-            case 'theme_widgets':
-              this.addStepItems(this.theme.widgets);
-              break;
-            case 'widget_preview':
-              this.insertItem(this.widget.preview);
-              break;
-          }
-        } else {
-          this.addStepItems(step['items']);
-        }
-        this.addNavigation();
-      }
-
-
-      this.addStepItems = function(items){
-        for(var item in items){
-          this.insertItem(items[item]['list_display']);
-        }
-      }
-
-      this.clearItems = function(html){
-        html = !html ? '' : html;
-        this.modal.find('.modal-body').html(html);
-      }
-
-      this.insertItem = function(html){
-        this.modal.find('.modal-body').append(html);
-      }
-
-      this.prependItem = function(html){
-        this.modal.find('.modal-body').prepend(html);
-      }
-
-      this.appendItem = function(html){
-        this.modal.find('.modal-content').append(html);
-      }
-
-      this.addFooter = function(html){
-        this.removeFooter();
-        var footer = '<div class="modal-footer">';
-        footer += html;
-        footer += '</div>';
-        this.appendItem(footer);
-      },
-
-        this.removeFooter = function(){
-          this.modal.find('.modal-footer').remove();
-        },
-
-        this.routAction = function(element){
-          switch ($(element).data('dyno-action')) {
-            case 'step':
-              var step_type = $(element).data('dyno-type');
-              // set the step type
-              switch(step_type){
-                case 'widget':
-                  $this.widget = $this.widgets[$(element).data('dyno-item')];
-                  break;
-                case 'theme':
-                  $this.theme = $this.themes[$(element).data('dyno-item')];
-                  break;
-              }
-              this.stepInit($(element).data('dyno-step'));
-              break;
-            case 'select':
-              if($(element).data('dyno-select') == 'widget'){
-                this.getWidget();
-              }
-              break;
-            case 'cancel':
-              $this.stepInit($this.step.step - 1);
-              break;
-          }
-        }
-
-      this.getWidget = function(){
-        var $this = this;
-        var form_id = this.widget.id;
-        DynoBlocks.getLayout(form_id, this.region.rid, this.region.nid, function(form){
-          if(form){
-            DynoFormUi.init($this.region, $this);
-            var form = DynoFormUi.buildForm(form);
-            $this.clearItems(form);
-          }
-        });
-      }
-
-      this.addNavigation = function(){
-        if(this.step.step > 0){
-          var back = '<button href="#" class="dyno-nav btn btn-primary">BACK</button>';
-          this.addFooter(back);
-        } else {
-          this.removeFooter();
-        }
-      }
-
-      this.remove = function(){
-        $('#dyno-widget-selector').remove();
-      }
-
-      this.toggle = function(){
-        var $this = this;
-        Drupal.dialog(this.modal, {
-          "title": "Dynoblocks",
-          "width": "800px",
-          "maxHeight": '800px',
-          "position": 'center',
-        }).showModal();
-        this.modal.on('hide.bs.modal', function (e) {
-          $this.resetCkEditors();
-        });
-      },
-
-        this.resetCkEditors = function(){
-          if(typeof CKEDITOR != 'undefined'){
-            for(var id in CKEDITOR.instances){
-              var editor = CKEDITOR.instances[id];
-              editor.updateElement();
-              try{
-                editor.destroy(true);
-              } catch (err){
-                console.log('Could not destroy ckeditor');
-              }
-            }
-          }
-        }
-
-
-    }*/
 
     /*
      * Dynamic block object/class

@@ -164,7 +164,7 @@ class DynoblockCore {
           );
           // Render content in theme template if available.
           if ($data['theme'] && !empty($plugin->themes[$data['theme']]['template_dir'])) {
-            $render[$delta]['theme'] = array(
+            $render[$delta]['content']['theme'] = array(
               '#theme' => $data['theme'],
               '#block' => $html,
             );

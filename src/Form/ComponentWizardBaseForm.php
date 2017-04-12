@@ -13,6 +13,7 @@ use Drupal\ctools\Wizard\FormWizardBase;
 use Drupal\dynoblock\Plugin\Dynoblock\DynoblockBase;
 use Drupal\dynoblock\Service\DynoblockCore;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 abstract class ComponentWizardBaseForm extends FormBase {
 
@@ -24,13 +25,15 @@ abstract class ComponentWizardBaseForm extends FormBase {
   public $core;
   public $wizard;
   public $parameters;
+  public $request;
 
   /**
    * SelectGroup constructor.
    * @param \Drupal\dynoblock\Service\DynoblockCore $core
    */
-  public function __construct(DynoblockCore $core) {
+  public function __construct(DynoblockCore $core, RequestStack $request) {
     $this->core = $core;
+    $this->request = $request;
   }
 
   /**
@@ -39,10 +42,10 @@ abstract class ComponentWizardBaseForm extends FormBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('dynoblock.core')
+      $container->get('dynoblock.core'),
+      $container->get('request_stack')
     );
   }
-
 
   /**
    * @param \Drupal\ctools\Wizard\FormWizardBase $wizard

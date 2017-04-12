@@ -2,6 +2,7 @@
 
 namespace Drupal\dynoblock\Form;
 
+use Drupal\Core\Ajax\AppendCommand;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\ctools\Wizard\FormWizardBase;
 
@@ -35,10 +36,11 @@ class Create extends ComponentWizardBaseForm {
   public function buildForm(array $form, FormStateInterface $form_state, FormWizardBase $wizard = NULL) {
     $cached_values = $form_state->getTemporaryValue('wizard');
     $this->initwizard($wizard, $form_state);
-    $nid = '12345';
+    $nid = $cached_values['eid'];
     $this->method = 'new';
     $core = $this->core;
 
+    $widgetForm = [];
     if (!empty($form_state->getUserInput()['widget'])) {
       $handler = $core->initPlugin($form_state->getUserInput()['widget']);
       $widget = $core->getWidget($form_state->getUserInput()['widget']);
@@ -68,7 +70,8 @@ class Create extends ComponentWizardBaseForm {
       }
     }
 
-    // TODO: If form_state is not unset here, ajax errors occur with complicated forms.
+    // If $this->>form_state is not unset here, ajax errors occur with complicated forms.
+    // Note this is just a copy of form_state stored on the object for easy access.
     unset($this->form_state);
 
     return $widgetForm;
@@ -101,6 +104,7 @@ class Create extends ComponentWizardBaseForm {
     $conditions['condition_value'] = $form_state->getValue('value');
     $conditions['condition_operators'] = $form_state->getValue('operators');
 
+    // Prepare the data for saving.
     $record = [
       'rid' => $cached_values['rid'],
       'bid' => $bid,
@@ -109,7 +113,24 @@ class Create extends ComponentWizardBaseForm {
       'weight' => $weight,
     ];
 
+    // Save the record.
     $this->core->db->save($record);
+
+    // Take the submitted data and return an AJAX command to update the page.
+    $renderRecord = [
+      'rid' => $cached_values['rid'],
+      'bid' => $bid,
+      'data' => $data,
+      'conditions' => $conditions,
+      'weight' => $weight,
+    ];
+    $block = $this->core->displayBlocks([$renderRecord]);
+    $command = new AppendCommand('div.dynoblock-region[data-dyno-rid="' . $record['rid'] . '"]', $block[0]);
+    $form_state->setValue('ajaxcommand', $command);
+
+    // Clear the entity cache tag for this entity.
+    $this->core->invalidateCache($cached_values['etype'], $cached_values['eid']);
+
   }
 
 }

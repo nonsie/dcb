@@ -2,6 +2,7 @@
 
 namespace Drupal\dynoblock\Form;
 
+use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\ctools\Wizard\FormWizardBase;
 
@@ -35,6 +36,22 @@ class SelectGroup extends ComponentWizardBaseForm {
   public function buildForm(array $form, FormStateInterface $form_state, FormWizardBase $wizard = NULL) {
     $cached_values = $form_state->getTemporaryValue('wizard');
 
+    $args = UrlHelper::parse($this->request->getCurrentRequest()->getUri())['query'];
+
+    $expected_args = ['rid', 'bid', 'etype', 'eid'];
+    $storage = &$form_state->getStorage();
+    $storage['expected_args'] = $expected_args;
+    $form_state->setStorage($storage);
+
+    foreach($expected_args as $arg) {
+      if (isset($args[$arg])) {
+        $form[$arg] = [
+          '#type' => 'hidden',
+          '#default_value' => $args[$arg],
+        ];
+      }
+    }
+
     $themes = $this->core->getThemes();
     $selected_theme =  $cached_values['theme']['id'];
 
@@ -48,11 +65,6 @@ class SelectGroup extends ComponentWizardBaseForm {
       '#default_value' => $selected_theme,
       '#options' => $options,
     );
-
-    $form['rid'] = [
-      '#type' => 'hidden',
-      '#default_value' => $cached_values['rid'],
-    ];
 
     return $form;
   }
@@ -69,7 +81,11 @@ class SelectGroup extends ComponentWizardBaseForm {
     $themes = $this->core->getThemes();
     $cached_values = $form_state->getTemporaryValue('wizard');
     $cached_values['theme'] =  $themes[$form_state->getValue('theme')];
-    $cached_values['rid'] = $form_state->getValue('rid');
+    $form_state->setTemporaryValue('wizard', $cached_values);
+    $storage = &$form_state->getStorage();
+    foreach ($storage['expected_args'] as $arg) {
+      $cached_values[$arg] = $form_state->getValue($arg);
+    }
     $form_state->setTemporaryValue('wizard', $cached_values);
   }
 
