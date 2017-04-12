@@ -150,7 +150,7 @@ class DynoblockCore {
             'data-dyno-rid' => $data['rid'],
             'data-dyno-handler' => $id,
             'data-dyno-weight' => $weight,
-            'data-dyno-label' => $widget['label'],
+            'data-dyno-label' => $plugin->getName(),
             'data-alacarte-id' => 'dynoblock-' . $data['bid'],
             'data-alacarte-type' => 'block',
           ),
@@ -281,9 +281,10 @@ class DynoblockCore {
    * @return bool
    */
   public function isDisplayable($block) {
-    global $user;
+    $current_user = \Drupal::currentUser();
+    $roles = $current_user->getRoles();
     $is_admin = FALSE;
-    if (is_array($user->roles) && in_array('administrator', array_values($user->roles))) {
+    if (is_array($roles) && in_array('administrator', array_values($roles))) {
       $is_admin = TRUE;
     }
     if (!empty($block['condition_token']) && !$is_admin) {

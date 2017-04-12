@@ -84,9 +84,32 @@ class Create extends ComponentWizardBaseForm {
    *   The current state of the form.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    $bid = time();
     $cached_values = $form_state->getTemporaryValue('wizard');
-    ksm($cached_values['rid']);
-    ksm($form_state->getValues());
+
+    $data['widget'] = $form_state->getValue('widget');
+    $data['fields'] = (!empty($form_state->getValue('fields')) ? $form_state->getValue('fields') : array());
+    $data['theme'] = $form_state->getValue('theme');
+    $data[$data['widget']] = (!empty($form_state->getValue($data['widget'])) ? $form_state->getValue($data['widget']) : array());
+    $data['nid'] = $form_state->getValue('nid');
+    $data['bid'] = $bid;
+    $data['rid'] = $cached_values['rid'];
+
+    $weight = $form_state->getValue('weight');
+
+    $conditions['condition_token'] = $form_state->getValue('condition_token');
+    $conditions['condition_value'] = $form_state->getValue('value');
+    $conditions['condition_operators'] = $form_state->getValue('operators');
+
+    $record = [
+      'rid' => $cached_values['rid'],
+      'bid' => $bid,
+      'data' => serialize($data),
+      'conditions' => serialize($conditions),
+      'weight' => $weight,
+    ];
+
+    $this->core->db->save($record);
   }
 
 }
