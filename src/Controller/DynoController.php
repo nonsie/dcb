@@ -40,43 +40,6 @@ class DynoController extends ControllerBase {
   }
 
   /**
-   * @param $type
-   * @param $rid
-   * @param $nid
-   * @return JsonResponse
-   */
-  function generate($type, $rid, $nid) {
-    $form = DynoBlockForms::generateForm($type, $rid, $nid);
-    $form['html'] = render($form['form']);
-    return new JsonResponse(Json::encode($form));
-  }
-
-  /**
-   * @return JsonResponse
-   */
-  function selectorModal() {
-    $modal = new DynoblockWidgetModal();
-    $modal->init();
-    $response = array(Json::encode(array(
-      'html' => render($modal->modal),
-      'sections' => $modal->build(),
-      'widgets' => $modal->widgets,
-      'themes' => $modal->themes,
-      'default_active' => $modal->default_active,
-    )));
-    return new JsonResponse($response);
-  }
-
-  /**
-   * @param $method
-   * @return JsonResponse
-   */
-  function save($method) {
-    $result = $this->dynoblockCore->saveBlock($method);
-    return new JsonResponse(Json::encode($result));
-  }
-
-  /**
    * @param $rid
    * @param $bid
    *
@@ -85,27 +48,6 @@ class DynoController extends ControllerBase {
   function remove($rid, $bid) {
     $result = $this->dynoblockCore->removeBlock($rid, $bid);
     return new JsonResponse(Json::encode($result));
-  }
-
-  /**
-   * @param $rid
-   * @param $bid
-   * @param $nid
-   *
-   * @return JsonResponse
-   */
-  function edit($rid, $bid, $nid) {
-    $form = $this->dynoblockCore->editBlock($rid, $bid, $nid);
-    $form['html'] = render($form['form']);
-    return new JsonResponse(Json::encode($form));
-  }
-
-  /**
-   * @param string $type
-   * @param $id
-   */
-  function ajaxLoad($type = 'blocks', $id) {
-
   }
 
   /**
@@ -127,25 +69,6 @@ class DynoController extends ControllerBase {
   function invalidateEntityCache($etype, $eid) {
     $result = $this->dynoblockCore->invalidateCache($etype, $eid);
     return new JsonResponse(Json::encode($result));
-  }
-
-  /**
-   * @return array
-   */
-  function testpage() {
-
-    $build = [
-      '#type' => 'link',
-      '#title' => $this->t('Add Item'),
-      '#url' => Url::fromRoute('dynoblock.admin.wizard.ajax.step', array('step' => 'selectgroup', 'rid' => 'testrid')),
-      '#attributes' => [
-        'class' => ['button', 'use-ajax'],
-        'data-dialog-type' => 'modal',
-        'data-dialog-options' => Json::encode(['width' => 800, 'height' => 600]),
-      ],
-    ];
-
-    return $build;
   }
 
 }

@@ -1,24 +1,4 @@
-dynoblock.generate:
-  path: '/dynoblock/generate/{type}/{rid}/{nid}'
-  defaults:
-    _controller: '\Drupal\dynoblock\Controller\DynoController::generate'
-  requirements:
-    _permission: 'use dynoblocks'
 
-dynoblock.selector-modal:
-  path: '/dynoblock/selector-modal'
-  defaults:
-    _controller: '\Drupal\dynoblock\Controller\DynoController::selectorModal'
-  requirements:
-    _permission: 'use dynoblocks'
-
-#this one needs some looking into, its using raw post in the D7 version
-dynoblock.save:
-  path: '/dynoblock/save/{method}'
-  defaults:
-    _controller: '\Drupal\dynoblock\Controller\DynoController::save'
-  requirements:
-    _permission: 'use dynoblocks'
 
 dynoblock.remove:
   path: '/dynoblock/remove/{rid}/{bid}'
@@ -26,20 +6,6 @@ dynoblock.remove:
     _controller: '\Drupal\dynoblock\Controller\DynoController::remove'
   requirements:
     _permission: 'use dynoblocks'
-
-dynoblock.edit:
-  path: '/dynoblock/edit/{rid}/{bid}/{nid}'
-  defaults:
-    _controller: '\Drupal\dynoblock\Controller\DynoController::edit'
-  requirements:
-    _permission: 'use dynoblocks'
-
-dynoblock.load.block:
-  path: '/dynoblock/load/{type}/{id}'
-  defaults:
-    _controller: '\Drupal\dynoblock\Controller\DynoController::ajaxLoad'
-  requirements:
-    _permission: 'access content'
 
 dynoblock.update:
   path: '/dynoblock/update/{rid}/{bid}'
@@ -68,21 +34,3 @@ dynoblock.admin.wizard.ajax.step:
   requirements:
     _permission: 'use dynoblocks'
 
-
-dynoblock.testpage:
-  path: '/dynoblock/testpage'
-  defaults:
-    _controller: '\Drupal\dynoblock\Controller\DynoController::testpage'
-  requirements:
-    _permission: 'access content'
-
-
-# @todo - leaving condition stuff out for now.
-#
-#  $items['dynoblock/condition'] = array(
-#    'page callback' => 'dynoblock_condition_callback',
-#    'page arguments' => array(),
-#    'access arguments' => array('use dynoblocks'),
-#    'type' => MENU_CALLBACK,
-#  );
-#

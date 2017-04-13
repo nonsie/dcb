@@ -97,6 +97,41 @@ class DynoblockCore {
   }
 
   /**
+   * @param $rid
+   * @param null $nid
+   * @param null $label
+   * @return array
+   */
+  public function dynoRegion($rid, $nid = NULL, $label = NULL) {
+    return array(
+      '#type' => 'container',
+      '#attributes' => array(
+        'class' => array('dynoblock-region'),
+        'data-dyno-rid' => $rid,
+        'data-dyno-label' => $label,
+        'data-dyno-nid' => $nid,
+        'data-alacarte-id' => $rid,
+        'data-alacarte-type' => 'block',
+      ),
+    );
+  }
+
+  /**
+   * @param $rid
+   * @param array $entity
+   * @return array
+   */
+  public function renderDynoBlocks($rid, $entity = array()) {
+    $blocks = $this->getBlocks($rid);
+    $blocks = $this->displayBlocks($blocks, $entity);
+    return array(
+      '#type' => 'markup',
+      '#markup' => render($blocks),
+    );
+  }
+
+
+  /**
    * @param $id
    * @return null
    */
@@ -175,105 +210,6 @@ class DynoblockCore {
       }
     }
     return $render;
-  }
-
-  /**
-   * @param $output
-   * @param $plugin
-   * @param $block
-   * @return mixed|null
-   */
-  public function renderNewBlock($output, $plugin, $block) {
-    $render['container'] = array(
-      '#type' => 'container',
-      '#attributes' => array(
-        'class' => array('dynoblock'),
-        'data-dyno-bid' => $block['bid'],
-        'data-dyno-rid' => $block['rid'],
-        'data-dyno-handler' => $block['widget'],
-        'data-alacarte-id' => 'dynoblock-' . $block['bid'],
-        'data-alacarte-type' => 'block',
-      ),
-    );
-    $render['container']['content'] = array(
-      '#type' => 'container',
-      '#attributes' => array(
-        'class' => array('dynoblock-content'),
-      ),
-    );
-    if ($block['theme'] && !empty($plugin->themes[$block['theme']]['template_dir'])) {
-      $render['container']['content']['block'] = array(
-        '#theme' => $block['theme'],
-        '#block' => $output,
-      );
-    } else {
-      $render['container']['content']['block'] = [
-        '#type' => 'markup',
-        '#markup' => render($output),
-      ];
-    }
-    return render($render);
-  }
-
-  /**
-   * @param $output
-   * @param $plugin
-   * @param $data
-   * @return mixed|null
-   */
-  public function wrapEditBlock($output, $plugin, $data) {
-    $wrapper = array(
-      '#type' => 'container',
-      '#attributes' => array(
-        'class' => array('dynoblock-content'),
-      ),
-    );
-    if ($data['theme'] && !empty($plugin->themes[$data['theme']]['template_dir'])) {
-      $wrapper[] = array(
-        '#theme' => $data['theme'],
-        '#block' => $output,
-      );
-    } else {
-      $wrapper[] = [
-        '#type' => 'markup',
-        '#markup' => render($output),
-      ];
-    }
-    return render($wrapper);
-  }
-
-  /**
-   * @param $rid
-   * @param null $nid
-   * @param null $label
-   * @return array
-   */
-  public function dynoRegion($rid, $nid = NULL, $label = NULL) {
-    return array(
-      '#type' => 'container',
-      '#attributes' => array(
-        'class' => array('dynoblock-region'),
-        'data-dyno-rid' => $rid,
-        'data-dyno-label' => $label,
-        'data-dyno-nid' => $nid,
-        'data-alacarte-id' => $rid,
-        'data-alacarte-type' => 'block',
-      ),
-    );
-  }
-
-  /**
-   * @param $rid
-   * @param array $entity
-   * @return array
-   */
-  public function renderDynoBlocks($rid, $entity = array()) {
-    $blocks = $this->getBlocks($rid);
-    $blocks = $this->displayBlocks($blocks, $entity);
-    return array(
-      '#type' => 'markup',
-      '#markup' => render($blocks),
-    );
   }
 
   /**
@@ -364,68 +300,6 @@ class DynoblockCore {
     return ['result' => $result];
   }
 
-  /**
-   * @param $method
-   * @return array
-   */
-  public function saveBlock($method) {
-    // Check that this is either an edit or new save.
-    // If new save, make sure bid does not already exist.
-    $output = array('saved' => FALSE);
-    if (!empty($_POST['rid'])
-      && !empty($_POST['bid'])
-      && ($method == 'edit'
-        || ($method == 'new' && !$this->db->getBlock($_POST['rid'], $_POST['bid'])))) {
-      $form = $this->initPlugin(!empty($_POST['widget']) ? $_POST['widget'] : NULL);
-      if ($form) {
-        $form->id = $_POST['widget'];
-        $form->formSubmit($_POST);
-        $record = array(
-          "rid" => $_POST['rid'],
-          "bid" => $_POST['bid'],
-          "data" => serialize($_POST),
-          'weight' => NULL,
-          'conditions' => serialize(array(
-            'condition_token' => !empty($_POST['condition_token']) ? !empty($_POST['condition_token']) : NULL,
-            'condition_operator' => !empty($_POST['condition_operator']) ? !empty($_POST['condition_operator']) : NULL,
-            'condition_value' => !empty($_POST['condition_value']) ? !empty($_POST['condition_value']) : NULL,
-          ))
-        );
-        if ($method == 'edit') {
-          $action = $this->db->update($record);
-        }
-        else {
-          $action = $this->db->save($record);
-        }
-        if ($action) {
-          $layout = $this->initPlugin($_POST['widget']);
-          if ($layout) {
-            $output = $layout->init($_POST)->preRender($_POST);
-            // Call theme preRender so it can modify final output.
-            $widget = $this->getWidget($_POST['widget']);
-            if (!empty($widget['parent_theme']['handler'])) {
-              $theme_settings = !empty($_POST['global_theme_settings']) ? $_POST['global_theme_settings'] : array();
-              $widget['parent_theme']['handler']->preRender($widget, $_POST, $output, $theme_settings);
-            }
-            if ($method == 'new') {
-              $output = $this->renderNewBlock($output, $form, $_POST);
-            }
-            else {
-              $output = $this->wrapEditBlock($output, $form, $_POST);
-            }
-            $output = array(
-              'saved' => TRUE,
-              'bid' => $_POST['bid'],
-              'rid' => $_POST['rid'],
-              'handler' => $_POST['widget'],
-              'block' => $output,
-            );
-          }
-        }
-      }
-    }
-    return $output;
-  }
 
   /**
    * @param $rid
@@ -435,16 +309,6 @@ class DynoblockCore {
   public function removeBlock($rid, $bid) {
     $removed = $this->db->remove($rid, $bid);
     return array('removed' => $removed);
-  }
-
-  /**
-   * @param $rid
-   * @param $bid
-   * @param $nid
-   * @return mixed
-   */
-  public function editBlock($rid, $bid, $nid) {
-    return DynoBlockForms::editForm($rid, $bid, $nid);
   }
 
   /**
@@ -473,20 +337,6 @@ class DynoblockCore {
       return $theme['full_path'] . '/';
     }
 
-  }
-
-  /**
-   * @param $data
-   * @return \Drupal\Core\Ajax\CommandInterface[]
-   */
-  public function getAjaxCommands($data) {
-    $response = new AjaxResponse();
-    $replace = new ReplaceCommand(NULL, $data);
-    $response->addCommand($replace);
-    $attachments_processor = \Drupal::service('ajax_response.attachments_processor');
-    $attachments_processor->processAttachments($response);
-    $commands = $response->getCommands();
-    return $commands;
   }
 
 

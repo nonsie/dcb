@@ -79,7 +79,7 @@ class SelectWidget extends ComponentWizardBaseForm {
 
     if(!empty($selected_component)) {
       $layout = $this->core->initPlugin($selected_component);
-      $preview = DynoBlockForms::getPreview($layout);
+      $preview = $this->getPreview($layout);
       $form['preview_placeholder'] += [
         'preview_description' => [
           '#type' => 'container',

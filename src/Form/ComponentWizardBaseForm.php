@@ -301,7 +301,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
     }
   }
 
-  public function getPreview($widget) {
+  public static function getPreview($widget) {
     if (!empty($widget->preview_image)) {
       $image_path = $widget->preview_image;
       return array(

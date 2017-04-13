@@ -19,6 +19,8 @@ edit:
     - core/drupal.ajax
     - core/drupalSettings
     - core/drupal.dialog
+    - core/jquery.ui.sortable
+    - core/drupal.dialog.ajax
 
 font-awesome:
   remote: https://fortawesome.github.io/Font-Awesome/
