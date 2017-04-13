@@ -44,22 +44,21 @@ class PageTitle extends DynoblockBase {
     return $this;
   }
 
-  public function build(ComponentWizardBaseForm $componentform) {
-    $form_state = is_object($componentform->form_state) ? (array) $componentform->form_state : $componentform->form_state;
-    $this->form['fields']['#tree'] = TRUE;
+  public function build(ComponentWizardBaseForm $componentform, array $values) {
 
+    $this->form['fields']['#tree'] = TRUE;
     $this->form['fields']['title'] = array(
       '#type' => 'textfield',
       '#title' => t('Title'),
-      '#default_value' => !empty($form_state['fields']['title']) ? $form_state['fields']['title'] : NULL,
+      '#default_value' => !empty($values['fields']['title']) ? $values['fields']['title'] : NULL,
     );
 
-    $select_field = $this->getField('select_field', TRUE, $form_state);
+    $select_field = $this->getField('select_field', TRUE, $values );
     $this->form['fields']['tag'] = $select_field->form(
       array(
         "#title" => t('HTML tag'),
-        '#default_value' => !empty($form_state['fields']['tag']) ?
-          $form_state['fields']['tag'] : 'h2',
+        '#default_value' => !empty($values['fields']['tag']) ?
+          $values['fields']['tag'] : 'h2',
         '#options' => array(
           'h1' => 'h1',
           'h2' => 'h2',
@@ -73,8 +72,8 @@ class PageTitle extends DynoblockBase {
       '#type' => 'textfield',
       '#title' => t('Optional class(es)'),
       '#description' => t('One or more classes to apply to the title tag'),
-      '#default_value' => !empty($form_state['fields']['class_name']) ?
-        $form_state['fields']['class_name'] : '',
+      '#default_value' => !empty($values ['fields']['class_name']) ?
+        $values ['fields']['class_name'] : '',
     );
 
   }

@@ -5,6 +5,7 @@
 namespace Drupal\dynoblock\Form;
 
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -55,6 +56,26 @@ abstract class ComponentWizardBaseForm extends FormBase {
     $cached_values = $form_state->getTemporaryValue('wizard');
     $this->wizard = $wizard;
     $this->parameters['step'] = $this->wizard->getStep($cached_values);
+    $this->form_state = $form_state;
+  }
+
+  protected function setArgsFromURI(FormStateInterface $form_state) {
+    $args = UrlHelper::parse($this->request->getCurrentRequest()->getUri())['query'];
+    $expected_args = ['rid', 'bid', 'etype', 'eid'];
+    foreach($expected_args as $arg) {
+      if (isset($args[$arg])) {
+        $form_state->set($arg, $args[$arg]);
+      }
+    }
+  }
+
+  protected function setArgsFromCache($cached_values, FormStateInterface $form_state) {
+    $expected_args = ['rid', 'bid', 'etype', 'eid'];
+    foreach($expected_args as $arg) {
+      if (isset($cached_values[$arg])) {
+        $form_state->set($arg, $cached_values[$arg]);
+      }
+    }
   }
 
   protected function addDefaultFields(&$form, $widget, $nid) {
@@ -89,13 +110,14 @@ abstract class ComponentWizardBaseForm extends FormBase {
     );
     $form->form['extra_settings'] += _dynoblock_condition_form($default_values);
     $form->form['extra_settings'] += _dynoblock_weight_form($default_values);
+
+    // TODO: token tree does not load since theme function is not available.
     //$form->form['extra_settings'] += _dynoblock_add_token_support();
   }
 
   public function buildWidgetForm($widget, DynoblockBase &$form, FormStateInterface &$form_state) {
     $id = $widget['id'];
     $this->widget = $widget;
-    $this->form_state = $form_state;
     $this->widget_deltas[$id] = isset($this->widget_deltas[$id]) && is_numeric($this->widget_deltas[$id]) ? $this->widget_deltas[$id] + 1 : 0;
     $form->form['widget'] = array(
       '#type' => 'hidden',
@@ -168,9 +190,9 @@ abstract class ComponentWizardBaseForm extends FormBase {
     return md5(random_bytes(32) . time());
   }
 
-  public function buildParentThemeSettings($widget, &$form, &$form_state) {
+  public function buildParentThemeSettings($widget, &$form, FormStateInterface &$form_state) {
     if (!empty($widget['parent_theme']['handler'])) {
-      $settings_form = $widget['parent_theme']['handler']->globalSettings($form->form, $form_state);
+      $settings_form = $widget['parent_theme']['handler']->globalSettings($form->form, $form_state->getValues());
       if (!empty($settings_form)) {
         $form->form['global_theme_settings'] = array(
           '#type' => 'fieldset',
@@ -535,38 +557,5 @@ abstract class ComponentWizardBaseForm extends FormBase {
     array_pop($trigger['#array_parents']);
     return NestedArray::getValue($form, $trigger['#array_parents']);
   }
-
-
-
-
-
-  /* public function editForm($rid, $bid, $nid) {
-   self::$method = 'edit';
-   $core = \Drupal::service('dynoblock.core');
-   if ($bid) {
-     $block = $core->db->getBlock($rid, $bid);
-     if ($block) {
-       $widget = !empty($block['widget']) ? $block['widget'] : $block['layout_id'];
-       $plugin = $core->initPlugin($widget);
-       $widget = $core->getWidget($widget);
-       if ($plugin && $widget) {
-         $plugin->init()->build($block);
-         self::addDefaultFields($plugin, $widget, $nid);
-         self::addExtraSettings($plugin, $block);
-         self::buildWidgetForm($widget, $plugin, $block);
-         self::buildThemeSelection($widget, $plugin, $block);
-         self::buildParentThemeSettings($widget, $plugin, $block);
-         $form = \Drupal::formBuilder()->getForm('Drupal\dynoblock\Form\DynoblockForm', $plugin->form);
-         $commands = $core->getAjaxCommands($form);
-         return compact('form', 'commands');
-       }
-     }
-   }
-   return array(
-     '#type' => 'markup',
-     '#markup' => '',
-   );
- }*/
-
 
 }

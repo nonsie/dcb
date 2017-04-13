@@ -2,12 +2,12 @@
 
 namespace Drupal\dynoblock\Plugin\Dynoblock\Card;
 
-use Drupal\Core\Form\FormStateInterface;
+
 use Drupal\dynoblock\Form\ComponentWizardBaseForm;
 use Drupal\dynoblock\Plugin\Dynoblock\DynoblockBase;
 use Drupal\dynoblock\DynoBlockForms;
 use Drupal\dynoblock\DynoWidgetAPI;
-use Drupal\dynoblock\Service\DynoblockCore;
+
 
 /**
  * Provides a 'Card' Dynoblock Widget.
@@ -53,9 +53,8 @@ class Card extends DynoblockBase {
    * @param \Drupal\dynoblock\Form\ComponentWizardBaseForm $componentform
    * @return $this
    */
-  public function build(ComponentWizardBaseForm $componentform) {
+  public function build(ComponentWizardBaseForm $componentform, array $values) {
     // sets the $form_state that may or may not be used in other places.
-    $this->form_state = $componentform->form_state;
     $this->componentform = $componentform;
 
     $this->form['fields'] = array(
@@ -146,7 +145,7 @@ class Card extends DynoblockBase {
     $textarea_field = $this->getField('ckeditor_field', TRUE);
     $item['body'] = $textarea_field->form([
       "#title" => 'testing field title',
-      '#default_value' => !empty($values['widget']['items']['body']['value']['value']) ? $values['widget']['items']['body']['value']['value'] : '',
+      '#default_value' => !empty($values['body']['value']['value']) ? $values['body']['value']['value'] : '',
     ]);
     $this->componentform->themeOptions($this, $item, $delta, $values, $container_id, array(
       'themes' => array(
@@ -162,7 +161,7 @@ class Card extends DynoblockBase {
         'label' => t('Textfield'),
         'properties' => array(
           '#title' => t('Textfield'),
-          '#default_value' => !empty($values['widget']['items']['test']['value']) ? $values['widget']['items']['test']['value'] : '',
+          '#default_value' => !empty($values['test']['value']) ? $values['test']['value'] : '',
         ),
       ),
     ), $delta);

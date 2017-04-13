@@ -266,18 +266,6 @@
       }
 
       /**
-       * Display the widget selection modal
-       */
-      this.displayWidgetModal = function(){
-        var selector = new DynoBlockSelector($this);
-        selector.init(function(modal){
-          $('body').append(modal);
-          selector.toggle();
-        });
-
-      }
-
-      /**
        * Re-organizes the regions blocks after a sort (drag and drop) event.
        */
       this.sortBlocks = function(){
@@ -305,144 +293,6 @@
         }
       }
     }
-
-
-
-    /**
-     * DynoBlocks UI
-     * allows you to manage regions and blocks.
-     */
-    var DynoFormUi = {
-
-      modal: null,
-      region: null,
-      form: null,
-
-      init: function(region, ui){
-        this.region = region;
-        this.rid = region.rid;
-        this.ui = ui;
-      },
-
-      buildForm: function(dyno_form, bid, type){
-        dyno_form = $(dyno_form);
-        bid = !bid ? this.generateBlockId() : bid;
-        type = !type ? 'save' : type;
-
-        var form = $('<div class="dynoblock-form-container" id="dynoblock-form-container" data-dyno-bid="'+bid+'" data-dyno-rid="'+this.rid+'"></div>');
-        dyno_form.append('<input type="hidden" name="rid" value="'+ this.rid +'"/>');
-        dyno_form.append('<input type="hidden" name="bid" value="'+ bid +'"/>');
-        form.append(dyno_form);
-
-        if(type != 'edit'){
-          var weight = (Object.size(this.region.blocks) + 1);
-          form.find('input[name="weight"]').val(weight);
-        }
-
-        var actions = $('<div class="btn-toolbar dynoblock-form-actions">');
-        actions.append('<button type="button" class="btn btn-success dyno-'+type+'">Save</button>');
-        actions.append('<button type="button" data-dyno-for="'+type+'" class="btn btn-danger dyno-cancel">Cancel</button>');
-
-        form.append(actions);
-        this.form = form;
-        this.eventHandlers();
-        return this.form;
-      },
-
-      display: function(){
-        this.modal.toggle();
-      },
-
-      eventHandlers: function(){
-        var $this = this;
-        // save block
-        this.form.find('.dyno-save').on('click', function(){
-          var bid = $this.form.data('dyno-bid');
-          $this.beforeSave();
-          var form_state = $this.form.find('#dynoblock-form').serialize();
-          $this.saveBlock(form_state, 'new', function(block){
-            $this.showBlock(bid);
-          });
-        });
-
-        // edit block
-        this.form.find('.dyno-edit').on('click', function(){
-          var bid = $this.form.data('dyno-bid');
-          $this.beforeSave();
-          var form_state = $this.form.find('#dynoblock-form').serialize();
-          $this.saveBlock(form_state, 'edit', function(block){
-            $this.showBlock(bid, true, block);
-          });
-        });
-
-        // edit block
-        this.form.find('.dyno-cancel').on('click', function(){
-          $this.ui.close();
-        });
-
-        // Things to run when ajax is completed.
-        $(document).ajaxComplete(function(event, xhr, settings){
-
-        });
-
-        // Things to run when ajax is completed.
-        $(document).ajaxStart(function(event, xhr, settings){
-
-        });
-      },
-
-      beforeSave: function(){
-        this.updateCkEditors();
-      },
-
-      updateCkEditors: function(){
-        if(typeof CKEDITOR != 'undefined'){
-          for(var id in CKEDITOR.instances){
-            var editor = CKEDITOR.instances[id];
-            try{
-              editor.updateElement();
-            } catch (err){
-
-            }
-          }
-        }
-      },
-
-      saveBlock: function(form_state, method, callback){
-        var $this = this;
-        DynoBlocks.saveBlock(form_state, method, function(result){
-          if(result.saved){
-            var block = result.block;
-            if(method != 'edit'){
-              $this.region.blocks.push(new DynoBlock($(block), result.bid, result.rid, result.handler));
-            }
-            if(callback){
-              callback(result.block);
-            }
-          }
-        });
-      },
-
-      showBlock: function(bid, replace, new_html){
-        var block = this.region.findBlock(bid);
-        if(block){
-          if(replace && new_html){
-            block.element.html(new_html);
-          } else {
-            this.region.region.append(block.element);
-            DynoUi.insertBlock(block);
-          }
-        }
-        this.ui.close();
-      },
-
-      generateBlockId: function(){
-        return Math.floor(Date.now() / 1000);
-      },
-
-    }
-
-
 
     /**
      * DynoBlocks UI
@@ -698,16 +548,7 @@
 
       blockEditSupport: function(block, rid){
         var $this = this;
-        var editable = $('<a href="#" class="btn btn-primary dynoblock-edit"><i class="fa fa-edit" aria-hidden="true" title="Edit"></a>');
-        var bid = block.bid;
-        editable.on('click', function(e) {
-          e.preventDefault();
-          var selector = new DynoBlockSelector($this.activeRegion);
-          selector.init(function(modal){
-            $('body').append(modal);
-            selector.editBlock(block);
-          });
-        });
+        var editable = $this.makeAJAXLink(block.bid,'<i class="fa fa-edit" aria-hidden="true" title="Edit">', 'editform', rid);
         return editable;
       },
 
@@ -841,7 +682,7 @@
             }
             $this.sections.region.toggleClass('dyno-editable');
             actions.append(back);
-            var add = $this.makeAJAXLink('new','<i class="fa fa-plus fa-fw" aria-hidden="true" title="Add Dynoblock"></i>', 'selectgroup', item);
+            var add = $this.makeAJAXLink('new','<i class="fa fa-plus fa-fw" aria-hidden="true" title="Add Dynoblock"></i>', 'selectgroup', item.rid);
             actions.append(add);
             actions.append('<span class="region-title">' + label + '</span>');
             break;
@@ -870,8 +711,8 @@
         this.renderRegions();
       },
 
-      makeAJAXLink: function(bid, text, step, item){
-        var href = '/dynoblock/admin-wizard/ajax/' + step + '?bid=' + bid + '&rid=' + item.rid + '&etype=' + globals.cache.entity + '&eid=' + globals.cache.id;
+      makeAJAXLink: function(bid, text, step, rid){
+        var href = '/dynoblock/admin-wizard/ajax/' + step + '?bid=' + bid + '&rid=' + rid + '&etype=' + globals.cache.entity + '&eid=' + globals.cache.id;
 
         return $('<a>', {
           'html': text,
@@ -915,7 +756,6 @@
 
     }
 
-  //});
 
   Object.size = function(obj) {
     var size = 0, key;

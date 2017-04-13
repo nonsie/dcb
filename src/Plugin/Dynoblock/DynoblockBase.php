@@ -163,7 +163,7 @@ class DynoblockBase extends PluginBase implements DynoblockInterface, ContainerF
   /**
    * {@inheritdoc}
    */
-  public function build(ComponentWizardBaseForm $componentform) {
+  public function build(ComponentWizardBaseForm $componentform, array $values) {
 
   }
 

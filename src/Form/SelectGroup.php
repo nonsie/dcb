@@ -36,21 +36,12 @@ class SelectGroup extends ComponentWizardBaseForm {
   public function buildForm(array $form, FormStateInterface $form_state, FormWizardBase $wizard = NULL) {
     $cached_values = $form_state->getTemporaryValue('wizard');
 
-    $args = UrlHelper::parse($this->request->getCurrentRequest()->getUri())['query'];
-
     $expected_args = ['rid', 'bid', 'etype', 'eid'];
     $storage = &$form_state->getStorage();
     $storage['expected_args'] = $expected_args;
     $form_state->setStorage($storage);
 
-    foreach($expected_args as $arg) {
-      if (isset($args[$arg])) {
-        $form[$arg] = [
-          '#type' => 'hidden',
-          '#default_value' => $args[$arg],
-        ];
-      }
-    }
+    $this->setArgsFromURI($form_state);
 
     $themes = $this->core->getThemes();
     $selected_theme =  $cached_values['theme']['id'];
@@ -78,13 +69,14 @@ class SelectGroup extends ComponentWizardBaseForm {
    *   The current state of the form.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+
     $themes = $this->core->getThemes();
     $cached_values = $form_state->getTemporaryValue('wizard');
     $cached_values['theme'] =  $themes[$form_state->getValue('theme')];
     $form_state->setTemporaryValue('wizard', $cached_values);
     $storage = &$form_state->getStorage();
     foreach ($storage['expected_args'] as $arg) {
-      $cached_values[$arg] = $form_state->getValue($arg);
+      $cached_values[$arg] = $form_state->get($arg);
     }
     $form_state->setTemporaryValue('wizard', $cached_values);
   }

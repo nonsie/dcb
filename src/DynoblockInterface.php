@@ -47,7 +47,7 @@ interface DynoblockInterface extends PluginInspectionInterface {
    *
    * @return float
    */
-  public function build(ComponentWizardBaseForm $componentform);
+  public function build(ComponentWizardBaseForm $componentform, array $values);
 
   /**
    * Build the widget form.
