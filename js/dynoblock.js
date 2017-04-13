@@ -69,50 +69,6 @@
         }
       },
 
-      ajaxLoadBlocks: function(rid, callback){
-        var data = this.addPageState();
-        var $this = this;
-        this.postData('/dynoblock/load/blocks/' + rid, data, function(result){
-          $this.runAjaxCommands(result.commands);
-          callback(result);
-        });
-      },
-
-      loadStaticBlocks: function(){
-        var $this = this;
-        $('.dynoblock-region').each(function(){
-          if ($(this).data('dyno-ajax-load') != undefined) {
-            var _this = $(this);
-            $this.ajaxLoadBlocks($(this).data('dyno-rid'), function(data){
-              _this.append(data.html);
-            });
-          }
-        });
-      },
-
-      getSelector: function(callback){
-        this.getData('/dynoblock/selector', function(data){
-          callback(data);
-        });
-      },
-
-      getLayout: function(layout, rid, nid, callback){
-        var $this = this;
-        var data = this.addPageState();
-        nid = !nid ? 'NA' : nid;
-        this.postData('/dynoblock/generate/' + layout + '/' + rid + '/' + nid, data, function(data){
-          callback(data.html);
-          if (data.commands.length > 0) {
-            if (typeof(data.commands) == 'string') {
-              $this.runAjaxCommands(JSON.parse(data.commands));
-            }
-            else {
-              $this.runAjaxCommands(data.commands);
-            }
-          }
-        });
-      },
-
       getData: function(url, callback){
         $.get(url).done(function(data) {
           if (callback) {
@@ -127,34 +83,6 @@
             callback(JSON.parse(data));
           }
         }, 'json');
-      },
-
-      saveBlock: function(form_state, method, callback){
-        var $this = this;
-        this.postData('/dynoblock/save/' + method, form_state, function(data){
-          $this.clearCacheTag();
-          if (callback) {
-            callback(data);
-          }
-        });
-      },
-
-      editBlock: function(rid, bid, nid, callback){
-        var $this = this;
-        var data = this.addPageState();
-        nid = !nid ? 'NA' : nid;
-        this.postData('/dynoblock/edit/' + rid + '/' + bid + '/' + nid, data, function(data){
-          console.log(data);
-          callback(data.html);
-          if (data.commands.length > 0) {
-            if (typeof(data.commands) == 'string') {
-              $this.runAjaxCommands(JSON.parse(data.commands));
-            }
-            else {
-              $this.runAjaxCommands(data.commands);
-            }
-          }
-        });
       },
 
       removeBlock: function(rid, bid, callback){
@@ -178,39 +106,6 @@
             callback(data);
           }
         });
-      },
-
-      runAjaxCommands: function(commands){
-        var status = 'ready';
-        var commander = {};
-        commander.commands = new Drupal.AjaxCommands();
-        for (var i in commands) {
-          if (commands.hasOwnProperty(i) && commands[i]['command']) {
-            if(commands[i].command == 'insert'){
-              this.loadAjaxJs(commands[i]);
-            } else if (commands[i].command == 'settings') {
-              this.drupalSettings = commands[i].settings;
-            } else {
-              commander.commands[commands[i].command](this, commands[i], status);
-            }
-          }
-        }
-        // Re-Attach Behaviors.
-        Drupal.attachBehaviors(document, this.drupalSettings);
-      },
-
-      loadAjaxJs: function(data){
-        if (data.selector) {
-          $(data.selector).prepend(data.data);
-        }
-      },
-
-      addPageState: function(){
-        var ajax_page_state = this.drupalSettings.ajaxPageState;
-        // if (ajax_page_state.libraries && typeof(ajax_page_state.libraries) == 'string') {
-        //   ajax_page_state.libraries = ajax_page_state.libraries.split(',');
-        // }
-        return { ajax_page_state: ajax_page_state };
       },
       
       clearCacheTag: function() {
