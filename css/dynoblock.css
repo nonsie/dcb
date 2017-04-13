@@ -1,18 +1,10 @@
 .dynoblock-region.active {
   border: 3px dashed #1a5ca0;
   cursor: pointer; }
-  .dynoblock-region.active .dynoblock {
-    border-radius: 5px;
-    margin: 20px 10px;
-    padding-bottom: 10px;
-    border-bottom: 1px dotted #ccc; }
-    .dynoblock-region.active .dynoblock .dynoblock-content {
-      margin-left: 20px; }
+  .dynoblock-region.active .dynoblock .dynoblock-content {
+    margin-left: 20px; }
   .dynoblock-region.active .dynoblock.active {
-    background: #1a5ca0;
-    color: white;
-    padding-top: 5px;
-    padding-bottom: 5px; }
+    border: 1px dashed #1a5ca0; }
   .dynoblock-region.active .dyno-add-block {
     padding: 10px 10px; }
   .dynoblock-region.active .dyno-drag-element {
@@ -43,63 +35,6 @@
   position: absolute;
   top: -20px;
   right: 0px; }
-
-#dynoblock-form {
-  padding-bottom: 20px;
-  float: left;
-  width: 100%;
-  display: inline-block; }
-  #dynoblock-form .dynoblock-form-container {
-    float: left; }
-  #dynoblock-form .dyno-theme-preview img {
-    width: 100% !important;
-    height: auto !important; }
-  #dynoblock-form .form-type-checkboxes {
-    max-height: 150px;
-    overflow-y: scroll; }
-    #dynoblock-form .form-type-checkboxes .form-type-checkbox {
-      padding-left: 20px; }
-  #dynoblock-form .form-item {
-    float: left;
-    clear: both;
-    width: 100% !important; }
-  #dynoblock-form .form-group {
-    margin: 10px 0px 10px 0px; }
-  #dynoblock-form .dynoblock-form-actions {
-    clear: both;
-    width: 100%;
-    float: left; }
-  #dynoblock-form .dyno-token-tree {
-    width: 100%;
-    float: left;
-    clear: both; }
-  #dynoblock-form .dyno-condition {
-    width: 100%; }
-  #dynoblock-form .dyno-weight {
-    width: 100%; }
-  #dynoblock-form .dyno-widget-settings-container {
-    margin-top: 20px; }
-  #dynoblock-form fieldset {
-    clear: left; }
-
-/**
- * WIDGET SELECTION
- */
-#dyno-widget-selector .dyno-navigation {
-  padding-top: 10px;
-  padding-bottom: 20px; }
-#dyno-widget-selector .widget-actions-wrapper {
-  overflow: hidden;
-  margin-top: 20px; }
-#dyno-widget-selector .widget-actions-wrapper .btn-success {
-  float: left; }
-#dyno-widget-selector .widget-actions-wrapper .btn-danger {
-  float: right; }
-#dyno-widget-selector .modal-body {
-  width: 100%;
-  display: inline-block;
-  max-height: 800px;
-  overflow-y: scroll; }
 
 /**
  * Dyno Ui

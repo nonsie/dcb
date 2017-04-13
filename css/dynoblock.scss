@@ -2,20 +2,12 @@
   border: 3px dashed #1a5ca0;
   cursor: pointer;
   .dynoblock{
-    border-radius: 5px;
-    margin: 20px 10px;
-    padding-bottom:10px;
-    border-bottom: 1px dotted #ccc;
     .dynoblock-content{
       margin-left: 20px;
     }
   }
   .dynoblock.active{
-    background: #1a5ca0;
-    color: white;
-    padding-top: 5px;
-    padding-bottom:5px;
-   // border-top: 1px solid #d0d0d0;
+    border: 1px dashed #1a5ca0;
   }
   .dyno-add-block{
     padding: 10px 10px;
@@ -59,87 +51,6 @@
   right: 0px;
 }
 
-
-#dynoblock-form {
-  padding-bottom:20px;
-  float: left;
-  width:100%;
-  display: inline-block;
-  .dynoblock-form-container{
-    float:left;
-  }
-  .dyno-theme-preview{
-    img{
-      width:100% !important;
-      height:auto !important;
-    }
-  }
-  .form-type-checkboxes {
-    max-height: 150px;
-    overflow-y: scroll;
-    .form-type-checkbox{
-      padding-left: 20px;
-    }
-  }
-  .form-item{
-    float:left;
-    clear:both;
-    width:100% !important;
-  }
-  .form-group{
-    margin: 10px 0px 10px 0px;
-  }
-  .dynoblock-form-actions{
-    clear: both;
-    width: 100%;
-    float: left;
-  }
-  .dyno-token-tree{
-    width:100%;
-    float: left;
-    clear: both;
-  }
-  .dyno-condition{
-    width:100%;
-  }
-  .dyno-weight{
-    width: 100%;
-  }
-  .dyno-widget-settings-container{
-    margin-top: 20px;
-  }
-  fieldset {
-    clear: left;
-  }
-}
-
-
-/**
- * WIDGET SELECTION
- */
- #dyno-widget-selector{
-  .dyno-navigation{
-    padding-top: 10px;
-    padding-bottom: 20px;
-  }
-  .widget-actions-wrapper{
-    overflow: hidden;
-    margin-top: 20px;
-  }
-  .widget-actions-wrapper .btn-success{
-    float:left;
-  }
-  .widget-actions-wrapper .btn-danger{
-    float:right;
-  }
-
-  .modal-body{
-    width:100%;
-    display: inline-block;
-    max-height: 800px;
-    overflow-y: scroll;
-  }
-}
 
 /**
  * Dyno Ui
