@@ -2,7 +2,7 @@
 
 # @File: not much in here right now, but may be helpful in the future.
 
-namespace Drupal\dynoblock\Form;
+namespace Drupal\dcb\Form;
 
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\UrlHelper;
@@ -11,8 +11,8 @@ use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\ctools\Wizard\FormWizardBase;
-use Drupal\dynoblock\Plugin\Dynoblock\DynoblockBase;
-use Drupal\dynoblock\Service\DynoblockCore;
+use Drupal\dcb\Plugin\DCBComponent\DCBComponentBase;
+use Drupal\dcb\Service\DCBCore;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -30,9 +30,9 @@ abstract class ComponentWizardBaseForm extends FormBase {
 
   /**
    * SelectGroup constructor.
-   * @param \Drupal\dynoblock\Service\DynoblockCore $core
+   * @param \Drupal\dcb\Service\DCBCore $core
    */
-  public function __construct(DynoblockCore $core, RequestStack $request) {
+  public function __construct(DCBCore $core, RequestStack $request) {
     $this->core = $core;
     $this->request = $request;
   }
@@ -43,7 +43,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('dynoblock.core'),
+      $container->get('dcb.core'),
       $container->get('request_stack')
     );
   }
@@ -108,14 +108,14 @@ abstract class ComponentWizardBaseForm extends FormBase {
         'class' => array('dyno-widget-settings-container'),
       ),
     );
-    $form->form['extra_settings'] += _dynoblock_condition_form($default_values);
-    $form->form['extra_settings'] += _dynoblock_weight_form($default_values);
+    $form->form['extra_settings'] += _dcb_condition_form($default_values);
+    $form->form['extra_settings'] += _dcb_weight_form($default_values);
 
     // TODO: token tree does not load since theme function is not available.
     //$form->form['extra_settings'] += _dynoblock_add_token_support();
   }
 
-  public function buildWidgetForm($widget, DynoblockBase &$form, FormStateInterface &$form_state) {
+  public function buildWidgetForm($widget, DCBComponentBase &$form, FormStateInterface &$form_state) {
     $id = $widget['id'];
     $this->widget = $widget;
     $this->widget_deltas[$id] = isset($this->widget_deltas[$id]) && is_numeric($this->widget_deltas[$id]) ? $this->widget_deltas[$id] + 1 : 0;
@@ -141,7 +141,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
       $form->form[$id] = array(
         '#type' => 'container',
         '#tree' => TRUE,
-        '#theme_wrappers' => array('dynoblock_tabledrag'),
+        '#theme_wrappers' => array('dcb_tabledrag'),
         '#attributes' => array(
           'class' => array('widget-field-groups'),
           'id' => 'widget-field-groups',
@@ -257,7 +257,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
           'target' => $container_id,
         ),
         '#ajax' => array(
-          'url' => Url::fromRoute('dynoblock.admin.wizard.ajax.step', $this->parameters),
+          'url' => Url::fromRoute('dcb.admin.wizard.ajax.step', $this->parameters),
           'options' => ['query' => \Drupal::request()->query->all() + [FormBuilderInterface::AJAX_FORM_REQUEST => TRUE]],
           'callback' => [$this, 'fieldAjaxCallback'],
           'wrapper' => $container_id,
@@ -331,7 +331,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
       '#options' => $themes['themes'],
       '#default_value' => $theme_selected,
       '#ajax' => array(
-        'url' => Url::fromRoute('dynoblock.admin.wizard.ajax.step', $this->parameters),
+        'url' => Url::fromRoute('dcb.admin.wizard.ajax.step', $this->parameters),
         'options' => ['query' => \Drupal::request()->query->all() + [FormBuilderInterface::AJAX_FORM_REQUEST => TRUE]],
         'callback' => [$this, 'fieldAjaxCallback'],
         'wrapper' => $container_id,
@@ -380,7 +380,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
       //'#value' => $fields_selected,
       '#default_value' => $fields_selected,
       '#ajax' => array(
-        'url' => Url::fromRoute('dynoblock.admin.wizard.ajax.step', $this->parameters),
+        'url' => Url::fromRoute('dcb.admin.wizard.ajax.step', $this->parameters),
         'options' => ['query' => \Drupal::request()->query->all() + [FormBuilderInterface::AJAX_FORM_REQUEST => TRUE]],
         'callback' => [$this, 'extraFieldCallback'],
         'wrapper' => $wrapper,
@@ -423,7 +423,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
           '#name' => $name,
           '#button_type' => 'primary',
           '#ajax' => array(
-            'url' => Url::fromRoute('dynoblock.admin.wizard.ajax.step', $this->parameters),
+            'url' => Url::fromRoute('dcb.admin.wizard.ajax.step', $this->parameters),
             'options' => ['query' => \Drupal::request()->query->all() + [FormBuilderInterface::AJAX_FORM_REQUEST => TRUE]],
             'wrapper' => $id,
             'callback' => [$this, 'cardinalityCallback'],
@@ -453,7 +453,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
         'target' => $ajax_target,
       ),
       '#ajax' => array(
-        'url' => Url::fromRoute('dynoblock.admin.wizard.ajax.step', $this->parameters),
+        'url' => Url::fromRoute('dcb.admin.wizard.ajax.step', $this->parameters),
         'options' => ['query' => \Drupal::request()->query->all() + [FormBuilderInterface::AJAX_FORM_REQUEST => TRUE]],
         'wrapper' => $ajax_target,
         'callback' => [$this, 'cardinalityCallback'],

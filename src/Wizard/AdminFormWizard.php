@@ -1,17 +1,12 @@
 <?php
 
-namespace Drupal\dynoblock\Wizard;
+namespace Drupal\dcb\Wizard;
 
 
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\CloseModalDialogCommand;
-use Drupal\Core\DependencyInjection\ClassResolverInterface;
-use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\ctools\Wizard\FormWizardBase;
-use Drupal\user\SharedTempStoreFactory;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class AdminFormWizard extends FormWizardBase {
 
@@ -35,7 +30,7 @@ class AdminFormWizard extends FormWizardBase {
    * {@inheritdoc}
    */
   public function getRouteName() {
-    return 'dynoblock.admin.wizard.ajax.step';
+    return 'dcb.admin.wizard.ajax.step';
   }
 
   /**
@@ -44,15 +39,15 @@ class AdminFormWizard extends FormWizardBase {
   public function getOperations($cached_values) {
     $operations = array(
       'selectgroup' => [
-        'form' => 'Drupal\dynoblock\Form\SelectGroup',
+        'form' => 'Drupal\dcb\Form\SelectGroup',
         'title' => $this->t('Select a Group'),
       ],
       'selectwidget' => [
-        'form' => 'Drupal\dynoblock\Form\SelectWidget',
+        'form' => 'Drupal\dcb\Form\SelectWidget',
         'title' => $this->t('Select a widget'),
       ],
       'editform' => [
-        'form' => 'Drupal\dynoblock\Form\Create',
+        'form' => 'Drupal\dcb\Form\Create',
         'title' => $this->t('Create'),
       ]
     );

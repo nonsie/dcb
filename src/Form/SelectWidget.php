@@ -1,12 +1,11 @@
 <?php
 
-namespace Drupal\dynoblock\Form;
+namespace Drupal\dcb\Form;
 
 use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\ctools\Wizard\FormWizardBase;
-use Drupal\dynoblock\DynoBlockForms;
 
 /**
  * Simple wizard step form.
@@ -20,7 +19,7 @@ class SelectWidget extends ComponentWizardBaseForm {
    *   The unique string identifying the form.
    */
   public function getFormId() {
-    return 'dynoblock_admin_widget_select_form';
+    return 'dcb_admin_widget_select_form';
   }
 
   /**
@@ -53,9 +52,6 @@ class SelectWidget extends ComponentWizardBaseForm {
       $options[$machine] = $component['name'];
     }
 
-    $form['#attributes']['id'][]='special-wrapper';
-
-
     $parameters['step'] = $wizard->getStep($cached_values);
     $form['selected_component'] = [
       '#type' => 'select',
@@ -63,7 +59,7 @@ class SelectWidget extends ComponentWizardBaseForm {
       '#default_value' => $selected_component,
       '#options' => $options,
       '#ajax' => [
-        'url' => Url::fromRoute('dynoblock.admin.wizard.ajax.step', $parameters),
+        'url' => Url::fromRoute('dcb.admin.wizard.ajax.step', $parameters),
         'options' => ['query' => \Drupal::request()->query->all() + [FormBuilderInterface::AJAX_FORM_REQUEST => TRUE]],
         'callback' => [$this, 'ajaxPreviewCallback'],
         'wrapper' => 'preview-container',

@@ -1,0 +1,39 @@
+<?php
+ /**
+ * @file
+ * Installs Dynoblock module.
+ */ 
+
+function dcb_schema() {
+  $schema['dcb'] = array(
+    'description' => t('DCB table. Holds the data needed for editing and rendering Dynamic Content'),
+    'fields' => array(
+      'rid' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'bid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'data' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => FALSE,
+      ),
+      'conditions' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => FALSE,
+      ),
+      'weight' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+    ),
+  );
+  return $schema;
+}

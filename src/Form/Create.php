@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\dynoblock\Form;
+namespace Drupal\dcb\Form;
 
 use Drupal\Core\Ajax\AppendCommand;
 use Drupal\Core\Ajax\ReplaceCommand;
@@ -20,7 +20,7 @@ class Create extends ComponentWizardBaseForm {
    *   The unique string identifying the form.
    */
   public function getFormId() {
-    return 'dynoblock_admin_widget_create_form';
+    return 'dcb_admin_widget_create_form';
   }
 
   /**
@@ -54,7 +54,7 @@ class Create extends ComponentWizardBaseForm {
       unset($block['storage']);
       // Set the rest of the values to the form_state
       $form_state->setValues($block);
-      // Set the 'initial_load" value so this doesnt run on subsequent ajax refreshes.
+      // Set the 'initial_load" value so this doesn't run on subsequent ajax refreshes.
       $form_state->set('initial_load', 'done');
       // Set the method to "edit"
       // TODO: is this even necessary?
@@ -90,7 +90,7 @@ class Create extends ComponentWizardBaseForm {
     $this->addExtraSettings($handler, $form_state->getValues());
 
 
-    // If $this->>form_state is not unset here, ajax errors occur with complicated forms.
+    // If $this->form_state is not unset here, ajax errors occur with complicated forms.
     // Note this is just a copy of form_state stored on the object for easy access.
     unset($this->form_state);
 

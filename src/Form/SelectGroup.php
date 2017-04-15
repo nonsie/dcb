@@ -1,8 +1,7 @@
 <?php
 
-namespace Drupal\dynoblock\Form;
+namespace Drupal\dcb\Form;
 
-use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\ctools\Wizard\FormWizardBase;
 
@@ -19,7 +18,7 @@ class SelectGroup extends ComponentWizardBaseForm {
    *   The unique string identifying the form.
    */
   public function getFormId() {
-    return 'dynoblock_admin_group_select_form';
+    return 'dcb_admin_group_select_form';
   }
 
   /**

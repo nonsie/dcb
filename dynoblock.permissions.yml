@@ -1,9 +1,0 @@
-use dynoblocks:
-  title: 'Use dynoblocks'
-  description: 'Edit and create Dynoblock content.'
-  restrict access: TRUE
-
-manage dynoblock search:
-  title: 'Manage Dynoblock Search'
-  description: 'Add, edit, and delete Dynoblock Search Widgets.'
-  restrict access: TRUE

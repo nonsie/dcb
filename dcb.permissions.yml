@@ -1,0 +1,4 @@
+use dcb:
+  title: 'Use Dynamic Content Builder'
+  description: 'Edit and create DCB content.'
+  restrict access: TRUE
