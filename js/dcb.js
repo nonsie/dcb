@@ -213,7 +213,7 @@
         var $this = this;
         var ui = '<div class="menu dyno-ui closed">';
         ui += '<div class="dyno-toggle">';
-        ui += '<span class="dyno-label">Dynamic Content Builder</span><span class="dyno-expand"></span>';
+        ui += '<span class="dyno-label">DCB!</span><span class="dyno-expand"></span>';
         ui += '</div>';
         ui += '<div class="dyno-ui-content nav"></div>';
         ui += '</div>';

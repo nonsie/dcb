@@ -39,30 +39,32 @@
 /**
  * Dyno Ui
  */
-.dyno-ui .dyno-toggle {
-  font-size: 20px;
-  font-weight: bold;
-  top: 55%;
-  width: 80px;
-  float: right;
-  color: #000; }
-  .dyno-ui .dyno-toggle .dyno-label {
-    -webkit-transform: rotate(-90deg);
-    -webkit-transform-origin: top left 0;
-    transform: rotate(-90deg);
-    transform-origin: top left 0;
+.dyno-ui {
+  font-family: sans-serif; }
+  .dyno-ui .dyno-toggle {
+    font-size: 20px;
+    font-weight: bold;
+    top: 55%;
+    width: 80px;
     float: right;
-    position: absolute;
-    top: 52%;
-    margin: 20px; }
-  .dyno-ui .dyno-toggle .dyno-expand {
-    float: right;
-    position: absolute;
-    top: 30%;
-    margin: 30px;
-    color: #333; }
-  .dyno-ui .dyno-toggle .dyno-back {
-    display: none; }
+    color: #000; }
+    .dyno-ui .dyno-toggle .dyno-label {
+      -webkit-transform: rotate(-90deg);
+      -webkit-transform-origin: top left 0;
+      transform: rotate(-90deg);
+      transform-origin: top left 0;
+      float: right;
+      position: absolute;
+      top: 52%;
+      margin: 20px; }
+    .dyno-ui .dyno-toggle .dyno-expand {
+      float: right;
+      position: absolute;
+      top: 30%;
+      margin: 30px;
+      color: #333; }
+    .dyno-ui .dyno-toggle .dyno-back {
+      display: none; }
 
 .dyno-ui.open {
   color: black; }
