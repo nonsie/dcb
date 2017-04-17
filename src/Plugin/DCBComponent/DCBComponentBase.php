@@ -32,7 +32,7 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
    * @param array $configuration
    * @param string $plugin_id
    * @param mixed $plugin_definition
-   * @param DynoFieldManager $dynoFieldManager
+   * @param DCBFieldManager $dcbFieldManager
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, DCBFieldManager $dcbFieldManager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
@@ -171,6 +171,13 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
    * {@inheritdoc}
    */
   public function widgetForm(&$form_state = array(), $items, $delta) {
+
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function adminForm(ComponentWizardBaseForm $componentWizardBaseForm, $values) {
 
   }
 

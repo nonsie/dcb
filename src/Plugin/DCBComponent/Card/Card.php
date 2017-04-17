@@ -55,14 +55,14 @@ class Card extends DCBComponentBase {
     // sets the $form_state that may or may not be used in other places.
     $this->componentform = $componentform;
 
-    $this->form['fields'] = array(
+    $this->form['fields'] = [
       '#type' => 'container',
       '#tree' => TRUE,
-      '#attributes' => array(
-        'class' => array(''),
+      '#attributes' => [
+        'class' => [''],
         'id'    => 'card-fields',
-      ),
-    );
+      ],
+    ];
 
     return $this;
   }

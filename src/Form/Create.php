@@ -82,8 +82,10 @@ class Create extends ComponentWizardBaseForm {
     }
 
     // Initialize the component edit form.
-    $handler->init()->build($this, $form_state->getValues());
+    $handler->init();
+    $handler->build($this, $form_state->getValues());
     $this->buildWidgetForm($widget, $handler, $form_state);
+    $handler->adminForm($this, $form_state->getValues());
     $this->buildThemeSelection($widget, $handler, $form_state);
     $this->buildParentThemeSettings($widget, $handler, $form_state);
     $this->addDefaultFields($handler, $widget, $eid);

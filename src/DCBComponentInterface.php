@@ -44,14 +44,14 @@ interface DCBComponentInterface extends PluginInspectionInterface {
 
   /**
    * Build the widget form.
-   *
    * @return float
+   * @deprecated in future versions.
    */
   public function build(ComponentWizardBaseForm $componentform, array $values);
 
   /**
    * Build the widget form.
-   *
+   * @deprecated in future versions.
    * @return string
    */
   public function widgetForm(&$form_state = array(), $items, $delta);
