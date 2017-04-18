@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @File: Implementation of Ctools Wizard.
+ */
+
 namespace Drupal\dcb\Wizard;
 
 
@@ -8,6 +12,10 @@ use Drupal\Core\Ajax\CloseModalDialogCommand;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\ctools\Wizard\FormWizardBase;
 
+/**
+ * Class AdminFormWizard
+ * @package Drupal\dcb\Wizard
+ */
 class AdminFormWizard extends FormWizardBase {
 
   public $rid;
@@ -23,7 +31,7 @@ class AdminFormWizard extends FormWizardBase {
    * {@inheritdoc}
    */
   public function getMachineLabel() {
-    return $this->t('Wizard Test Name');
+    return $this->t('DCB Admin Form Wizard');
   }
 
   /**
@@ -37,10 +45,10 @@ class AdminFormWizard extends FormWizardBase {
    * {@inheritdoc}
    */
   public function getOperations($cached_values) {
-    $operations = array(
+    $operations = [
       'selectgroup' => [
         'form' => 'Drupal\dcb\Form\SelectGroup',
-        'title' => $this->t('Select a Group'),
+        'title' => $this->t('Select a group'),
       ],
       'selectwidget' => [
         'form' => 'Drupal\dcb\Form\SelectWidget',
@@ -50,7 +58,7 @@ class AdminFormWizard extends FormWizardBase {
         'form' => 'Drupal\dcb\Form\Create',
         'title' => $this->t('Create'),
       ]
-    );
+    ];
 
     return $operations;
   }
@@ -131,7 +139,7 @@ class AdminFormWizard extends FormWizardBase {
     parent::submitForm($form, $form_state);
     $cached_values = $this->getTempstore()->get($this->getMachineName());
     if ($form_state->get('ajax')) {
-      if ((string)$form_state->getValue('op') == (string)$this->getNextOp()) {
+      if ((string) $form_state->getValue('op') == (string) $this->getNextOp()) {
         $parameters = $this->getNextParameters($cached_values);
         if (!empty($parameters['step'])) {
           $this->step = $parameters['step'];

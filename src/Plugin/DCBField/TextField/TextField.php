@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @File: Definition for Text Field DCB Plugin.
+ */
+
 namespace Drupal\dcb\Plugin\DCBField\TextField;
 
 use Drupal\dcb\Plugin\DCBField\DCBFieldBase;
@@ -14,25 +18,34 @@ use Drupal\dcb\Plugin\DCBField\DCBFieldBase;
  */
 class TextField extends DCBFieldBase {
 
-  public function form($properties = array()) {
-    $field = $properties + array(
+  /**
+   * @param array $properties
+   * @return mixed
+   */
+  public function form($properties = []) {
+    $field = $properties + [
         '#type' => 'textfield',
         '#maxlength' => 256,
-      );
+      ];
     $this->setFormElement($field);
     return $this->field;
   }
 
-  public function render($value, $settings = array()) {
+  /**
+   * @param $value
+   * @param array $settings
+   * @return array
+   */
+  public function render($value, $settings = []) {
     if (!empty($value)) {
-      return $settings + array(
-        '#type' => 'html_tag',
-        '#tag' => 'div',
-        '#value' => $value,
-        '#attributes' => array(
-          'class' => array('dyno-TextField'),
-        ),
-      );
+      return $settings + [
+          '#type' => 'html_tag',
+          '#tag' => 'div',
+          '#value' => $value,
+          '#attributes' => [
+            'class' => ['dyno-TextField'],
+          ],
+        ];
     }
   }
 

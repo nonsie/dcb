@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @File: Step 1 of admin wizard. Allows admin to select component group.
+ */
+
 namespace Drupal\dcb\Form;
 
 use Drupal\Core\Form\FormStateInterface;
@@ -7,7 +11,8 @@ use Drupal\ctools\Wizard\FormWizardBase;
 
 
 /**
- * Simple wizard step form.
+ * Class SelectGroup
+ * @package Drupal\dcb\Form
  */
 class SelectGroup extends ComponentWizardBaseForm {
 
@@ -28,9 +33,9 @@ class SelectGroup extends ComponentWizardBaseForm {
    *   An associative array containing the structure of the form.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current state of the form.
-   *
-   * @return array
-   *   The form structure.
+   * @param \Drupal\ctools\Wizard\FormWizardBase|null $wizard
+   * @return array The form structure.
+   * The form structure.
    */
   public function buildForm(array $form, FormStateInterface $form_state, FormWizardBase $wizard = NULL) {
     $cached_values = $form_state->getTemporaryValue('wizard');
@@ -43,18 +48,18 @@ class SelectGroup extends ComponentWizardBaseForm {
     $this->setArgsFromURI($form_state);
 
     $themes = $this->core->getThemes();
-    $selected_theme =  $cached_values['theme']['id'];
+    $selected_theme = $cached_values['theme']['id'];
 
     foreach ($themes as $theme) {
       $options[$theme['id']] = $theme['label'] . ' - ' . $theme['description_short'];
     }
 
-    $form['theme'] = array(
+    $form['theme'] = [
       '#type' => 'radios',
       '#title' => $this->t('Select Component Group'),
       '#default_value' => $selected_theme,
       '#options' => $options,
-    );
+    ];
 
     return $form;
   }
@@ -71,7 +76,7 @@ class SelectGroup extends ComponentWizardBaseForm {
 
     $themes = $this->core->getThemes();
     $cached_values = $form_state->getTemporaryValue('wizard');
-    $cached_values['theme'] =  $themes[$form_state->getValue('theme')];
+    $cached_values['theme'] = $themes[$form_state->getValue('theme')];
     $form_state->setTemporaryValue('wizard', $cached_values);
     $storage = &$form_state->getStorage();
     foreach ($storage['expected_args'] as $arg) {

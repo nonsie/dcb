@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @File: Defines the DCB CKEditor field.
+ */
+
 namespace Drupal\dcb\Plugin\DCBField\CkeditorField;
 
 use Drupal\dcb\Plugin\DCBField\DCBFieldBase;
@@ -14,30 +18,39 @@ use Drupal\dcb\Plugin\DCBField\DCBFieldBase;
  */
 class CkeditorField extends DCBFieldBase {
 
-  public function form($properties = array()) {
-    $field = $properties + array(
+  /**
+   * @param array $properties
+   * @return mixed
+   */
+  public function form($properties = []) {
+    $field = $properties + [
         '#type' => 'text_format',
         '#format' => 'full_html',
         '#wysiwyg' => TRUE,
-      );
+      ];
     $this->setFormElement($field);
     return $this->field;
   }
 
-  public function render($value, $settings = array()) {
+  /**
+   * @param $value
+   * @param array $settings
+   * @return array|null
+   */
+  public function render($value, $settings = []) {
     if (empty($value)) {
       return NULL;
     }
     $display = parent::render($value, $settings);
     $display['#type'] = 'markup';
     $display['#markup'] = check_markup($value['value'], 'full_html');
-    $container = array(
+    $container = [
       '#type' => 'container',
       'wysiwyg_content' => $display,
-      '#attributes' => array(
-        'class' => array('custom-text'),
-      ),
-    );
+      '#attributes' => [
+        'class' => ['custom-text'],
+      ],
+    ];
     return $container;
   }
 }

@@ -1,19 +1,19 @@
 <?php
 
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Implements hook_entity_presave().
  *
  * Populates dcb region if it currently has no value.
+ * @param \Drupal\Core\Entity\EntityInterface $entity
  */
 function dcb_entity_presave(EntityInterface $entity) {
   if ($entity->getEntityTypeId() !== 'node') {
     return;
   }
   // Find any dynoblock fields attached to an entity.
-  $fieldnames = array();
+  $fieldnames = [];
   $fields = $entity->getFieldDefinitions();
   foreach ($fields as $fieldname => $field) {
     if (substr($fieldname, 0, 6) !== 'field_') {
@@ -43,6 +43,7 @@ function dcb_entity_presave(EntityInterface $entity) {
  * Implements hook_page_attachments().
  *
  * Adds DCB javascript and css to the page.
+ * @param array $page
  */
 function dcb_page_attachments(array &$page) {
   $is_admin = \Drupal::service('router.admin_context')->isAdminRoute();
@@ -54,7 +55,7 @@ function dcb_page_attachments(array &$page) {
       $configs['dir_uri'] = '/' . drupal_get_path('module', 'dcb');
     }
     else {
-      $configs = array('load_ui' => FALSE);
+      $configs = ['load_ui' => FALSE];
     }
     $page['#attached']['library'][] = 'dcb/core';
 
@@ -76,31 +77,36 @@ function dcb_page_attachments(array &$page) {
 
 /**
  * Implements hook_theme().
+ * @param $existing
+ * @param $type
+ * @param $theme
+ * @param $path
+ * @return array
  */
 function dcb_theme($existing, $type, $theme, $path) {
-  $themes = array(
-    'dcb_tabledrag' => array(
+  $themes = [
+    'dcb_tabledrag' => [
       'render element' => 'element',
       'function' => 'theme_dcb_tabledrag',
-    ),
-    'dcb_image_thumbnail' => array(
+    ],
+    'dcb_image_thumbnail' => [
       'render element' => 'element',
       'function' => 'theme_dcb_image_thumbnail',
-    ),
-  );
+    ],
+  ];
   $dcb = \Drupal::service('dcb.core');
   $plugins = $dcb->loadWidgets();
-  foreach($plugins as $key => $plugin){
+  foreach ($plugins as $key => $plugin) {
     $plugin = $dcb->pluginManager->createInstance($key);
-    if(!empty($plugin->themes)){
-      foreach($plugin->themes as $tid => $properties){
+    if (!empty($plugin->themes)) {
+      foreach ($plugin->themes as $tid => $properties) {
         if (!empty($properties['template_dir'])) {
-          $themes[$tid] = array(
+          $themes[$tid] = [
             'render element' => 'block',
-            'variables' => array('block' => NULL),
+            'variables' => ['block' => NULL],
             'path' => drupal_get_path('module', $plugin->module) . '/' . $properties['template_dir'],
             'template' => $tid,
-          );
+          ];
         }
       }
     }
@@ -121,7 +127,11 @@ function theme_dcb_image_thumbnail($variables) {
   if ($element['fid']['#value'] != 0) {
     // Replace default image style with thumbnail format.
     $element['filename']['#markup'] = '<div class="form-control"><span class="file">';
-    $element['filename']['#markup'] .= theme('image_style', array('style_name' => 'thumbnail', 'path' => $element['#file']->uri, 'getsize' => FALSE));
+    $element['filename']['#markup'] .= theme('image_style', [
+      'style_name' => 'thumbnail',
+      'path' => $element['#file']->uri,
+      'getsize' => FALSE
+    ]);
     $file_url = file_create_url($element['#file']->uri);
     $element['filename']['#markup'] .= l($element['#file']->filename, $file_url) . '</span></div>';
     if (isset($element['remove_button'])) {
@@ -138,26 +148,31 @@ function theme_dcb_image_thumbnail($variables) {
 }
 
 
+/**
+ * Adds Drupal tabledrag support to set of containers.
+ * @param $vars
+ * @return string
+ */
 function theme_dcb_tabledrag($vars) {
   $element = $vars['element'];
-  $content['table'] = array(
+  $content['table'] = [
     '#type' => 'table',
-    '#header' => array(t('Items'), t('Weight')),
+    '#header' => [t('Items'), t('Weight')],
     '#empty' => t('There are no items yet. Add an item.'),
     // TableDrag: Each array value is a list of callback arguments for
     // drupal_add_tabledrag(). The #id of the table is automatically prepended;
     // if there is none, an HTML ID is auto-generated.
-    '#tabledrag' => array(
-      array(
+    '#tabledrag' => [
+      [
         'action' => 'order',
         'relationship' => 'sibling',
         'group' => 'widget-table-sort',
-      ),
-    ),
-    '#attributes' => array(
+      ],
+    ],
+    '#attributes' => [
       'id' => 'widget-table-sort',
-    ),
-  );
+    ],
+  ];
   $i = 0;
   foreach (\Drupal\Core\Render\Element::children($element) as $key) {
     if ($key !== 'add_another') {
@@ -168,14 +183,19 @@ function theme_dcb_tabledrag($vars) {
       // Some table columns containing raw markup.
       $content['table']['#rows'][$key]['data'][] = render($element[$key]);
       // TableDrag: Weight column element.
-      $weight = array(
+      $weight = [
         '#type' => 'textfield',
-        '#title' => t('Weight for @title', array('@title' => 'Weight')),
+        '#title' => t('Weight for @title', ['@title' => 'Weight']),
         '#title_display' => 'invisible',
         '#value' => $i,
-          // Classify the weight element for #tabledrag.
-        '#attributes' => array('class' => array('table-order-weight', 'widget-table-sort')),
-      );
+        // Classify the weight element for #tabledrag.
+        '#attributes' => [
+          'class' => [
+            'table-order-weight',
+            'widget-table-sort'
+          ]
+        ],
+      ];
       $content['table']['#rows'][$key]['data'][] = render($weight);
       $i++;
     }
@@ -186,178 +206,29 @@ function theme_dcb_tabledrag($vars) {
   $output .= render($element['add_another']);
   $output .= '</div>';
 
-  drupal_attach_tabledrag($content['table'], array(
+  drupal_attach_tabledrag($content['table'], [
     'table_id' => 'widget-table-sort',
     'action' => 'order',
     'relationship' => 'sibling',
     'group' => 'widget-table-sort',
-  ));
+  ]);
   return $output;
 }
 
-// TODO: Is this used? Looks broken.
-function dcb_ajax_load($type, $id) {
-  $result = array('html' => NULL, 'type' => $type, 'id' => $id, 'commands' => NULL);
-  if ($id && $type && !empty($_POST['data'])) {
-    switch ($type) {
-      case 'blocks':
-        // Get the Dynblock and its renderable html.
-        $blocks = DynoBlocks::renderDynoBlocks($id);
-        $result['html'] = render($blocks);
-        // Get the ajax commands. These can consist of js
-        // files needing loaded or js settings being added..
-        $commands = ajax_render(array());
-        _dynoblocks_get_commands($_POST['data'], $commands);
-        $result['commands'] = $commands;
-        break;
-    }
-  }
-  print drupal_json_encode($result);
-}
-
 /**
- * implments hook_dcb_themes
+ * Implements hook_dcb_themes()
  */
 function dcb_dcb_themes() {
-  return array(
-    'dcb' => array(
+  return [
+    'dcb' => [
       'id' => 'dcb',
       'label' => t('Dynamic Content Builder core'),
       'description_short' => t('Contains components provided by DCB core.'),
       'module' => 'dcb',
       'path' => 'src/Plugin/DCBComponent',
-    ),
-  );
-}
-
-/**
- * Default DCB core ajax callback handler
- */
-// TODO: Is this used?
-function dcb_widget_settings_callback($form, FormStateInterface &$form_state) {
-  array_pop($form_state['triggering_element']['#array_parents']);
-  array_pop($form_state['triggering_element']['#array_parents']);
-  $element = drupal_array_get_nested_value($form, $form_state['triggering_element']['#array_parents']);
-  return $element;
+    ],
+  ];
 }
 
 
-function dcb_form_ajax_submit($form, FormStateInterface &$form_state) {
-  $core = \Drupal::service('dcb.core');
-  $form_state['rebuild'] = TRUE;
-  $widget = $form_state['input']['widget'];
-  $widget = $core->initPlugin($widget);
-  if ($widget) {
-    $widget->ajaxSubmit($form, $form_state);
-  }
-}
 
-
-function dcb_field_widget_ajax_callback($form, FormStateInterface &$form_state) {
-  if (!empty($form_state['triggering_element']['#ajax']['handler'])) {
-    $handler = new $form_state['triggering_element']['#ajax']['handler']($form_state);
-    return $handler->onAjax($form, $form_state);
-    //$handler->onAjax($form, $form_state);
-  }
-}
-
-function _dcb_add_token_support() {
-  $token['container'] = array(
-    '#type' => 'container',
-    '#weight' => 100,
-    '#attributes' => array(
-      'class' => array('dyno-token-tree'),
-    ),
-  );
-  $token['container']['tokens'] = array(
-    '#type' => 'details',
-    '#title' => t('Tokens'),
-  );
-  $token['container']['tokens']['tree'] = array(
-    '#theme' => 'token_tree',
-    '#token_types' => array('webmem_primary', 'webmem_household', 'webmem_membership', 'webmem_options'),
-    '#global_types' => FALSE,
-    '#click_insert' => FALSE,
-  );
-  return $token;
-}
-
-
-function dcb_condition_callback() {
-  $condition = _dcb_condition_form();
-  print drupal_json_encode(render($condition));
-}
-
-function _dcb_condition_form($values = array()) {
-  $condition['conditions'] = array(
-    '#type' => 'details',
-    '#weight' => 98,
-    '#attributes' => array(
-      'class' => array('dyno-condition'),
-    ),
-  );
-  $condition['conditions']['label'] = array(
-    '#type' => 'markup',
-    '#markup' => '<label>Conditions</label>',
-  );
-  $condition['conditions']['description'] = array(
-    '#type' => 'markup',
-    '#markup' => '<p>Enter a conditional that needs to return true for a this block to be displayed. If no conditionals are added, this component will display by default.</p>',
-  );
-  $condition['conditions']['condition_token'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Token'),
-    '#description' => t('Token for conditional.'),
-    '#size' => 40,
-    '#maxlength' => 255,
-    '#name' => 'condition_token',
-    '#value' => isset($values['condition_token']) ? $values['condition_token'] : '',
-  );
-
-  $condition['conditions']['operators'] = array(
-    '#type' => 'select',
-    '#title' => t('Operator'),
-    '#description' => t('The description appears usually below the item.'),
-    '#options' => array(
-      '==' => '==',
-      '===' => '===',
-      '!=' => '!=',
-      '!==' => '!==',
-      '<' => '<',
-      '>' => '>',
-      '<=' => '<=',
-      '>=' => '>=',
-    ),
-    '#default_value' => -1,
-    '#name' => 'condition_operator',
-    '#value' => !empty($values['condition_operator']) ? $values['condition_operator'] : '',
-  );
-  $condition['conditions']['value'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Token value'),
-    '#size' => 20,
-    '#maxlength' => 255,
-    '#name' => 'condition_value',
-    '#value' => isset($values['condition_value']) ? $values['condition_value'] : '',
-  );
-  return $condition;
-}
-
-
-function _dcb_weight_form($values = array()) {
-  $form['weight'] = array(
-    '#type' => 'container',
-    '#weight' => 97,
-    '#attributes' => array(
-      'class' => array('dyno-weight'),
-    ),
-  );
-  $form['weight']['weight'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Weight'),
-    '#size' => 40,
-    '#maxlength' => 255,
-    '#value' => isset($values['weight']) ? $values['weight'] : 0,
-  );
-  return $form;
-}

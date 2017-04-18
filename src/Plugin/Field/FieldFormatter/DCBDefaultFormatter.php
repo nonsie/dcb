@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @File: Plugin implementation of the 'dcb_default' formatter.
+ */
+
 namespace Drupal\dcb\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Field\FormatterBase;
@@ -22,10 +26,8 @@ class DCBDefaultFormatter extends FormatterBase {
    * {@inheritdoc}
    */
   public function settingsSummary() {
-    $summary = array();
-    $settings = $this->getSettings();
-    $summary[] = t('Displays dynoblock region ID.');
-
+    $summary = [];
+    $summary[] = t('Displays DCB region ID.');
     return $summary;
   }
 
@@ -34,9 +36,10 @@ class DCBDefaultFormatter extends FormatterBase {
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
     $dcbCore = \Drupal::service('dcb.core');
-    $element = array();
+    $element = [];
     foreach ($items as $delta => $item) {
-      $element[$delta] = $dcbCore->DCBRegion($item->id, $item->getEntity()->id(), ucfirst($item->id));
+      $element[$delta] = $dcbCore->DCBRegion($item->id, $item->getEntity()
+        ->id(), ucfirst($item->id));
       $element[$delta]['blocks'] = $dcbCore->renderComponents($item->id, $item);
     }
     return $element;

@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @File: DCB core service.
+ */
+
 namespace Drupal\dcb\Service;
 
 use Drupal\Core\Cache\CacheTagsInvalidator;
@@ -30,17 +34,17 @@ class DCBCore {
   /**
    * @var array
    */
-  public $blocks = array();
+  public $blocks = [];
 
   /**
    * @var array
    */
-  public $themes = array();
+  public $themes = [];
 
   /**
    * @var array
    */
-  public $widgets = array();
+  public $widgets = [];
 
   /**
    * Core Cache Tag Invalidator
@@ -57,6 +61,8 @@ class DCBCore {
    *   Injected.
    * @param DCBDb $dcbDb
    *   Injected.
+   * @param \Drupal\Core\Extension\ModuleHandler $moduleHandler
+   * @param \Drupal\Core\Cache\CacheTagsInvalidator $cacheTagsInvalidator
    */
   public function __construct(DCBComponentManager $pluginManager, DCBDb $dcbDb, ModuleHandler $moduleHandler, CacheTagsInvalidator $cacheTagsInvalidator) {
     $this->pluginManager = $pluginManager;
@@ -81,7 +87,7 @@ class DCBCore {
    * @return array|mixed
    */
   public function getThemes() {
-    $themes = array();
+    $themes = [];
     foreach ($this->moduleHandler->getImplementations('dcb_themes') as $module) {
       $theme = $this->moduleHandler->invoke($module, 'dcb_themes');
       foreach ($theme as &$thm) {
@@ -99,18 +105,18 @@ class DCBCore {
    * @param null $label
    * @return array
    */
-  public function DCBRegion($rid, $nid = NULL, $label = NULL) {
-    return array(
+  public function DCBRegion($rid, $eid = NULL, $label = NULL) {
+    return [
       '#type' => 'container',
-      '#attributes' => array(
-        'class' => array('dynoblock-region'),
+      '#attributes' => [
+        'class' => ['dynoblock-region'],
         'data-dyno-rid' => $rid,
         'data-dyno-label' => $label,
-        'data-dyno-nid' => $nid,
+        'data-dyno-nid' => $eid,
         'data-alacarte-id' => $rid,
         'data-alacarte-type' => 'block',
-      ),
-    );
+      ],
+    ];
   }
 
   /**
@@ -118,13 +124,13 @@ class DCBCore {
    * @param array $entity
    * @return array
    */
-  public function renderComponents($rid, $entity = array()) {
+  public function renderComponents($rid, $entity = []) {
     $blocks = $this->getBlocks($rid);
     $blocks = $this->displayBlocks($blocks, $entity);
-    return array(
+    return [
       '#type' => 'markup',
       '#markup' => render($blocks),
-    );
+    ];
   }
 
 
@@ -157,8 +163,8 @@ class DCBCore {
    * @param array $entity
    * @return array
    */
-  public function displayBlocks($blocks, $entity = array()) {
-    $render = array();
+  public function displayBlocks($blocks, $entity = []) {
+    $render = [];
     foreach ($blocks as $delta => $block) {
       $data = $block['data'];
       $id = !empty($data['widget']) ? $data['widget'] : $data['layout_id'];
@@ -169,15 +175,15 @@ class DCBCore {
         $html = $plugin->init($data)->preRender($data);
         // Call theme preRender so it can modify final output.
         if (!empty($widget['parent_theme']['handler'])) {
-          $theme_settings = !empty($data['global_theme_settings']) ? $data['global_theme_settings'] : array();
+          $theme_settings = !empty($data['global_theme_settings']) ? $data['global_theme_settings'] : [];
           $widget['parent_theme']['handler']->preRender($widget, $data, $html, $theme_settings);
         }
         $weight = isset($data['weight']) ? $data['weight'] : 0;
-        $render[$delta] = array(
+        $render[$delta] = [
           '#type' => 'container',
           '#weight' => $weight,
-          '#attributes' => array(
-            'class' => array('dynoblock'),
+          '#attributes' => [
+            'class' => ['dynoblock'],
             'data-dyno-bid' => $data['bid'],
             'data-dyno-rid' => $data['rid'],
             'data-dyno-handler' => $id,
@@ -185,22 +191,23 @@ class DCBCore {
             'data-dyno-label' => $plugin->getName(),
             'data-alacarte-id' => 'dynoblock-' . $data['bid'],
             'data-alacarte-type' => 'block',
-          ),
-        );
+          ],
+        ];
         if (!empty($html)) {
-          $render[$delta]['content'] = array(
+          $render[$delta]['content'] = [
             '#type' => 'container',
-            '#attributes' => array(
-              'class' => array('dynoblock-content'),
-            ),
-          );
+            '#attributes' => [
+              'class' => ['dynoblock-content'],
+            ],
+          ];
           // Render content in theme template if available.
           if ($data['theme'] && !empty($plugin->themes[$data['theme']]['template_dir'])) {
-            $render[$delta]['content']['theme'] = array(
+            $render[$delta]['content']['theme'] = [
               '#theme' => $data['theme'],
               '#block' => $html,
-            );
-          } else {
+            ];
+          }
+          else {
             $render[$delta]['content']['dyno_block'] = $html;
           }
         }
@@ -248,7 +255,7 @@ class DCBCore {
           }
           break;
         case '<':
-          if ($token_value  < $value) {
+          if ($token_value < $value) {
             return TRUE;
           }
           break;
@@ -287,11 +294,11 @@ class DCBCore {
       foreach ($_POST as $key => $value) {
         $block[$key] = $value;
       }
-      $record = array(
+      $record = [
         'rid' => $rid,
         'bid' => $bid,
         'data' => serialize($block)
-      );
+      ];
       $result = $this->db->update($record);
     }
     return ['result' => $result];
@@ -305,7 +312,7 @@ class DCBCore {
    */
   public function removeBlock($rid, $bid) {
     $removed = $this->db->remove($rid, $bid);
-    return array('removed' => $removed);
+    return ['removed' => $removed];
   }
 
   /**
@@ -342,11 +349,12 @@ class DCBCore {
    *
    * @param $entity_type
    * @param $entity_id
+   * @return string
    */
   public function invalidateCache($entity_type, $entity_id) {
-    if(!empty($entity_type) && !empty($entity_id)) {
+    if (!empty($entity_type) && !empty($entity_id)) {
       $cache_tag = $entity_type . ':' . $entity_id;
-      $this->cacheTagsInvalidator->invalidateTags(array($cache_tag));
+      $this->cacheTagsInvalidator->invalidateTags([$cache_tag]);
       return "Success";
     }
     else {

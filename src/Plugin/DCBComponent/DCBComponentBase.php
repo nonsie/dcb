@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @File: Base class for Component plugins.
+ */
+
 namespace Drupal\dcb\Plugin\DCBComponent;
 
 use Drupal\Component\Plugin\PluginBase;
@@ -11,6 +15,10 @@ use Drupal\dcb\Plugin\DCBField\DCBFieldManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\dcb\DCBComponentInterface;
 
+/**
+ * Class DCBComponentBase
+ * @package Drupal\dcb\Plugin\DCBComponent
+ */
 class DCBComponentBase extends PluginBase implements DCBComponentInterface, ContainerFactoryPluginInterface {
 
   public $preview_image;
@@ -25,6 +33,7 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
   public $dcbFieldManager;
   public $fields;
   public $output;
+  public $layout;
 
   /**
    * DCBComponentBase constructor.
@@ -32,7 +41,7 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
    * @param array $configuration
    * @param string $plugin_id
    * @param mixed $plugin_definition
-   * @param DynoFieldManager $dynoFieldManager
+   * @param DCBFieldManager $dcbFieldManager
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, DCBFieldManager $dcbFieldManager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
@@ -66,9 +75,10 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
   /**
    * @param $id
    * @param bool $init
+   * @param array $form_state
    * @return mixed|null|object
    */
-  public function getField($id, $init = FALSE, $form_state = array()) {
+  public function getField($id, $init = FALSE, $form_state = []) {
     $fields = $this->loadFields();
     $field = array_key_exists($id, $fields) ? $fields[$id] : NULL;
     if ($field) {
@@ -170,7 +180,7 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
   /**
    * {@inheritdoc}
    */
-  public function widgetForm(&$form_state = array(), $items, $delta) {
+  public function widgetForm(&$form_state = [], $items, $delta) {
 
   }
 
@@ -187,7 +197,7 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
   public function ajaxCallback($form, FormStateInterface &$form_state) {
     $trigger = $form_state->getTriggeringElement();
     // this returnes a group of fields after an extra field is selected in the UI.
-    return array('return_element' => $form[$this->getId()][$trigger['#attributes']['delta']]);
+    return ['return_element' => $form[$this->getId()][$trigger['#attributes']['delta']]];
   }
 
   /**
@@ -215,7 +225,7 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
    * {@inheritdoc}
    */
   public function loadTheme($theme) {
-    if($theme) {
+    if ($theme) {
       return $this->initTheme($this->pluginId, $theme);
     }
   }
@@ -236,7 +246,9 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
    */
   public function getWidgetDetailsState($form_state) {
     $open = FALSE;
-    if(is_object($form_state)) $trigger = $form_state->getTriggeringElement();
+    if (is_object($form_state)) {
+      $trigger = $form_state->getTriggeringElement();
+    }
     if (is_object($form_state) && isset($trigger['#attributes']['delta'])) {
       if ($trigger_delta == $delta) {
         $open = TRUE;

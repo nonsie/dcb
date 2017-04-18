@@ -11,9 +11,19 @@ use Drupal\dcb\DCBComponentTheme;
  */
 class CardsDefaultTheme extends DCBComponentTheme {
 
-  public function form(&$widget_form, $settings = array()) {}
+  /**
+   * @param $widget_form
+   * @param array $settings
+   */
+  public function form(&$widget_form, $settings = []) {
+  }
 
-  public function display($values = array(), $settings = array()) {
+  /**
+   * @param array $values
+   * @param array $settings
+   * @return array
+   */
+  public function display($values = [], $settings = []) {
     $count = count($this->form_state[$this->form_state['widget']]);
     if ($count >= 3) {
       $column_count = 'three-columns';
@@ -24,77 +34,80 @@ class CardsDefaultTheme extends DCBComponentTheme {
     else {
       $column_count = 'one-column';
     }
-    $content = array(
-      'columns' => array(
+    $content = [
+      'columns' => [
         '#type' => 'container',
-        '#attributes' => array(
-          'class' => array(
+        '#attributes' => [
+          'class' => [
             'columns-container-outer',
             'container-fluid',
             'AAACardsDefaultTheme',
-          ),
-        ),
-        'row' => array(
+          ],
+        ],
+        'row' => [
           '#type' => 'container',
-          '#attributes' => array(
-            'class' => array( "row" ),
-          ),
-          'inner' => array(
+          '#attributes' => [
+            'class' => ["row"],
+          ],
+          'inner' => [
             '#type' => 'container',
-            '#attributes' => array(
-              'class' => array(
+            '#attributes' => [
+              'class' => [
                 'columns-container-inner',
                 'container',
                 'icons',
                 $column_count,
-              ),
-            ),
-            'row' => array(
+              ],
+            ],
+            'row' => [
               '#type' => 'container',
-              '#attributes' => array(
-                'class' => array( "row" ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
+              '#attributes' => [
+                'class' => ["row"],
+              ],
+            ],
+          ],
+        ],
+      ],
+    ];
 
     if (isset($values['BackgroundColor']['value'])) {
       $content['columns']['#attributes']['class'][] = $values['BackgroundColor']['value'];
     }
 
     if ($count >= 3) {
-      $column_classes = array('column', 'col-sm-4', 'col-xs-12');
+      $column_classes = ['column', 'col-sm-4', 'col-xs-12'];
     }
     elseif ($count == 2) {
-      $column_classes = array('column', 'col-sm-6', 'col-xs-12');
+      $column_classes = ['column', 'col-sm-6', 'col-xs-12'];
     }
     else {
-      $column_classes = array('column', 'col-sm-push-4', 'col-sm-4', 'col-xs-12');
+      $column_classes = [
+        'column',
+        'col-sm-push-4',
+        'col-sm-4',
+        'col-xs-12'
+      ];
     }
-    $content['columns']['row']['inner']['row']['inner'] = array(
+    $content['columns']['row']['inner']['row']['inner'] = [
       '#type' => 'container',
-      '#attributes' => array(
-        'class' => array($column_count . "-container"),
-      ),
-    );
+      '#attributes' => [
+        'class' => [$column_count . "-container"],
+      ],
+    ];
     $column = &$content['columns']['row']['inner']['row']['inner'];
     if (!empty($this->form_state[$this->form_state['widget']])) {
       foreach ($this->form_state[$this->form_state['widget']] as $delta => $value) {
         $items = $value['widget']['items'];
-        $theme_settings = (isset($items['theme_settings']) ? $items['theme_settings'] : array());
-        //$theme = new $items['theme']($this->form_state);
-        $column['column'][$delta] = array(
+        $column['column'][$delta] = [
           '#type' => 'container',
-          '#attributes' => array(
+          '#attributes' => [
             'class' => $column_classes,
-          ),
-        );
+          ],
+        ];
         if (isset($value['id'])) {
           $column['column'][$delta]['#attributes']['data-dyno-item-id'] = $value['id'];
         }
-        //$column['column'][$delta][] = $theme->display($items, $theme_settings);
+
       }
     }
     if (isset($values['BorderControl']['value']['show-vertical-borders'])) {
@@ -107,10 +120,15 @@ class CardsDefaultTheme extends DCBComponentTheme {
 
   }
 
+  /**
+   * @param string $file
+   * @return mixed|null
+   */
   public function preview($file = '') {
-    if(empty($file)) {
+    if (empty($file)) {
       return parent::preview($this->plugin->themes['dcb-cards-default']['preview_image']);
-    } else {
+    }
+    else {
       return parent::preview($file);
     }
   }

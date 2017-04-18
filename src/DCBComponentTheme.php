@@ -1,4 +1,8 @@
 <?php
+/**
+ * @File: Abstract class used to create a new Component theme. Components use
+ * themes to define different display options with similar field sets.
+ */
 
 namespace Drupal\dcb;
 
@@ -9,7 +13,7 @@ namespace Drupal\dcb;
  */
 abstract class DCBComponentTheme {
 
-  public $form_state = array();
+  public $form_state = [];
   public $plugin;
 
   /**
@@ -18,7 +22,7 @@ abstract class DCBComponentTheme {
    * @param array $form_state
    * @param DCBComponentInterface $plugin
    */
-  public function __construct(&$form_state = array(), DCBComponentInterface $plugin) {
+  public function __construct(&$form_state = [], DCBComponentInterface $plugin) {
     $this->plugin = $plugin;
     $this->form_state = $form_state;
   }
@@ -31,7 +35,7 @@ abstract class DCBComponentTheme {
    * @param $settings
    *  an array of settings to be used in creating/adding form elements.
    */
-  abstract public function form(&$widget_form, $settings = array());
+  abstract public function form(&$widget_form, $settings = []);
 
   /**
    * Called when a widget using this theme needs displayed.
@@ -41,22 +45,23 @@ abstract class DCBComponentTheme {
    * @param $settings
    *  an array of settings to be used when building the widgets display.
    */
-  abstract public function display($values = array(), $settings = array());
+  abstract public function display($values = [], $settings = []);
 
   /**
    * Gets called when the widgets form is built.
-   * This displays in the widget UI showing what the theme they have seleted looks like.
+   * This displays in the widget UI showing a preview image of the theme.
    *
    * @param $file
    *  a filename string that will be used to display its preview.
+   * @return mixed|null
    */
   public function preview($file = '') {
     if ($file) {
       $file = file_create_url($this->plugin->directory . '/' . $file);
-      $preview = array(
+      $preview = [
         '#type' => 'markup',
-        '#markup' => '<img src="'. $file. '"/>',
-      );
+        '#markup' => '<img src="' . $file . '"/>',
+      ];
       return render($preview);
     }
   }

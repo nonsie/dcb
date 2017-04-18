@@ -31,8 +31,9 @@ class Create extends ComponentWizardBaseForm {
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current state of the form.
    *
-   * @return array
-   *   The form structure.
+   * @param \Drupal\ctools\Wizard\FormWizardBase|null $wizard
+   * @return array The form structure.
+   * The form structure.
    */
   public function buildForm(array $form, FormStateInterface $form_state, FormWizardBase $wizard = NULL) {
     $cached_values = $form_state->getTemporaryValue('wizard');
@@ -57,10 +58,9 @@ class Create extends ComponentWizardBaseForm {
       // Set the 'initial_load" value so this doesn't run on subsequent ajax refreshes.
       $form_state->set('initial_load', 'done');
       // Set the method to "edit"
-      // TODO: is this even necessary?
       $this->method = 'edit';
     }
-    elseif ($bid != 'new' ) {
+    elseif ($bid != 'new') {
       $this->method = 'edit';
     }
     else {
@@ -73,7 +73,7 @@ class Create extends ComponentWizardBaseForm {
       $handler = $core->initPlugin($form_state->getValue('widget'));
       $widget = $core->getWidget($form_state->getValue('widget'));
       $handler->rebuild = TRUE;
-      $handler->form = array();
+      $handler->form = [];
     }
     else {
       // This is a new first time load, use the value from the wizard.
@@ -117,7 +117,7 @@ class Create extends ComponentWizardBaseForm {
     $conditions['condition_operators'] = $form_state->getValue('operators');
 
     // If this is a new block, generate the bid and set it to the form_state.
-    if ($bid =='new') {
+    if ($bid == 'new') {
       $method = 'new';
       $bid = time();
       $form_state->set('bid', $bid);
@@ -126,12 +126,12 @@ class Create extends ComponentWizardBaseForm {
       $method = 'edit';
     }
 
-    // set some arbitrary form state values to the "values" store
+    // Set some arbitrary form state values to the "values" store.
     $form_state->setValue('bid', $bid);
     $form_state->setValue('rid', $rid);
     $form_state->setValue('nid', $eid);
 
-    // Get only the good stuff from the form_state.
+    // Get only the good stuff from the form_state. @See Drupal\Core\Form\FormStateInterface
     $form_state->cleanValues();
 
     // Add the storage to the array as well.

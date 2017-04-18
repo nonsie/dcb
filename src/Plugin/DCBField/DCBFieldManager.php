@@ -1,11 +1,19 @@
 <?php
 
+/**
+ * @File: Plugin Manager for DCBField plugins.
+ */
+
 namespace Drupal\dcb\Plugin\DCBField;
 
 use Drupal\Core\Plugin\DefaultPluginManager;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 
+/**
+ * Class DCBFieldManager
+ * @package Drupal\dcb\Plugin\DCBField
+ */
 class DCBFieldManager extends DefaultPluginManager {
 
   /**

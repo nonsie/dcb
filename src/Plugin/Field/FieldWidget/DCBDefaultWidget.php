@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @File: Plugin implementation of the 'dcb_default' field widget.
+ */
+
 namespace Drupal\dcb\Plugin\Field\FieldWidget;
 
 use Drupal\Core\Field\FieldItemListInterface;
@@ -25,21 +29,23 @@ class DCBDefaultWidget extends WidgetBase {
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
     $value = isset($items[$delta]->id) ? $items[$delta]->id : '';
 
-    $element['id'] = array(
+    $element['id'] = [
       '#type' => 'textfield',
       '#title' => t('DCB region ID'),
       '#default_value' => $value,
       '#size' => 60,
-      '#element_validate' => array(
-        array($this, 'validate'),
-      ),
-    );
+      '#element_validate' => [
+        [$this, 'validate'],
+      ],
+    ];
 
     return $element;
   }
 
   /**
    * Validate dcb field.
+   * @param $element
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
    */
   public function validate($element, FormStateInterface $form_state) {
     $value = $element['#value'];

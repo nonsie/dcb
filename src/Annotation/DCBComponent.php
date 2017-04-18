@@ -12,9 +12,9 @@ use Drupal\Component\Annotation\Plugin;
 /**
  * Defines a flavor item annotation object.
  *
- * Plugin Namespace: Plugin\dynoblock\Dynoblock
+ * Plugin Namespace: Plugin\dcb\DCBComponent
  *
- * @see \Drupal\dynoblock\DynoblocksManager
+ * @see \Drupal\dcb\DCBComponentManager
  * @see plugin_api
  *
  * @Annotation

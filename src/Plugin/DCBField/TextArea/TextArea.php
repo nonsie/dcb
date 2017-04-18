@@ -14,33 +14,50 @@ use Drupal\dcb\Plugin\DCBField\DCBFieldBase;
  */
 class TextArea extends DCBFieldBase {
 
-  public function form($properties = array()) {
-    $field = $properties + array(
+  /**
+   * @param array $properties
+   * @return mixed
+   */
+  public function form($properties = []) {
+    $field = $properties + [
         '#type' => 'textarea',
-      );
+      ];
     $this->setFormElement($field);
     return $this->field;
   }
 
-  public function render($value, $settings = array()) {
+  /**
+   * @param $value
+   * @param array $settings
+   * @return array
+   */
+  public function render($value, $settings = []) {
     if (!empty($value['value']) || (!empty($value) && is_string($value))) {
       $value_text = isset($value['value']) ? $value['value'] : $value;
       $this->filter($value_text);
-      return $settings + array(
+      return $settings + [
           '#type' => 'html_tag',
           '#tag' => 'div',
           '#value' => token_replace($value_text),
           '#desctiption' => t('Use :script::/script: instead of <script></script> if you would like to add inline javascript.'),
-          '#attributes' => array(
-            'class' => array('dyno-DTextArea'),
-          ),
-        );
+          '#attributes' => [
+            'class' => ['dyno-DTextArea'],
+          ],
+        ];
     }
   }
 
+  /**
+   * @param $text
+   */
   public function filter(&$text) {
-    $filtered = preg_replace(array("^\[script(.*?)\]^", "^\[\/script(.*?)\]^"), array('<script${1}>', '</script>'), $text);
-    if ($filtered) $text = $filtered;
+    $filtered = preg_replace([
+      "^\[script(.*?)\]^",
+      "^\[\/script(.*?)\]^"
+    ], ['<script${1}>', '</script>'], $text);
+    if ($filtered) {
+      $text = $filtered;
+    }
   }
 
 }

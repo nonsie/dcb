@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @File: Defines the default item theme for a single card.
+ */
+
 namespace Drupal\dcb\Plugin\DCBComponent\Card;
 
 /**
@@ -8,7 +12,12 @@ namespace Drupal\dcb\Plugin\DCBComponent\Card;
  */
 class AAACardDefaultItemTheme extends CardsDefaultTheme {
 
-  public function display($values = array(), $settings = array()) {
+  /**
+   * @param array $values
+   * @param array $settings
+   * @return array
+   */
+  public function display($values = [], $settings = []) {
     $content = parent::display($values, $settings);
     // Add class for AAAIconCardDefaultTheme.
     $content['columns']['#attributes']['class'][] = 'AAAIconCardDefaultTheme';
@@ -20,6 +29,10 @@ class AAACardDefaultItemTheme extends CardsDefaultTheme {
     return $content;
   }
 
+  /**
+   * @param string $file
+   * @return mixed|null
+   */
   public function preview($file = '') {
     return parent::preview('card.png');
   }

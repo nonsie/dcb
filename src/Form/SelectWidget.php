@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @File: Step 2 of the wizard. Allows admin to select a component.
+ */
+
 namespace Drupal\dcb\Form;
 
 use Drupal\Core\Form\FormBuilderInterface;
@@ -7,8 +11,10 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\ctools\Wizard\FormWizardBase;
 
+
 /**
- * Simple wizard step form.
+ * Class SelectWidget
+ * @package Drupal\dcb\Form
  */
 class SelectWidget extends ComponentWizardBaseForm {
 
@@ -38,7 +44,7 @@ class SelectWidget extends ComponentWizardBaseForm {
   public function buildForm(array $form, FormStateInterface $form_state, FormWizardBase $wizard = NULL) {
     $cached_values = $form_state->getTemporaryValue('wizard');
 
-    if(!empty($form_state->getValue('selected_component'))) {
+    if (!empty($form_state->getValue('selected_component'))) {
       $cached_values['selected_component'] = $form_state->getValue('selected_component');
     }
 
@@ -73,7 +79,7 @@ class SelectWidget extends ComponentWizardBaseForm {
       ],
     ];
 
-    if(!empty($selected_component)) {
+    if (!empty($selected_component)) {
       $layout = $this->core->initPlugin($selected_component);
       $preview = $this->getPreview($layout);
       $form['preview_placeholder'] += [
@@ -101,6 +107,11 @@ class SelectWidget extends ComponentWizardBaseForm {
     return $form;
   }
 
+  /**
+   * @param array $form
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   * @return mixed
+   */
   public function ajaxPreviewCallback(array &$form, FormStateInterface $form_state) {
     return $form['preview_placeholder'];
   }
@@ -116,7 +127,7 @@ class SelectWidget extends ComponentWizardBaseForm {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $cached_values = $form_state->getTemporaryValue('wizard');
-    $cached_values['selected_component'] =  $form_state->getValue('selected_component');
+    $cached_values['selected_component'] = $form_state->getValue('selected_component');
     $form_state->setTemporaryValue('wizard', $cached_values);
   }
 

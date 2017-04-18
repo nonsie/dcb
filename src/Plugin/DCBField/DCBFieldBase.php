@@ -1,23 +1,34 @@
 <?php
 
+/**
+ * @File: Base class for all DCBField plugins.
+ */
+
 namespace Drupal\dcb\Plugin\DCBField;
 
 use Drupal\Component\Plugin\PluginBase;
 
+/**
+ * Class DCBFieldBase
+ * @package Drupal\dcb\Plugin\DCBField
+ */
 class DCBFieldBase extends PluginBase implements DCBFieldInterface {
 
-  public $form_state = array();
+  public $form_state = [];
   public $field;
   public $display;
 
+  /**
+   * @param $form_state
+   */
   public function init($form_state) {
     $this->form_state = $form_state;
-    $this->field = array(
-      'handler' => array(
+    $this->field = [
+      'handler' => [
         '#type' => 'hidden',
         '#value' => get_called_class(),
-      ),
-    );
+      ],
+    ];
   }
 
   /**
@@ -41,39 +52,50 @@ class DCBFieldBase extends PluginBase implements DCBFieldInterface {
   /**
    * Method for creating fields.
    * @see https://api.drupal.org/api/drupal/developer!topics!forms_api_reference.html/7
-   * @param $properties
+   * @param array $properties
    *  An array of field properties. eg: array('#title' => t('Link'))
-   * @return $field
-   *  A form render array.
    */
-  function form($properties = array()) {}
+  function form($properties = []) {
+  }
 
   /**
    * Called when a widget using this field is being rendered.
    * @param $value
    *  An array containing the field values.
-   * @param $settings
+   * @param array $settings
    *  An array of settings that may be used in the building of the fields display.
-   * @return $display
-   *  An render array containing the fields output.
    */
-  function render($value, $settings = array()) {}
+  function render($value, $settings = []) {
+  }
 
   /**
    * Called when a widget is saved.
    * - Note: this is not always called. The widget itself must call this explicitly.
    *    One use case example is when a widget has an image field.
    *    The widget would call this method so it could save the image permanently.
-   * @param $value
-   *  An array containing the field values.
-   * @param $value
-   *  an array containing the fields value(s) or $form_state['values'].
+   * @internal param $value An array containing the field values.*  An array containing the field values.
+   * @internal param $value an array containing the fields value(s) or $form_state['values'].*  an array containing the fields value(s) or $form_state['values'].
    */
-  function onSubmit() {}
-  function onAjax() {}
-  function validate() {}
+  function onSubmit() {
+  }
 
-  function setFormElement($values = array()) {
+  /**
+   *
+   */
+  function onAjax() {
+  }
+
+  /**
+   *
+   */
+  function validate() {
+  }
+
+  /**
+   * @param array $values
+   * @return mixed|void
+   */
+  function setFormElement($values = []) {
     $this->field['value'] = $values;
   }
 

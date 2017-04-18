@@ -1,4 +1,8 @@
 <?php
+/**
+ * @File: Controller for necessary custom ajax callback routes. Used for updating
+ * weights of components, deleting components and clearing entity caches.
+ */
 
 namespace Drupal\dcb\Controller;
 
@@ -10,6 +14,10 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 
+/**
+ * Class DCBController
+ * @package Drupal\dcb\Controller
+ */
 class DCBController extends ControllerBase {
 
   /**
@@ -37,6 +45,7 @@ class DCBController extends ControllerBase {
   }
 
   /**
+   * Callback to delete a DCB component. Requires Region ID and Block ID.
    * @param $rid
    * @param $bid
    *
@@ -48,6 +57,7 @@ class DCBController extends ControllerBase {
   }
 
   /**
+   * Callback to update weights of DCB components.
    * @param $rid
    * @param $bid
    *
@@ -59,6 +69,9 @@ class DCBController extends ControllerBase {
   }
 
   /**
+   * Callback to clear entity cache tag of a specific entity when something
+   * has been updated.
+   *
    * @param $etype
    * @param $eid
    * @return JsonResponse

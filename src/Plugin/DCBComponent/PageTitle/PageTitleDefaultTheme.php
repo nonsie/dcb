@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @File: Defines the default theme for a Page Title component
+ */
+
 namespace Drupal\dcb\Plugin\DCBComponent\PageTitle;
 
 use Drupal\dcb\DCBComponentTheme;
@@ -11,21 +15,35 @@ use Drupal\dcb\DCBComponentTheme;
  */
 class PageTitleDefaultTheme extends DCBComponentTheme {
 
-  public function form(&$widget_form, $settings = array()) {
+  /**
+   * @param $widget_form
+   * @param array $settings
+   */
+  public function form(&$widget_form, $settings = []) {
 
   }
 
-  public function display($values = array(), $settings = array()) {
+  /**
+   * @param array $values
+   * @param array $settings
+   * @return array
+   */
+  public function display($values = [], $settings = []) {
 
     $content = $values;
 
     return $content;
   }
 
+  /**
+   * @param string $file
+   * @return mixed|null
+   */
   public function preview($file = '') {
-    if(empty($file)) {
+    if (empty($file)) {
       return parent::preview($this->plugin->themes['dcb-page-title-default']['preview_image']);
-    } else {
+    }
+    else {
       return parent::preview($file);
     }
   }

@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @File: Defines the Card component plugin.
+ */
+
 namespace Drupal\dcb\Plugin\DCBComponent\Card;
 
 
@@ -14,7 +18,7 @@ use Drupal\dcb\Plugin\DCBComponent\DCBComponentBase;
  *   id = "Card",
  *   name = @Translation("Card"),
  *   description_short = "A card is a flexible and extensible content container. It includes options for headers and footers, a wide variety of content, contextual background colors, and powerful display options.",
- *   default_theme = "dynoblock-cards-default",
+ *   default_theme = "dcb-cards-default",
  *   themes = {
  *     "dcb-cards-default" = {
  *        "label" = "Default",
@@ -35,138 +39,102 @@ use Drupal\dcb\Plugin\DCBComponent\DCBComponentBase;
  */
 class Card extends DCBComponentBase {
 
-
   /**
    * @var \Drupal\dcb\Form\ComponentWizardBaseForm
    */
   public $componentform;
 
 
+  /**
+   * @return $this
+   */
   public function init() {
-
     return $this;
   }
 
   /**
    * @param \Drupal\dcb\Form\ComponentWizardBaseForm $componentform
+   * @param array $values
    * @return $this
    */
   public function build(ComponentWizardBaseForm $componentform, array $values) {
     // sets the $form_state that may or may not be used in other places.
     $this->componentform = $componentform;
 
-    $this->form['fields'] = array(
+    $this->form['fields'] = [
       '#type' => 'container',
       '#tree' => TRUE,
-      '#attributes' => array(
-        'class' => array(''),
-        'id'    => 'card-fields',
-      ),
-    );
+      '#attributes' => [
+        'class' => [''],
+        'id' => 'card-fields',
+      ],
+    ];
 
     return $this;
   }
 
-  public function widgetForm(&$form_state = array(), $items, $delta) {
+  /**
+   * @param array $form_state
+   * @param $items
+   * @param $delta
+   * @return mixed
+   */
+  public function widgetForm(&$form_state = [], $items, $delta) {
     $container_id = $this->componentform->randId();
-    $element['items'] = array(
+    $element['items'] = [
         '#type' => 'details',
-        '#title' => t('Item @delta', array(
+        '#title' => t('Item @delta', [
           '@delta' => ($delta + 1),
-        )),
-        '#open'  => $this->getWidgetDetailsState($form_state),
+        ]),
+        '#open' => $this->getWidgetDetailsState($form_state),
         '#collapsible' => TRUE,
-        '#attributes' => array(
+        '#attributes' => [
           'id' => $container_id,
-        ),
-      ) + $this->addFields(!empty($items[$delta]) ? $items[$delta] : array() , $delta, $container_id);
+        ],
+      ] + $this->addFields(!empty($items[$delta]) ? $items[$delta] : [], $delta, $container_id);
     return $element;
   }
 
+
   /**
-   * Helper function to add a group of fields this widget uses..
-   *
-   *  - @see DynoWidgetAPI::element
-   *    Using this allows for many great things:
-   *      Allows for you to use pre defined fileds and thier displays that can be interganged between themes and widgets.
-   *      These fields classes need to be added to your parent themes field.inc file.
-   *      @see abstract class DCBField
-   *
-   *  - @see DynoBlockForms::themeOptions
-   *    This allows you to add custom themes to your group of fields.
-   *    These theme classes need to be added to your parent themes theme.inc file.
-   *    @see abstract class DCBComponentTheme
-   *
-   *
+   * @param array $values
+   * @param $delta
+   * @param $container_id
+   * @return mixed
    */
-  private function addFields($values = array(), $delta, $container_id) {
-//    $item['body'] = DynoWidgetAPI::element($this->form_state, 'AAACkeditorField', array(
-//      '#title' => t('Body'),
-//      '#default_value' => $body_default_value,
-//    ));
-//
-//    $item['merchtag'] = DynoWidgetAPI::element($this->form_state, 'AAAColumnTag', array(
-//      '#title' => t('Tag'),
-//      '#default_value' => (!empty($values['merchtag']['value']) ? $values['merchtag']['value'] : ''),
-//    ));
-//
-//    // This adds the ablitlity to have different sub-themes for each item group in this widget.
-//    // Theme Classes need to go inside the widgets parent theme directory. e.g: aaa_dynoblock_widgets/themes/aaaa/theme.inc
-//    DynoBlockForms::themeOptions($item, $delta, $values, array(
-//      'themes' => array(
-//        'AAACardDefaultItemTheme' => t('Default (text align left)'),
-//        'AAACardTextCenterItemTheme' => t('Center (text align center)'),
-//      ),
-//      'default' => 'AAACardDefaultItemTheme',
-//    ));
-//    // This allows for extra fields to be added to to this widgets field group.
-//    // Some widgets may be able to accept button or links in their layout. We only want those fields to be added when needed.
-//    DynoBlockForms::fieldOptions($item, $values, $container_id, array(
-//      array(
-//        'handler' => 'AAAButtonField',
-//        'field_name' => 'button',
-//        'label' => t('AAA Button'),
-//        'properties' => array(
-//          '#default_value' => !empty($values['button']['value']) ? $values['button']['value'] : '',
-//        ),
-//      ),
-//      array(
-//        'handler' => 'AAALinkField',
-//        'field_name' => 'link',
-//        'label' => t('Link Field'),
-//        'properties' => array(
-//          '#default_value' => !empty($values['link']['value']) ? $values['link']['value'] : '',
-//        ),
-//      ),
-//    ), $delta);
-    $values = isset($values['widget']['items']) ? $values['widget']['items'] : array();
+  private function addFields($values = [], $delta, $container_id) {
+    $values = isset($values['widget']['items']) ? $values['widget']['items'] : [];
     $textarea_field = $this->getField('ckeditor_field', TRUE);
     $item['body'] = $textarea_field->form([
       "#title" => 'testing field title',
       '#default_value' => !empty($values['body']['value']['value']) ? $values['body']['value']['value'] : '',
     ]);
-    $this->componentform->themeOptions($this, $item, $delta, $values, $container_id, array(
-      'themes' => array(
+    $this->componentform->themeOptions($this, $item, $delta, $values, $container_id, [
+      'themes' => [
         'AAACardDefaultItemTheme' => t('Default (text align left)'),
         'AAACardTextCenterItemTheme' => t('Center (text align center)'),
-      ),
+      ],
       'default' => 'AAACardDefaultItemTheme',
-    ));
-    $this->componentform->fieldOptions($this, $item, $values, $container_id, array(
-      array(
+    ]);
+    $this->componentform->fieldOptions($this, $item, $values, $container_id, [
+      [
         'plugin' => 'text_field',
         'field_name' => 'test',
         'label' => t('Textfield'),
-        'properties' => array(
+        'properties' => [
           '#title' => t('Textfield'),
           '#default_value' => !empty($values['test']['value']) ? $values['test']['value'] : '',
-        ),
-      ),
-    ), $delta);
+        ],
+      ],
+    ], $delta);
     return $item;
   }
 
 
+  /**
+   * @param $values
+   * @return mixed
+   */
   public function preRender($values) {
     $this->form_state = $values;
     $theme = !empty($this->themes[$values['theme']]['handler']) ? $this->themes[$values['theme']]['handler'] : NULL;

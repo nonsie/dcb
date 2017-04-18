@@ -18,7 +18,7 @@ use Drupal\Component\Annotation\Plugin;
 class DCBField extends Plugin {
 
   /**
-   * The plugin dynofield ID.
+   * The plugin DCB ID.
    *
    * @var string
    */

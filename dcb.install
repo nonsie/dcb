@@ -1,39 +1,44 @@
 <?php
- /**
+/**
  * @file
- * Installs Dynoblock module.
- */ 
+ * Installs DCB module database.
+ */
 
+
+/**
+ * Implements hook_schema().
+ * Creates the database table for DCB.
+ */
 function dcb_schema() {
-  $schema['dcb'] = array(
+  $schema['dcb'] = [
     'description' => t('DCB table. Holds the data needed for editing and rendering Dynamic Content'),
-    'fields' => array(
-      'rid' => array(
+    'fields' => [
+      'rid' => [
         'type' => 'varchar',
         'length' => 255,
         'not null' => TRUE,
-      ),
-      'bid' => array(
+      ],
+      'bid' => [
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
-      ),
-      'data' => array(
+      ],
+      'data' => [
         'type' => 'text',
         'size' => 'big',
         'not null' => FALSE,
-      ),
-      'conditions' => array(
+      ],
+      'conditions' => [
         'type' => 'text',
         'size' => 'big',
         'not null' => FALSE,
-      ),
-      'weight' => array(
+      ],
+      'weight' => [
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => FALSE,
-      ),
-    ),
-  );
+      ],
+    ],
+  ];
   return $schema;
 }

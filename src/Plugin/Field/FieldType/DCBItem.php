@@ -1,4 +1,9 @@
 <?php
+
+/**
+ * @File: Plugin implementation of the 'dcb' field type.
+ */
+
 namespace Drupal\dcb\Plugin\Field\FieldType;
 
 use Drupal\Component\Utility\Random;
@@ -16,7 +21,7 @@ use Drupal\Core\TypedData\DataDefinition;
  *   description = @Translation("This field stores a dcb instance in the
  * database."),
  *   module = "dcb",
- *   category = @Translation("Custom"),
+ *   category = @Translation("General"),
  *   default_widget = "dcb_default",
  *   default_formatter = "dcb_default"
  * )
@@ -27,16 +32,16 @@ class DCBItem extends FieldItemBase {
    * {@inheritdoc}
    */
   public static function schema(FieldStorageDefinitionInterface $field_definition) {
-    return array(
-      'columns' => array(
-        'id' => array(
-          'type'   => 'varchar',
+    return [
+      'columns' => [
+        'id' => [
+          'type' => 'varchar',
           'length' => 256,
           'not null' => FALSE,
-        ),
-      ),
-      'indexes' => array(),
-    );
+        ],
+      ],
+      'indexes' => [],
+    ];
   }
 
   /**
