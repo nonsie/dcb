@@ -476,12 +476,13 @@ abstract class ComponentWizardBaseForm extends FormBase {
    * @param FormStateInterface $form_state
    * @return mixed
    */
-  public function cardinalityCallback(array &$form, FormStateInterface &$form_state) {
+  public static function cardinalityCallback(array &$form, FormStateInterface &$form_state) {
     $trigger = $form_state->getTriggeringElement();
+    \Drupal::logger('my_module')->notice($trigger['#ajax']['type']);
     switch ($trigger['#ajax']['type']) {
       case 'add':
       case 'remove':
-        return $form[$form_state->getValue('widget')];
+        return $form['repeating_container'];
         break;
     }
   }
@@ -490,7 +491,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
    * @param array $form
    * @param FormStateInterface $form_state
    */
-  public function cardinalitySubmit(array &$form, FormStateInterface &$form_state) {
+  public static function cardinalitySubmit(array &$form, FormStateInterface &$form_state) {
     $form_state->setRebuild(TRUE);
     $trigger = $form_state->getTriggeringElement();
     $type = $trigger['#attributes']['#type'];

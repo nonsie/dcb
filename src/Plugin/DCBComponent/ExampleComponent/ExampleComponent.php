@@ -63,7 +63,8 @@ class ExampleComponent extends DCBComponentBase {
         '#max_cardinality' => 6,
         '#initial_cardinality' => 3,
         '#default_value' => (isset($values['repeating_example']) ? $values['repeating_example'] : ''),
-        'my_repeating_elements' => [
+        '#form_class' => $this->componentform,
+        '#repeat' => [
           'textarea_dcbfield_example' => $textarea_field->form([
             "#title" => 'example textarea dcbfield',
           ]),
@@ -74,6 +75,8 @@ class ExampleComponent extends DCBComponentBase {
         ],
       ],
     ];
+
+    ksm($this->form);
 
   }
 
