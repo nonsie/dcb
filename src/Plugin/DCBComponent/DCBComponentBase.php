@@ -34,6 +34,7 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
   public $fields;
   public $output;
   public $layout;
+  public $componentform;
 
   /**
    * DCBComponentBase constructor.
@@ -167,21 +168,61 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
    * {@inheritdoc}
    */
   public function init() {
-    return "init";
+    return $this;
   }
 
   /**
    * {@inheritdoc}
    */
   public function build(ComponentWizardBaseForm $componentform, array $values) {
+    $this->componentform = $componentform;
 
+    $this->form['fields'] = [
+      '#type' => 'container',
+      '#tree' => TRUE,
+    ] + $this->outerForm($values['fields']);
+  }
+
+
+  /**
+   * @param $values
+   * @return null
+   */
+  public function outerForm($values) {
+    return NULL;
   }
 
   /**
-   * {@inheritdoc}
+   * @param array $form_state
+   * @param $items
+   * @param $delta
+   * @return mixed
    */
   public function widgetForm(&$form_state = [], $items, $delta) {
+    $container_id = $this->componentform->randId();
+    $element['items'] = [
+        '#type' => 'details',
+        '#title' => t('Item @delta', [
+          '@delta' => ($delta + 1),
+        ]),
+        '#open' => $this->getWidgetDetailsState($form_state),
+        '#collapsible' => TRUE,
+        '#attributes' => [
+          'id' => $container_id,
+        ],
+      ] + $this->repeatingFields(!empty($items[$delta]) ? $items[$delta] : [], $delta, $container_id);
+    return $element;
+  }
 
+
+  /**
+   * @param array $values
+   * @param $delta
+   * @param $container_id
+   * @return null
+   */
+  public function repeatingFields($values = [], $delta, $container_id) {
+    return NULL;
   }
 
   /**
@@ -208,10 +249,16 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
   }
 
   /**
-   * {@inheritdoc}
+   * @param $values
+   * @return mixed
    */
   public function preRender($values) {
-
+    $this->form_state = $values;
+    $theme = !empty($this->themes[$values['theme']]['handler']) ? $this->themes[$values['theme']]['handler'] : NULL;
+    if ($theme = $this->loadTheme($theme)) {
+      $this->output = $theme->display($values);
+    }
+    return $this->output;
   }
 
   /**

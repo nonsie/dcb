@@ -6,7 +6,6 @@
 
 namespace Drupal\dcb\Plugin\DCBComponent\PageTitle;
 
-use Drupal\dcb\Form\ComponentWizardBaseForm;
 use Drupal\dcb\Plugin\DCBComponent\DCBComponentBase;
 
 /**
@@ -44,32 +43,24 @@ use Drupal\dcb\Plugin\DCBComponent\DCBComponentBase;
 class PageTitle extends DCBComponentBase {
 
   /**
-   * @return $this
+   * @param $values
+   * @return mixed
    */
-  public function init() {
-    return $this;
-  }
+  public function outerForm($values) {
 
-  /**
-   * @param \Drupal\dcb\Form\ComponentWizardBaseForm $componentform
-   * @param array $values
-   * @return float|void
-   */
-  public function build(ComponentWizardBaseForm $componentform, array $values) {
-
-    $this->form['fields']['#tree'] = TRUE;
-    $this->form['fields']['title'] = [
+    $myform['title'] = [
       '#type' => 'textfield',
       '#title' => t('Title'),
-      '#default_value' => !empty($values['fields']['title']) ? $values['fields']['title'] : NULL,
+      '#default_value' => !empty($values['title']) ? $values['title'] : NULL,
     ];
 
     $select_field = $this->getField('select_field', TRUE, $values);
-    $this->form['fields']['tag'] = $select_field->form(
+
+    $myform['tag'] = $select_field->form(
       [
         "#title" => t('HTML tag'),
-        '#default_value' => !empty($values['fields']['tag']) ?
-          $values['fields']['tag'] : 'h2',
+        '#default_value' => !empty($values['tag']) ?
+          $values['tag'] : 'h2',
         '#options' => [
           'h1' => 'h1',
           'h2' => 'h2',
@@ -79,27 +70,16 @@ class PageTitle extends DCBComponentBase {
       ]
     );
 
-    $this->form['fields']['class_name'] = [
+    $myform['class_name'] = [
       '#type' => 'textfield',
       '#title' => t('Optional class(es)'),
       '#description' => t('One or more classes to apply to the title tag'),
-      '#default_value' => !empty($values ['fields']['class_name']) ?
-        $values ['fields']['class_name'] : '',
+      '#default_value' => !empty($values['class_name']) ?
+        $values['class_name'] : '',
     ];
 
-  }
+    return $myform;
 
-  /**
-   * @param $values
-   * @return mixed
-   */
-  public function preRender($values) {
-    $this->form_state = $values;
-    $theme = !empty($this->themes[$values['theme']]['handler']) ? $this->themes[$values['theme']]['handler'] : NULL;
-    if ($theme = $this->loadTheme($theme)) {
-      $this->output = $theme->display($values);
-    }
-    return $this->output;
   }
 
 }

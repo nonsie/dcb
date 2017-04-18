@@ -6,8 +6,6 @@
 
 namespace Drupal\dcb\Plugin\DCBComponent\Card;
 
-
-use Drupal\dcb\Form\ComponentWizardBaseForm;
 use Drupal\dcb\Plugin\DCBComponent\DCBComponentBase;
 
 
@@ -39,62 +37,23 @@ use Drupal\dcb\Plugin\DCBComponent\DCBComponentBase;
  */
 class Card extends DCBComponentBase {
 
-  /**
-   * @var \Drupal\dcb\Form\ComponentWizardBaseForm
-   */
-  public $componentform;
-
 
   /**
-   * @return $this
+   * @param $values
+   * @return mixed
    */
-  public function init() {
-    return $this;
-  }
+  public function outerForm($values) {
 
-  /**
-   * @param \Drupal\dcb\Form\ComponentWizardBaseForm $componentform
-   * @param array $values
-   * @return $this
-   */
-  public function build(ComponentWizardBaseForm $componentform, array $values) {
-    // sets the $form_state that may or may not be used in other places.
-    $this->componentform = $componentform;
-
-    $this->form['fields'] = [
-      '#type' => 'container',
-      '#tree' => TRUE,
-      '#attributes' => [
-        'class' => [''],
-        'id' => 'card-fields',
+    $myform = [
+      'textfield' => [
+        '#type' => 'textfield',
+        '#title' => t('Outer Field'),
+        '#default_value' => isset($values['textfield']) ? $values['textfield'] : '',
       ],
     ];
 
-    return $this;
+    return $myform;
   }
-
-  /**
-   * @param array $form_state
-   * @param $items
-   * @param $delta
-   * @return mixed
-   */
-  public function widgetForm(&$form_state = [], $items, $delta) {
-    $container_id = $this->componentform->randId();
-    $element['items'] = [
-        '#type' => 'details',
-        '#title' => t('Item @delta', [
-          '@delta' => ($delta + 1),
-        ]),
-        '#open' => $this->getWidgetDetailsState($form_state),
-        '#collapsible' => TRUE,
-        '#attributes' => [
-          'id' => $container_id,
-        ],
-      ] + $this->addFields(!empty($items[$delta]) ? $items[$delta] : [], $delta, $container_id);
-    return $element;
-  }
-
 
   /**
    * @param array $values
@@ -102,7 +61,7 @@ class Card extends DCBComponentBase {
    * @param $container_id
    * @return mixed
    */
-  private function addFields($values = [], $delta, $container_id) {
+  public function repeatingFields($values = [], $delta, $container_id) {
     $values = isset($values['widget']['items']) ? $values['widget']['items'] : [];
     $textarea_field = $this->getField('ckeditor_field', TRUE);
     $item['body'] = $textarea_field->form([
@@ -127,21 +86,8 @@ class Card extends DCBComponentBase {
         ],
       ],
     ], $delta);
+
     return $item;
-  }
-
-
-  /**
-   * @param $values
-   * @return mixed
-   */
-  public function preRender($values) {
-    $this->form_state = $values;
-    $theme = !empty($this->themes[$values['theme']]['handler']) ? $this->themes[$values['theme']]['handler'] : NULL;
-    if ($theme = $this->loadTheme($theme)) {
-      $this->layout = $theme->display($values);
-    }
-    return $this->layout;
   }
 
 }
