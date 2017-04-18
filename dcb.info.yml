@@ -1,0 +1,8 @@
+name: Dynamic Content Builder
+description: Drag and drop content builder.
+core: 8.x
+package: 'DCB'
+type: module
+dependencies:
+  - field
+  - ctools

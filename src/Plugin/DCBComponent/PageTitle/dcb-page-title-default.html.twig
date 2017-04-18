@@ -1,0 +1,13 @@
+{% set tag = block.fields.tag.value %}
+{% if tag is not empty %}
+    {% set classes = block.fields.class_name %}
+    {% if classes is not empty %}
+        <{{ tag }} class="{{ classes }}">
+        {{ block.fields.title }}
+        </{{ tag }}>
+    {% else %}
+        <{{ tag }}>
+        {{ block.fields.title }}
+        </{{ tag }}>
+    {% endif %}
+{% endif %}

@@ -1,0 +1,44 @@
+<?php
+/**
+ * @file
+ * Installs DCB module database.
+ */
+
+
+/**
+ * Implements hook_schema().
+ * Creates the database table for DCB.
+ */
+function dcb_schema() {
+  $schema['dcb'] = [
+    'description' => t('DCB table. Holds the data needed for editing and rendering Dynamic Content'),
+    'fields' => [
+      'rid' => [
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ],
+      'bid' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'data' => [
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => FALSE,
+      ],
+      'conditions' => [
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => FALSE,
+      ],
+      'weight' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ],
+    ],
+  ];
+  return $schema;
+}

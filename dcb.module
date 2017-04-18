@@ -1,0 +1,234 @@
+<?php
+
+use Drupal\Core\Entity\EntityInterface;
+
+/**
+ * Implements hook_entity_presave().
+ *
+ * Populates dcb region if it currently has no value.
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ */
+function dcb_entity_presave(EntityInterface $entity) {
+  if ($entity->getEntityTypeId() !== 'node') {
+    return;
+  }
+  // Find any dynoblock fields attached to an entity.
+  $fieldnames = [];
+  $fields = $entity->getFieldDefinitions();
+  foreach ($fields as $fieldname => $field) {
+    if (substr($fieldname, 0, 6) !== 'field_') {
+      continue;
+    }
+    $fieldtype = $field->getType();
+    if ($fieldtype !== 'dcb') {
+      continue;
+    }
+    $fieldnames[] = $fieldname;
+  }
+  if (!empty($fieldnames)) {
+    // Handle each dynoblock field.
+    foreach ($fieldnames as $fieldname) {
+      $dcb_field = $entity->get($fieldname);
+      if ($dcb_field->isEmpty()) {
+        // @todo randId() method is part of Drupal\dbc\Form\ComponentWizardBaseForm but should be in
+        // utility class instead?
+        $rand = md5(random_bytes(32) . time());
+        $dcb_field->set(0, $rand);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_page_attachments().
+ *
+ * Adds DCB javascript and css to the page.
+ * @param array $page
+ */
+function dcb_page_attachments(array &$page) {
+  $is_admin = \Drupal::service('router.admin_context')->isAdminRoute();
+  if (!$is_admin) {
+    if (\Drupal::currentUser()->hasPermission('use dcb')) {
+      $page['#attached']['library'][] = 'dcb/edit';
+      $page['#attached']['library'][] = 'dcb/font-awesome';
+      $configs['load_ui'] = TRUE;
+      $configs['dir_uri'] = '/' . drupal_get_path('module', 'dcb');
+    }
+    else {
+      $configs = ['load_ui' => FALSE];
+    }
+    $page['#attached']['library'][] = 'dcb/core';
+
+    // Add configurable JS.
+    $configs['ui_scroll'] = isset($configs['ui_scroll']) && $configs['ui_scroll'] === FALSE ? FALSE : TRUE;
+
+    // Add current path for defining cache tags on save.
+    $current_path = \Drupal::service('path.current')->getPath();
+    $exploded_path = explode('/', $current_path);
+    if (!empty($exploded_path[1]) && !empty($exploded_path[2])) {
+      $configs['cache']['entity'] = $exploded_path[1];
+      $configs['cache']['id'] = $exploded_path[2];
+    }
+
+    $page['#attached']['drupalSettings']['dcb']['core'] = $configs;
+  }
+}
+
+
+/**
+ * Implements hook_theme().
+ * @param $existing
+ * @param $type
+ * @param $theme
+ * @param $path
+ * @return array
+ */
+function dcb_theme($existing, $type, $theme, $path) {
+  $themes = [
+    'dcb_tabledrag' => [
+      'render element' => 'element',
+      'function' => 'theme_dcb_tabledrag',
+    ],
+    'dcb_image_thumbnail' => [
+      'render element' => 'element',
+      'function' => 'theme_dcb_image_thumbnail',
+    ],
+  ];
+  $dcb = \Drupal::service('dcb.core');
+  $plugins = $dcb->loadWidgets();
+  foreach ($plugins as $key => $plugin) {
+    $plugin = $dcb->pluginManager->createInstance($key);
+    if (!empty($plugin->themes)) {
+      foreach ($plugin->themes as $tid => $properties) {
+        if (!empty($properties['template_dir'])) {
+          $themes[$tid] = [
+            'render element' => 'block',
+            'variables' => ['block' => NULL],
+            'path' => drupal_get_path('module', $plugin->module) . '/' . $properties['template_dir'],
+            'template' => $tid,
+          ];
+        }
+      }
+    }
+  }
+  return $themes;
+}
+
+/**
+ * Formats uploaded image thumbnail display.
+ *
+ * @param $variables
+ * @return string
+ */
+function theme_dcb_image_thumbnail($variables) {
+  $element = $variables['element'];
+  $output = '';
+  $output .= '<div class="image-widget form-managed-file input-group clearfix">';
+  if ($element['fid']['#value'] != 0) {
+    // Replace default image style with thumbnail format.
+    $element['filename']['#markup'] = '<div class="form-control"><span class="file">';
+    $element['filename']['#markup'] .= theme('image_style', [
+      'style_name' => 'thumbnail',
+      'path' => $element['#file']->uri,
+      'getsize' => FALSE
+    ]);
+    $file_url = file_create_url($element['#file']->uri);
+    $element['filename']['#markup'] .= l($element['#file']->filename, $file_url) . '</span></div>';
+    if (isset($element['remove_button'])) {
+      $element['remove_button']['#prefix'] = '<span class="input-group-btn">';
+      $element['remove_button']['#sufffix'] = '</span';
+    }
+  }
+
+  // The remove button is already taken care of by rendering the rest of the form.
+  $output .= drupal_render_children($element);
+  $output .= '</div>';
+
+  return $output;
+}
+
+
+/**
+ * Adds Drupal tabledrag support to set of containers.
+ * @param $vars
+ * @return string
+ */
+function theme_dcb_tabledrag($vars) {
+  $element = $vars['element'];
+  $content['table'] = [
+    '#type' => 'table',
+    '#header' => [t('Items'), t('Weight')],
+    '#empty' => t('There are no items yet. Add an item.'),
+    // TableDrag: Each array value is a list of callback arguments for
+    // drupal_add_tabledrag(). The #id of the table is automatically prepended;
+    // if there is none, an HTML ID is auto-generated.
+    '#tabledrag' => [
+      [
+        'action' => 'order',
+        'relationship' => 'sibling',
+        'group' => 'widget-table-sort',
+      ],
+    ],
+    '#attributes' => [
+      'id' => 'widget-table-sort',
+    ],
+  ];
+  $i = 0;
+  foreach (\Drupal\Core\Render\Element::children($element) as $key) {
+    if ($key !== 'add_another') {
+      // TableDrag: Mark the table row as draggable.
+      $content['table']['#rows'][$key]['class'][] = 'draggable';
+      // TableDrag: Sort the table row according to its existing/configured weight.
+      $content['table']['#rows'][$key]['#weight'] = $i;
+      // Some table columns containing raw markup.
+      $content['table']['#rows'][$key]['data'][] = render($element[$key]);
+      // TableDrag: Weight column element.
+      $weight = [
+        '#type' => 'textfield',
+        '#title' => t('Weight for @title', ['@title' => 'Weight']),
+        '#title_display' => 'invisible',
+        '#value' => $i,
+        // Classify the weight element for #tabledrag.
+        '#attributes' => [
+          'class' => [
+            'table-order-weight',
+            'widget-table-sort'
+          ]
+        ],
+      ];
+      $content['table']['#rows'][$key]['data'][] = render($weight);
+      $i++;
+    }
+  }
+
+  $output = '<div id="' . $element['#attributes']['id'] . '" class="widget-field-groups">';
+  $output .= render($content);
+  $output .= render($element['add_another']);
+  $output .= '</div>';
+
+  drupal_attach_tabledrag($content['table'], [
+    'table_id' => 'widget-table-sort',
+    'action' => 'order',
+    'relationship' => 'sibling',
+    'group' => 'widget-table-sort',
+  ]);
+  return $output;
+}
+
+/**
+ * Implements hook_dcb_themes()
+ */
+function dcb_dcb_themes() {
+  return [
+    'dcb' => [
+      'id' => 'dcb',
+      'label' => t('Dynamic Content Builder core'),
+      'description_short' => t('Contains components provided by DCB core.'),
+      'module' => 'dcb',
+      'path' => 'src/Plugin/DCBComponent',
+    ],
+  ];
+}
+
+
+
