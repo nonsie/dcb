@@ -34,6 +34,10 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
   public $fields;
   public $output;
   public $layout;
+  public $outerId;
+  /**
+   * @var ComponentWizardBaseForm
+   */
   public $componentform;
 
   /**
@@ -176,11 +180,15 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
    */
   public function build(ComponentWizardBaseForm $componentform, array $values) {
     $this->componentform = $componentform;
+    $this->outerId = $this->componentform->randId();
 
     $this->form['fields'] = [
       '#type' => 'container',
-      '#tree' => TRUE,
-    ] + $this->outerForm($values['fields']);
+        '#tree' => TRUE,
+        '#attributes' => [
+          'id' => $this->outerId,
+        ],
+    ] + $this->outerForm(!empty($values['fields']) ? $values['fields'] : []);
   }
 
 

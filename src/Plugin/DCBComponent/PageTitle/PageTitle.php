@@ -59,8 +59,7 @@ class PageTitle extends DCBComponentBase {
     $myform['tag'] = $select_field->form(
       [
         "#title" => t('HTML tag'),
-        '#default_value' => !empty($values['tag']) ?
-          $values['tag'] : 'h2',
+        '#default_value' => !empty($values['tag']) ? $values['tag'] : 'h2',
         '#options' => [
           'h1' => 'h1',
           'h2' => 'h2',
@@ -74,8 +73,7 @@ class PageTitle extends DCBComponentBase {
       '#type' => 'textfield',
       '#title' => t('Optional class(es)'),
       '#description' => t('One or more classes to apply to the title tag'),
-      '#default_value' => !empty($values['class_name']) ?
-        $values['class_name'] : '',
+      '#default_value' => !empty($values['class_name']) ? $values['class_name'] : '',
     ];
 
     return $myform;

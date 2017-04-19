@@ -41,6 +41,11 @@ class Card extends DCBComponentBase {
   /**
    * @param $values
    * @return mixed
+   * @description: The outerForm method is used to define form elements that
+   * appear only once on a component. $values contains the stored previous values
+   * of the form and should be used to populate #default_value
+   *
+   * return a standard form render array.
    */
   public function outerForm($values) {
 
@@ -52,6 +57,26 @@ class Card extends DCBComponentBase {
       ],
     ];
 
+    /**
+     * This is an example of creating an optional field. When implementing
+     * fieldOptions, pass the array shown below along with the other arguments
+     * to invoke an options DCBField of type 'plugin. text_field optional
+     * field is shown below. @see \Drupal\dcb\Form\ComponentWizardBaseForm::fieldOptions()
+     */
+    $this->componentform->fieldOptions($this, $myform, $values, $this->outerId, 'outer',
+      [
+        [
+          'plugin' => 'text_field',
+          'field_name' => 'option-text-field',
+          'label' => t('field'),
+          'properties' => [
+            '#title' => t('text'),
+            '#default_value' => !empty($values['option-text-field']['value']) ? $values['option-text-field']['value'] : '',
+          ],
+        ],
+      ]
+    );
+
     return $myform;
   }
 
@@ -60,14 +85,39 @@ class Card extends DCBComponentBase {
    * @param $delta
    * @param $container_id
    * @return mixed
+   *
+   * @description: The repeatingFields method is used to define a set of fields
+   * that repeat. These fields will be wrapped in collapsible details elements
+   * and a "add another" button will be added. $values contains the stored values
+   * for the specific item being rendered and this method is called repeatedly
+   * to reach the necessary cardinality (cardinality is set in teh plugin annotation
+   * above)
+   *
+   * In addition to repeating elements, these items can have their own themes and
+   * optional fields. the use of themeOptions and fieldOptions below are exmaples
+   * of how to implement these options for a item.
+   *
    */
   public function repeatingFields($values = [], $delta, $container_id) {
+    // Shorten the $values array to the necessary items.
     $values = isset($values['widget']['items']) ? $values['widget']['items'] : [];
+
+    /**
+     * This is an example of retrieving a DCBField. This ckeditor_field can be
+     * reused on many components.
+     */
     $textarea_field = $this->getField('ckeditor_field', TRUE);
     $item['body'] = $textarea_field->form([
       "#title" => 'testing field title',
       '#default_value' => !empty($values['body']['value']['value']) ? $values['body']['value']['value'] : '',
     ]);
+
+    /**
+     * This is an example of adding themes to an item. This allows for each item to
+     * look and act different. Each 'themes' below should be created as a class implementing
+     * \DCBComponentTheme.
+     * @see \Drupal\dcb\Plugin\DCBComponent\Card\CardsDefaultTheme
+     */
     $this->componentform->themeOptions($this, $item, $delta, $values, $container_id, [
       'themes' => [
         'AAACardDefaultItemTheme' => t('Default (text align left)'),
@@ -75,7 +125,15 @@ class Card extends DCBComponentBase {
       ],
       'default' => 'AAACardDefaultItemTheme',
     ]);
-    $this->componentform->fieldOptions($this, $item, $values, $container_id, [
+
+    /**
+     * This is an example of creating an optional field. This can also be used in
+     * outerForm above. When implementing fieldOptions, pass the array shown below
+     * along with the other arguments to invoke an options DCBField of type 'plugin.
+     * text_field optional field is shown below.
+     * @see \Drupal\dcb\Form\ComponentWizardBaseForm::fieldOptions()
+     */
+    $this->componentform->fieldOptions($this, $item, $values, $container_id, 'repeating', [
       [
         'plugin' => 'text_field',
         'field_name' => 'test',

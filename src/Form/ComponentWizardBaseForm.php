@@ -521,7 +521,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
    * @param $fields
    * @param int $delta
    */
-  public function fieldOptions($plugin, &$form, $values, $wrapper, $fields, $delta = 0) {
+  public function fieldOptions(DCBComponentBase $plugin, &$form, $values, $wrapper, $type, $fields, $delta = 0) {
     $fields_selected = !empty($values['field_options']) ? $values['field_options'] : [];
     $field_options = [];
     foreach ($fields as $key => $field) {
@@ -543,6 +543,8 @@ abstract class ComponentWizardBaseForm extends FormBase {
         'method' => 'replaceWith',
         'event' => 'change',
         'delta' => $delta,
+        'plugin' => $plugin->getId(),
+        'type' => $type,
       ],
       '#attributes' => [
         'delta' => $delta,
@@ -729,11 +731,14 @@ abstract class ComponentWizardBaseForm extends FormBase {
    */
   public function extraFieldCallback(array $form = [], FormStateInterface $form_state) {
     $trigger = $form_state->getTriggeringElement();
-    array_pop($trigger['#array_parents']);
-    array_pop($trigger['#array_parents']);
-    array_pop($trigger['#array_parents']);
-    array_pop($trigger['#array_parents']);
-    return NestedArray::getValue($form, $trigger['#array_parents']);
+    if ($trigger['#ajax']['type'] == 'outer') {
+      // If this is an outer triggering the extra field, return the outer container.
+      return $form['fields'];
+    }
+    elseif ($trigger['#ajax']['type'] == 'repeating') {
+      // if this is a repeating element, return the container for the correct delta.
+      return $form[$trigger['#ajax']['plugin']][$trigger['#ajax']['delta']];
+    }
   }
 
 }
