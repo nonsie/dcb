@@ -77,13 +77,9 @@ function dcb_page_attachments(array &$page) {
 
 /**
  * Implements hook_theme().
- * @param $existing
- * @param $type
- * @param $theme
- * @param $path
  * @return array
  */
-function dcb_theme($existing, $type, $theme, $path) {
+function dcb_theme() {
   $themes = [
     'dcb_tabledrag' => [
       'render element' => 'element',
@@ -103,18 +99,13 @@ function dcb_theme($existing, $type, $theme, $path) {
   return $themes;
 }
 
-/*function dcb_preprocess_dcb_component(&$variables){
-  ksm($variables, 'preprocess');
-  $variables['theme_hook_suggestions'][] = "dcb_pagetitle__something";
-}
-
-function template_preprocess_dcb_component(&$variables) {
-  ksm($variables, 'template_preprocess');
-}*/
-
+/**
+ * @param array $variables
+ * @return array
+ */
 function dcb_theme_suggestions_dcb_component(array $variables) {
   $suggestions = [];
-  $suggestions[] = 'dcb_component__something';
+  $suggestions[] = 'dcb_component__' . 'something';
   return $suggestions;
 }
 
