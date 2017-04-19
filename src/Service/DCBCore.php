@@ -189,8 +189,6 @@ class DCBCore {
             'data-dyno-handler' => $id,
             'data-dyno-weight' => $weight,
             'data-dyno-label' => $plugin->getName(),
-            'data-alacarte-id' => 'dynoblock-' . $data['bid'],
-            'data-alacarte-type' => 'block',
           ],
         ];
         if (!empty($html)) {
@@ -203,7 +201,7 @@ class DCBCore {
           // Render content in theme template if available.
           if ($data['theme'] && !empty($plugin->themes[$data['theme']]['template_dir'])) {
             $render[$delta]['content']['theme'] = [
-              '#theme' => $data['theme'],
+              '#theme' => 'dcb_component',
               '#block' => $html,
             ];
           }

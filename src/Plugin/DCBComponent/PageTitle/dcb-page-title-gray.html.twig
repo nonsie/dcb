@@ -1,6 +1,7 @@
 {% set tag = block.fields.tag.value %}
 {% if tag is not empty %}
     <div class="{{ block.theme }}">
+    <p>PageTitlegray</p>
         {% set classes = block.fields.class_name %}
         {% if classes is not empty %}
             <{{ tag }} class="{{ classes }}">
