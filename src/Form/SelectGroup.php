@@ -48,7 +48,7 @@ class SelectGroup extends ComponentWizardBaseForm {
     $this->setArgsFromURI($form_state);
 
     $themes = $this->core->getThemes();
-    $selected_theme = $cached_values['theme']['id'];
+    $selected_theme = isset($cached_values['theme']['id']) ? $cached_values['theme']['id'] : NULL;
 
     foreach ($themes as $theme) {
       $options[$theme['id']] = $theme['label'] . ' - ' . $theme['description_short'];
