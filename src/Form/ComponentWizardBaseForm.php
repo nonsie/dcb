@@ -36,6 +36,12 @@ abstract class ComponentWizardBaseForm extends FormBase {
   public $wizard;
   public $parameters;
   public $request;
+  public $form_settings;
+
+  /**
+   * @var \Drupal\dcb\Plugin\DCBComponent\DCBComponentBase $componentInstance
+   */
+  public $componentInstance;
 
   /**
    * SelectGroup constructor.
@@ -52,8 +58,6 @@ abstract class ComponentWizardBaseForm extends FormBase {
    * @return static
    */
   public static function create(ContainerInterface $container) {
-    /** @noinspection PhpParamsInspection */
-    /** @noinspection PhpParamsInspection */
     return new static(
       $container->get('dcb.core'),
       $container->get('request_stack')
@@ -69,6 +73,14 @@ abstract class ComponentWizardBaseForm extends FormBase {
     $this->wizard = $wizard;
     $this->parameters['step'] = $this->wizard->getStep($cached_values);
     $this->form_state = $form_state;
+  }
+
+
+  /**
+   * @param \Drupal\dcb\Plugin\DCBComponent\DCBComponentBase $componentInstance
+   */
+  public function setComponentInstance(DCBComponentBase $componentInstance) {
+    $this->componentInstance = $componentInstance;
   }
 
   /**
@@ -100,16 +112,15 @@ abstract class ComponentWizardBaseForm extends FormBase {
 
 
   /**
-   * @param \Drupal\dcb\Plugin\DCBComponent\DCBComponentBase $componentInstance
    * @param $eid
    */
-  protected function addDefaultFields(DCBComponentBase $componentInstance, $eid) {
-    $componentInstance->form['widget_label'] = [
+  protected function addDefaultFields($eid) {
+    $this->componentInstance->form['widget_label'] = [
       '#weight' => -100,
       '#type' => 'html_tag',
       '#tag' => 'div',
       '#value' => t('<h5><strong>Component</strong>: <em>@component</em></h5>', [
-        '@component' => $componentInstance->getName(),
+        '@component' => $this->componentInstance->getName(),
       ]),
       '#attributes' => [
         'class' => ['widget-form-widget-type'],
@@ -117,7 +128,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
     ];
     // Add node ID if it exists.
     $eid = $eid == 'NA' ? NULL : $eid;
-    $componentInstance->form['nid'] = [
+    $this->componentInstance->form['nid'] = [
       '#type' => 'hidden',
       '#value' => $eid,
     ];
@@ -125,11 +136,10 @@ abstract class ComponentWizardBaseForm extends FormBase {
 
 
   /**
-   * @param \Drupal\dcb\Plugin\DCBComponent\DCBComponentBase $componentInstance
    * @param array $default_values
    */
-  protected function addExtraSettings(DCBComponentBase $componentInstance, $default_values = []) {
-    $componentInstance->form['extra_settings'] = [
+  protected function addExtraSettings($default_values = []) {
+    $this->componentInstance->form['extra_settings'] = [
       '#type' => 'details',
       '#title' => t('Component Settings'),
       '#open' => FALSE,
@@ -138,8 +148,8 @@ abstract class ComponentWizardBaseForm extends FormBase {
         'class' => ['dyno-widget-settings-container'],
       ],
     ];
-    $componentInstance->form['extra_settings'] += $this->_dcb_condition_form($default_values);
-    $componentInstance->form['extra_settings'] += $this->_dcb_weight_form($default_values);
+    $this->componentInstance->form['extra_settings'] += $this->_dcb_condition_form($default_values);
+    $this->componentInstance->form['extra_settings'] += $this->_dcb_weight_form($default_values);
 
     // TODO: token tree does not load since theme function is not available.
     //$form->form['extra_settings'] += _dynoblock_add_token_support();
@@ -228,18 +238,17 @@ abstract class ComponentWizardBaseForm extends FormBase {
   }
 
   /**
-   * @param \Drupal\dcb\Plugin\DCBComponent\DCBComponentBase $componentInstance
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    */
-  public function buildWidgetForm(DCBComponentBase $componentInstance, FormStateInterface &$form_state) {
-    $id = $componentInstance->getId();
+  public function buildWidgetForm(FormStateInterface &$form_state) {
+    $id = $this->componentInstance->getId();
     $this->widget_deltas[$id] = isset($this->widget_deltas[$id]) && is_numeric($this->widget_deltas[$id]) ? $this->widget_deltas[$id] + 1 : 0;
-    $componentInstance->form['widget'] = [
+    $this->componentInstance->form['widget'] = [
       '#type' => 'hidden',
       '#value' => $id,
     ];
-    $cardinality = isset($componentInstance->form_settings['cardinality']) ? $componentInstance->form_settings['cardinality'] : NULL;
-    $variant_support = isset($componentInstance->form_settings['variant_support']) ? $componentInstance->form_settings['variant_support'] : NULL;
+    $cardinality = isset($this->componentInstance->form_settings['cardinality']) ? $this->componentInstance->form_settings['cardinality'] : NULL;
+    $variant_support = isset($this->componentInstance->form_settings['variant_support']) ? $this->componentInstance->form_settings['variant_support'] : NULL;
     if (!empty($cardinality)) {
       if (!empty($form_state->getValue($id))) {
         $items = $form_state->getValue($id);
@@ -248,12 +257,12 @@ abstract class ComponentWizardBaseForm extends FormBase {
         $items = [];
       }
       $sub_widgets_amounts = count($items);
-      if (is_object($form_state) && isset($componentInstance->rebuild) && $componentInstance->rebuild == TRUE) {
+      if (is_object($form_state) && isset($this->componentInstance->rebuild) && $this->componentInstance->rebuild == TRUE) {
         $storage = $form_state->getStorage();
         $sub_widgets_amounts = isset($storage['sub_widgets_amount']) ? $storage['sub_widgets_amount'] : 1;
       }
       $container_id = 'widget-field-groups';
-      $componentInstance->form[$id] = [
+      $this->componentInstance->form[$id] = [
         '#type' => 'container',
         '#tree' => TRUE,
         '#theme_wrappers' => ['dcb_tabledrag'],
@@ -268,7 +277,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
       }
 
       $add_another_name = $id . '[' . $this->widget_deltas[$id] . '][add]';
-      $componentInstance->form['add_another'] = self::addAnotherBtn($container_id, $add_another_name);
+      $this->componentInstance->form['add_another'] = self::addAnotherBtn($container_id, $add_another_name);
 
       if (is_array($items)) {
         $items = array_values($items);
@@ -277,22 +286,22 @@ abstract class ComponentWizardBaseForm extends FormBase {
       for ($i = 0; $i < $cardinality; $i++) {
         $sub_widget_id = self::createId($id, $i . '-sub-widgets');
         $this->sub_widget_ids[$i] = $sub_widget_id;
-        $componentInstance->form[$id][$i] = [
+        $this->componentInstance->form[$id][$i] = [
           '#type' => 'container',
           '#attributes' => [
             'class' => ['widget-field-group'],
             'id' => $sub_widget_id,
           ],
         ];
-        $componentInstance->form[$id][$i]['widget'] = $componentInstance->widgetForm($form_state, $items, $i);
+        $this->componentInstance->form[$id][$i]['widget'] = $this->componentInstance->widgetForm($form_state, $items, $i);
 
         if ($cardinality > 1) {
           $name = $id . '[' . $this->widget_deltas[$id] . '][remove][' . $i . ']';
-          $componentInstance->form[$id][$i]['widget']['items']['remove'] = self::removeItemBtn($id, $i, $container_id, $name);
+          $this->componentInstance->form[$id][$i]['widget']['items']['remove'] = self::removeItemBtn($id, $i, $container_id, $name);
         }
 
         if ($variant_support) {
-          $componentInstance->form[$id][$i]['id'] = [
+          $this->componentInstance->form[$id][$i]['id'] = [
             '#type' => 'hidden',
             '#default_value' => (empty($items[$i]['id']) ? self::randId() : $items[$i]['id']),
           ];
@@ -310,14 +319,13 @@ abstract class ComponentWizardBaseForm extends FormBase {
 
 
   /**
-   * @param \Drupal\dcb\Plugin\DCBComponent\DCBComponentBase $componentInstance
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    */
-  public function buildParentThemeSettings(DCBComponentBase $componentInstance, FormStateInterface &$form_state) {
-    if (isset($componentInstance->parent_theme['handler']) && !empty($componentInstance->parent_theme['handler'])) {
-      $settings_form = $componentInstance->parent_theme['handler']->globalSettings($componentInstance->form, $form_state->getValues());
+  public function buildParentThemeSettings(FormStateInterface &$form_state) {
+    if (isset($this->componentInstance->parent_theme['handler']) && !empty($this->componentInstance->parent_theme['handler'])) {
+      $settings_form = $this->componentInstance->parent_theme['handler']->globalSettings($this->componentInstance->form, $form_state->getValues());
       if (!empty($settings_form)) {
-        $componentInstance->form['global_theme_settings'] = [
+        $this->componentInstance->form['global_theme_settings'] = [
           '#type' => 'fieldset',
           '#weight' => 101,
           '#tree' => TRUE,
@@ -325,10 +333,10 @@ abstract class ComponentWizardBaseForm extends FormBase {
           '#collapsed' => TRUE,
           '#collapsible' => TRUE,
         ];
-        $componentInstance->form['global_theme_settings'] += $settings_form;
-        $componentInstance->form['global_theme_settings']['handler'] = [
+        $this->componentInstance->form['global_theme_settings'] += $settings_form;
+        $this->componentInstance->form['global_theme_settings']['handler'] = [
           '#type' => 'hidden',
-          '#value' => get_class($componentInstance->parent_theme['handler']),
+          '#value' => get_class($this->componentInstance->parent_theme['handler']),
         ];
       }
     }
@@ -336,15 +344,14 @@ abstract class ComponentWizardBaseForm extends FormBase {
 
 
   /**
-   * @param \Drupal\dcb\Plugin\DCBComponent\DCBComponentBase $componentInstance
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    */
-  public function buildThemeSelection(DCBComponentBase $componentInstance, FormStateInterface &$form_state) {
-    if (!empty($componentInstance->themes)) {
-      $number_of_themes = count($componentInstance->themes);
-      $container_id = self::createId($componentInstance->getId(), 'theme_overview');
-      $preview_container_id = self::createId($componentInstance->getId(), 'preview');
-      $componentInstance->form['theme_overview'] = [
+  public function buildThemeSelection(FormStateInterface &$form_state) {
+    if (!empty($this->componentInstance->themes)) {
+      $number_of_themes = count($this->componentInstance->themes);
+      $container_id = self::createId($this->componentInstance->getId(), 'theme_overview');
+      $preview_container_id = self::createId($this->componentInstance->getId(), 'preview');
+      $this->componentInstance->form['theme_overview'] = [
         '#type' => 'container',
         '#weight' => -99,
         '#attributes' => [
@@ -352,7 +359,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
           'id' => $container_id,
         ],
       ];
-      $componentInstance->form['theme_overview']['preview'] = [
+      $this->componentInstance->form['theme_overview']['preview'] = [
         '#weight' => 0,
         '#type' => 'html_tag',
         '#tag' => 'div',
@@ -372,10 +379,10 @@ abstract class ComponentWizardBaseForm extends FormBase {
       // # need to add hidden value to $this->form with the default theme.
       // Theme selection select list.
       $theme_options = [];
-      foreach ($componentInstance->themes as $template => $properties) {
+      foreach ($this->componentInstance->themes as $template => $properties) {
         $theme_options[$template] = $properties['label'];
       }
-      $componentInstance->form['theme_overview']['theme'] = [
+      $this->componentInstance->form['theme_overview']['theme'] = [
         '#type' => 'select',
         '#weight' => -100,
         '#title' => t('Layout Theme'),
@@ -394,26 +401,26 @@ abstract class ComponentWizardBaseForm extends FormBase {
           'type' => 'widget_theme',
         ],
       ];
-      $theme_selected = empty($default) && !empty($componentInstance->default_theme) ? $componentInstance->default_theme : $default;
-      if ($theme_selected && !empty($componentInstance->themes[$theme_selected])) {
-        $theme_selected = $componentInstance->themes[$theme_selected]['handler'];
-        $theme = $componentInstance->loadTheme($theme_selected);
+      $theme_selected = empty($default) && !empty($this->componentInstance->default_theme) ? $this->componentInstance->default_theme : $default;
+      if ($theme_selected && !empty($this->componentInstance->themes[$theme_selected])) {
+        $theme_selected = $this->componentInstance->themes[$theme_selected]['handler'];
+        $theme = $this->componentInstance->loadTheme($theme_selected);
         // Dont show preview unless they select a different one.
         // This happens because they already know what the default one looks like.
         if ($number_of_themes > 1 && is_object($form_state) && !empty($form_state)) {
-          $componentInstance->form['theme_overview']['preview']['#value'] = $theme->preview();
+          $this->componentInstance->form['theme_overview']['preview']['#value'] = $theme->preview();
         }
         // Hide theme selection if there is only one option.
         // Create a hidden field containing the default theme handler.
         if ($number_of_themes <= 1) {
-          $componentInstance->form['theme_overview']['theme'] = [
+          $this->componentInstance->form['theme_overview']['theme'] = [
             '#type' => 'hidden',
-            '#value' => key($componentInstance->themes),
+            '#value' => key($this->componentInstance->themes),
           ];
         }
-        $theme_form = $theme->form($componentInstance->form, $form_state);
+        $theme_form = $theme->form($this->componentInstance->form, $form_state);
         if (!empty($theme_form) && is_array($theme_form)) {
-          $componentInstance->form['theme_overview']['theme_settings'] = [
+          $this->componentInstance->form['theme_overview']['theme_settings'] = [
             '#type' => 'fieldset',
             '#title' => t('Theme Settings'),
             '#weight' => 1,
@@ -424,7 +431,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
               'class' => ['dyno-theme-settings'],
             ],
           ];
-          $componentInstance->form['theme_overview']['theme_settings'] += $theme_form;
+          $this->componentInstance->form['theme_overview']['theme_settings'] += $theme_form;
         }
       }
     }

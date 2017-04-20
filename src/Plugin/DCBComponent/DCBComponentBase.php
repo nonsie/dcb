@@ -37,6 +37,8 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
   public $outerId;
   public $form_settings;
   public $parent_theme;
+  public $rebuild;
+  public $default_theme;
   /**
    * @var ComponentWizardBaseForm
    */
@@ -302,7 +304,7 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
    * @param $form_state
    * @return bool
    */
-  public function getWidgetDetailsState($form_state) {
+  public function getWidgetDetailsState(FormStateInterface $form_state) {
     $open = FALSE;
     if (is_object($form_state)) {
       $trigger = $form_state->getTriggeringElement();

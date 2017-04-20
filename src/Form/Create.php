@@ -80,20 +80,30 @@ class Create extends ComponentWizardBaseForm {
 
     }
 
+    // Add the Component instance as a property of this form for easy access.
+    $this->setComponentInstance($componentInstance);
+
     // Initialize the component edit form.
-    $componentInstance->init()->build($this, $form_state->getValues());
-    $this->buildWidgetForm($componentInstance, $form_state);
-    $this->buildThemeSelection($componentInstance, $form_state);
-    $this->buildParentThemeSettings($componentInstance, $form_state);
-    $this->addDefaultFields($componentInstance, $eid);
-    $this->addExtraSettings($componentInstance, $form_state->getValues());
+    $this->componentInstance->init()->build($this, $form_state->getValues());
 
+    // Build the pieces of the form
+    $this->buildWidgetForm($form_state);
+    $this->buildThemeSelection($form_state);
+    $this->buildParentThemeSettings($form_state);
+    $this->addDefaultFields($eid);
+    $this->addExtraSettings($form_state->getValues());
 
-    // If $this->form_state is not unset here, ajax errors occur with complicated forms.
-    // Note this is just a copy of form_state stored on the object for easy access.
+    $returnvalue = $this->componentInstance->form;
+
+    /**
+     * if $this gets too complicated, it tends to cause ajax errors
+     * and crash the ajax responses. Remove the things that are not necessary for
+     * actually rendering the form.
+     */
     unset($this->form_state);
+    unset($this->componentInstance);
 
-    return $componentInstance->form;
+    return $returnvalue;
   }
 
   /**
