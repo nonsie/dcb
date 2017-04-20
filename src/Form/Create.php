@@ -70,31 +70,30 @@ class Create extends ComponentWizardBaseForm {
     if (!empty($form_state->getValue('widget'))) {
       // If this "widget" value is set, we already have a good form state.
       // Init the plugin and set the rebuild value.
-      $handler = $core->initPlugin($form_state->getValue('widget'));
-      $widget = $core->getWidget($form_state->getValue('widget'));
-      $handler->rebuild = TRUE;
-      $handler->form = [];
+      $componentInstance = $core->initPlugin($form_state->getValue('widget'));
+      $componentInstance->rebuild = TRUE;
+      $componentInstance->form = [];
     }
     else {
       // This is a new first time load, use the value from the wizard.
-      $handler = $core->initPlugin($cached_values['selected_component']);
-      $widget = $core->getWidget($cached_values['selected_component']);
+      $componentInstance = $core->initPlugin($cached_values['selected_component']);
+
     }
 
     // Initialize the component edit form.
-    $handler->init()->build($this, $form_state->getValues());
-    $this->buildWidgetForm($widget, $handler, $form_state);
-    $this->buildThemeSelection($widget, $handler, $form_state);
-    $this->buildParentThemeSettings($widget, $handler, $form_state);
-    $this->addDefaultFields($handler, $widget, $eid);
-    $this->addExtraSettings($handler, $form_state->getValues());
+    $componentInstance->init()->build($this, $form_state->getValues());
+    $this->buildWidgetForm($componentInstance, $form_state);
+    $this->buildThemeSelection($componentInstance, $form_state);
+    $this->buildParentThemeSettings($componentInstance, $form_state);
+    $this->addDefaultFields($componentInstance, $eid);
+    $this->addExtraSettings($componentInstance, $form_state->getValues());
 
 
     // If $this->form_state is not unset here, ajax errors occur with complicated forms.
     // Note this is just a copy of form_state stored on the object for easy access.
     unset($this->form_state);
 
-    return $handler->form;
+    return $componentInstance->form;
   }
 
   /**

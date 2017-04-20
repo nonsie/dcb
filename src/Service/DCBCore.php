@@ -317,11 +317,11 @@ class DCBCore {
 
   /**
    * @param $plugin
-   * @return object
+   * @return \Drupal\dcb\Plugin\DCBComponent\DCBComponentBase
    */
-  public function initPlugin($plugin) {
-    if (array_key_exists($plugin, $this->loadWidgets())) {
-      $plugin = $this->pluginManager->createInstance($plugin);
+  public function initPlugin($plugin_name) {
+    if (array_key_exists($plugin_name, $this->loadWidgets())) {
+      $plugin = $this->pluginManager->createInstance($plugin_name);
       $path = $this->findThemePath($plugin->getId());
       $plugin->directory = $path . $plugin->getId();
       return $plugin;

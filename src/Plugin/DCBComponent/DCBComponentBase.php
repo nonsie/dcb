@@ -35,6 +35,8 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
   public $output;
   public $layout;
   public $outerId;
+  public $form_settings;
+  public $parent_theme;
   /**
    * @var ComponentWizardBaseForm
    */
@@ -50,15 +52,16 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, DCBFieldManager $dcbFieldManager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $properties = $this->pluginDefinition['properties'];
-    $this->module = $properties['module'];
+    $this->properties = $this->pluginDefinition['properties'];
+    $this->module = $this->properties['module'];
     $this->class = $this->getClass();
     $this->dir = drupal_get_path('module', $this->module);
     $this->themes = $this->getThemes();
-    $this->preview_image = $this->getPreviewImageFilePath($properties['preview_image']);
-    $this->properties = $properties;
+    $this->preview_image = $this->getPreviewImageFilePath($this->properties['preview_image']);
     $this->namespace = $this->getNamespace();
     $this->dcbFieldManager = $dcbFieldManager;
+    $this->form_settings = $this->pluginDefinition['form_settings'];
+    $this->parent_theme = isset($this->pluginDefinition['parent_theme']) ? $this->pluginDefinition['parent_theme'] : [];
   }
 
   /**
