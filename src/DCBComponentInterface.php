@@ -7,6 +7,7 @@
 namespace Drupal\dcb;
 
 use Drupal\Component\Plugin\PluginInspectionInterface;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\dcb\Form\ComponentWizardBaseForm;
 
 /**
@@ -75,7 +76,7 @@ interface DCBComponentInterface extends PluginInspectionInterface {
    * @param $form_state
    * @return string
    */
-  public function formSubmit(&$form_state);
+  public function formSubmit(FormStateInterface $form_state);
 
   /**
    * Widget form render.

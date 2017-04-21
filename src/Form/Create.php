@@ -67,18 +67,25 @@ class Create extends ComponentWizardBaseForm {
       $this->method = 'new';
     }
 
+
     if (!empty($form_state->getValue('widget'))) {
       // If this "widget" value is set, we already have a good form state.
       // Init the plugin and set the rebuild value.
       $componentInstance = $core->initPlugin($form_state->getValue('widget'));
       $componentInstance->rebuild = TRUE;
       $componentInstance->form = [];
+      $form_state->set('widget', $form_state->getValue('widget'));
     }
-    else {
+    elseif(isset($cached_values['selected_component'])) {
       // This is a new first time load, use the value from the wizard.
       $componentInstance = $core->initPlugin($cached_values['selected_component']);
-
+      $form_state->set('widget', $cached_values['selected_component']);
     }
+    elseif(!empty($form_state->get('widget'))) {
+      $componentInstance = $core->initPlugin($form_state->get('widget'));
+    }
+
+    //ksm($form_state->getValues());
 
     // Add the Component instance as a property of this form for easy access.
     $this->setComponentInstance($componentInstance);
@@ -102,6 +109,7 @@ class Create extends ComponentWizardBaseForm {
      */
     unset($this->form_state);
     unset($this->componentInstance);
+
 
     return $returnvalue;
   }
@@ -164,6 +172,10 @@ class Create extends ComponentWizardBaseForm {
       'conditions' => $conditions,
       'weight' => $weight,
     ];
+
+    // run the formsubmit() function on the widget, if there is one
+    $componentInstance = $this->core->initPlugin($form_state->getValue('widget'));
+    $componentInstance->formSubmit($form_state);
 
     // Get render array of the new or updated component.
     $block = $this->core->displayBlocks([$renderRecord]);

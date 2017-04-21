@@ -7,16 +7,34 @@
 namespace Drupal\dcb\Plugin\DCBField;
 
 use Drupal\Component\Plugin\PluginBase;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\file\FileUsage\FileUsageInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class DCBFieldBase
  * @package Drupal\dcb\Plugin\DCBField
  */
-class DCBFieldBase extends PluginBase implements DCBFieldInterface {
+class DCBFieldBase extends PluginBase implements DCBFieldInterface, ContainerFactoryPluginInterface {
 
   public $form_state = [];
   public $field;
   public $display;
+  public $fileUsage;
+
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, FileUsageInterface $fileUsage) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
+    $this->fileUsage = $fileUsage;
+  }
+
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('file.usage')
+    );
+  }
 
   /**
    * @param $form_state
@@ -75,8 +93,10 @@ class DCBFieldBase extends PluginBase implements DCBFieldInterface {
    *    The widget would call this method so it could save the image permanently.
    * @internal param $value An array containing the field values.*  An array containing the field values.
    * @internal param $value an array containing the fields value(s) or $form_state['values'].*  an array containing the fields value(s) or $form_state['values'].
+   * @param $value
+   * @param $bid
    */
-  function onSubmit() {
+  function onSubmit($value, $bid) {
   }
 
   /**

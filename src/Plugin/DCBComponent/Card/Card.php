@@ -6,6 +6,7 @@
 
 namespace Drupal\dcb\Plugin\DCBComponent\Card;
 
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\dcb\Plugin\DCBComponent\DCBComponentBase;
 
 
@@ -73,6 +74,15 @@ class Card extends DCBComponentBase {
           '#default_value' => !empty($values['option-text-field']['value']) ? $values['option-text-field']['value'] : '',
         ],
       ],
+      [
+        'plugin' => 'text_field',
+        'field_name' => 'option-text-field2',
+        'label' => t('field2'),
+        'properties' => [
+          '#title' => t('text2'),
+          '#default_value' => !empty($values['option-text-field2']['value']) ? $values['option-text-field2']['value'] : '',
+        ],
+      ],
     ]);
 
     return $myform;
@@ -110,6 +120,11 @@ class Card extends DCBComponentBase {
       '#default_value' => !empty($values['body']['value']['value']) ? $values['body']['value']['value'] : '',
     ]);
 
+    $imagefield = $this->getField('image_field', TRUE);
+    $item['img'] = $imagefield->form([
+      '#default_value' => !empty($values['img']) ? $values['img']: '',
+    ]);
+
     /**
      * This is an example of adding themes to an item. This allows for each item to
      * look and act different. Each 'themes' below should be created as a class implementing
@@ -145,10 +160,39 @@ class Card extends DCBComponentBase {
             '#default_value' => !empty($values['test']['value']) ? $values['test']['value'] : '',
           ],
         ],
+        [
+          'plugin' => 'text_field',
+          'field_name' => 'test2',
+          'label' => t('Textfield2'),
+          'properties' => [
+            '#title' => t('Textfield2'),
+            '#default_value' => !empty($values['test2']['value']) ? $values['test2']['value'] : '',
+          ],
+        ],
       ],
     ]);
 
     return $item;
+  }
+
+  /**
+   * Gets called when a widget form is submitted.
+   *
+   * Any processing you need to do before the values are saved needs to be here.
+   * One use case is for images & managed_file that needs to save the images.
+   *
+   */
+  public function formSubmit(FormStateInterface $form_state) {
+    // This loops through the field groups and permanently saves images that have been uploaded.
+    $values = $form_state->getValue($this->getId());
+
+    foreach ($values as $delta => $value) {
+      if (!empty($value['widget']['items']['img']['value'])) {
+        $handler = $this->getField('image_field', TRUE);
+        $handler->onSubmit($value['widget']['items']['img']['value'], $form_state->getValue('bid'));
+      }
+    }
+
   }
 
 }

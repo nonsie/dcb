@@ -244,7 +244,7 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
   /**
    * {@inheritdoc}
    */
-  public function formSubmit(&$form_state) {
+  public function formSubmit(FormStateInterface $form_state) {
 
   }
 

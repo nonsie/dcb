@@ -55,11 +55,13 @@ interface DCBFieldInterface extends PluginInspectionInterface {
    * - Note: this is not always called. The widget itself must call this explicitly.
    *    One use case example is when a widget has an image field.
    *    The widget would call this method so it could save the image permanently.
+   * @param $value
+   * @param $bid
    * @return
    * @internal param $value An array containing the field values.*  An array containing the field values.
    * @internal param $value an array containing the fields value(s) or $form_state['values'].*  an array containing the fields value(s) or $form_state['values'].
    */
-  function onSubmit();
+  function onSubmit($value, $bid);
 
   /**
    * @return mixed
