@@ -122,7 +122,7 @@ function dcb_theme($existing, $type, $theme, $path) {
  */
 function theme_dcb_image_thumbnail($variables) {
   $element = $variables['element'];
-  if (isset($element['fid'][0])) {
+  if (isset($element['fid'][0]) && $element['fid'][0] != 0) {
     $file = \Drupal\file\Entity\File::load($element['fid'][0]);
 
     $variables = array(

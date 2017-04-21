@@ -122,7 +122,7 @@ class Card extends DCBComponentBase {
 
     $imagefield = $this->getField('image_field', TRUE);
     $item['img'] = $imagefield->form([
-      '#default_value' => !empty($values['img']) ? $values['img']: '',
+      '#default_value' => !empty($values['img']) ? $values['img'] : '',
     ]);
 
     /**

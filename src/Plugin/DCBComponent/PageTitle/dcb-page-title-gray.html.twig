@@ -1,15 +1,15 @@
 {% set tag = block.fields.tag.value %}
 {% if tag is not empty %}
-    <div class="{{ block.theme }}">
-        {% set classes = block.fields.class_name %}
-        {% if classes is not empty %}
-            <{{ tag }} class="{{ classes }}">
-            {{ block.fields.title }}
-            </{{ tag }}>
-        {% else %}
-            <{{ tag }}>
-            {{ block.fields.title }}
-            </{{ tag }}>
-        {% endif %}
+<div class="{{ block.theme }}">
+    {% set classes = block.fields.class_name %}
+    {% if classes is not empty %}
+        <{{ tag }} class="{{ classes }}">
+        {{ block.fields.title }}
+        </{{ tag }}>
+    {% else %}
+        <{{ tag }}>
+        {{ block.fields.title }}
+        </{{ tag }}>
+    {% endif %}
     </div>
 {% endif %}

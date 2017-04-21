@@ -76,12 +76,12 @@ class Create extends ComponentWizardBaseForm {
       $componentInstance->form = [];
       $form_state->set('widget', $form_state->getValue('widget'));
     }
-    elseif(isset($cached_values['selected_component'])) {
+    elseif (isset($cached_values['selected_component'])) {
       // This is a new first time load, use the value from the wizard.
       $componentInstance = $core->initPlugin($cached_values['selected_component']);
       $form_state->set('widget', $cached_values['selected_component']);
     }
-    elseif(!empty($form_state->get('widget'))) {
+    elseif (!empty($form_state->get('widget'))) {
       $componentInstance = $core->initPlugin($form_state->get('widget'));
     }
 
