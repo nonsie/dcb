@@ -29,6 +29,9 @@ abstract class ComponentWizardBaseForm extends FormBase {
    * @var
    */
   public $sub_widget_ids = [];
+  /**
+   * @var
+   */
   public $method;
   public $form_state;
   public $widget_deltas = [];
@@ -293,6 +296,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
             'id' => $sub_widget_id,
           ],
         ];
+
         $this->componentInstance->form[$id][$i]['widget'] = $this->componentInstance->widgetForm($form_state, $items, $i);
 
         if ($cardinality > 1) {
@@ -305,6 +309,156 @@ abstract class ComponentWizardBaseForm extends FormBase {
             '#type' => 'hidden',
             '#default_value' => (empty($items[$i]['id']) ? self::randId() : $items[$i]['id']),
           ];
+        }
+      }
+      $this->fieldOptions('repeating');
+      $this->fieldOptions('outer');
+      $this->themeOptions();
+    }
+  }
+
+
+  /**
+   *
+   */
+  public function themeOptions() {
+    if (!empty($this->componentInstance->ItemThemes)) {
+      foreach ($this->componentInstance->ItemThemes as $delta => $themes) {
+        $number_of_themes = count($themes['themes']);
+        $innerform = &$this->componentInstance->form[$this->componentInstance->getId()][$delta]['widget']['items'];
+        $values = $this->form_state->getValue([
+          $this->componentInstance->getId(),
+          $delta,
+          'widget',
+          'items'
+        ]);
+
+        $innerform['preview'] = [
+          '#weight' => -99,
+          '#type' => 'html_tag',
+          '#tag' => 'div',
+          '#value' => '',
+          '#attributes' => [
+            'class' => ['dyno-sub-item', 'dyno-sub-theme-preview'],
+          ],
+        ];
+
+        $theme_selected = !empty($values['theme']) ? $values['theme'] : $themes['default'];
+
+        $innerform['theme'] = [
+          '#type' => 'select',
+          '#weight' => -100,
+          '#title' => t('Item Theme'),
+          '#description' => t('Select A Widget Sub Theme.'),
+          '#options' => $themes['themes'],
+          '#default_value' => $theme_selected,
+          '#ajax' => [
+            'url' => Url::fromRoute('dcb.admin.wizard.ajax.step', $this->parameters),
+            'options' => ['query' => \Drupal::request()->query->all() + [FormBuilderInterface::AJAX_FORM_REQUEST => TRUE]],
+            'callback' => [$this, 'fieldAjaxCallback'],
+            'wrapper' => $innerform['#attributes']['id'],
+            'method' => 'replace',
+            'type' => 'sub_item_theme',
+          ],
+          '#attributes' => [
+            'delta' => $delta,
+            'data-drupal-target' => $innerform['#attributes']['id'],
+          ],
+        ];
+
+        if ($theme_selected && $theme_selected != 'default') {
+          $theme = $this->componentInstance->loadTheme($theme_selected);
+          $innerform['preview']['#value'] = $theme->preview();
+
+          if ($number_of_themes <= 1) {
+            $innerform['theme'] = [
+              '#type' => 'hidden',
+              '#value' => $themes['default'],
+            ];
+          }
+          $theme->form($innerform);
+        }
+      }
+    }
+  }
+
+
+  /**
+   * @param $location
+   */
+  public function fieldOptions($location) {
+
+    switch ($location) {
+      case 'outer' :
+        $registered_fields = $this->componentInstance->OuterFieldOptions;
+        break;
+      case 'repeating' :
+        $registered_fields = $this->componentInstance->InnerFieldOptions;
+        break;
+    }
+
+    // Check that Inner Field options have been registered.
+    if (!empty($registered_fields)) {
+      // Loop Through the fields by item delta
+      foreach ($registered_fields as $delta => $field_def) {
+
+        switch ($location) {
+          case 'outer' :
+            $innerform = &$this->componentInstance->form['fields'];
+            $values = $this->form_state->getValue(['fields']);
+            break;
+          case 'repeating' :
+            $innerform = &$this->componentInstance->form[$this->componentInstance->getId()][$delta]['widget']['items'];
+            $values = $this->form_state->getValue([
+              $this->componentInstance->getId(),
+              $delta,
+              'widget',
+              'items'
+            ]);
+            break;
+        }
+
+        $fields_selected = !empty($values['field_options']) ? $values['field_options'] : [];
+        $field_options = [];
+        // For each of the deltas, loop through the fields since there could be multiple.
+        foreach ($field_def as $key => $field) {
+          $field_options[$field['plugin'] . '|' . $field['field_name'] . '|' . $key] = $field['label'];
+        }
+        // Build out the selection form.
+        $innerform['field_options'] = [
+          '#type' => 'checkboxes',
+          '#weight' => -98,
+          '#title' => t('Extra Fields'),
+          '#description' => t('Add Extra Fields.'),
+          '#options' => $field_options,
+          '#multiple' => TRUE,
+          '#default_value' => $fields_selected,
+          '#ajax' => [
+            'url' => Url::fromRoute('dcb.admin.wizard.ajax.step', $this->parameters),
+            'options' => ['query' => \Drupal::request()->query->all() + [FormBuilderInterface::AJAX_FORM_REQUEST => TRUE]],
+            'callback' => [$this, 'extraFieldCallback'],
+            'wrapper' => $innerform['#attributes']['id'],
+            'method' => 'replaceWith',
+            'event' => 'change',
+            'delta' => $delta,
+            'plugin' => $this->componentInstance->getId(),
+            'type' => $location,
+          ],
+          '#attributes' => [
+            'delta' => $delta,
+            'target' => $innerform['#attributes']['id'],
+            'class' => ['dynoblock-extra-fields'],
+          ],
+        ];
+
+        if (!empty($fields_selected)) {
+          foreach ($fields_selected as $class) {
+            if (!empty($class)) {
+              list($field_plugin, $field_name, $delta) = explode('|', $class);
+              $field = $this->componentInstance->getField($field_plugin, TRUE, $this->form_state);
+              $innerform[$field_name] = $field->form(!empty($field_def[$delta]['properties']) ? $field_def[$delta]['properties'] : []);
+            }
+          }
         }
       }
     }
@@ -454,116 +608,6 @@ abstract class ComponentWizardBaseForm extends FormBase {
         '#type' => 'markup',
         '#markup' => 'No Preview',
       ];
-    }
-  }
-
-  /**
-   * @param $plugin
-   * @param $item
-   * @param $delta
-   * @param $values
-   * @param $container_id
-   * @param $themes
-   */
-  public function themeOptions($plugin, &$item, $delta, $values, $container_id, $themes) {
-    $number_of_themes = count($themes['themes']);
-    $item['preview'] = [
-      '#weight' => -99,
-      '#type' => 'html_tag',
-      '#tag' => 'div',
-      '#value' => '',
-      '#attributes' => [
-        'class' => ['dyno-sub-item', 'dyno-sub-theme-preview'],
-      ],
-    ];
-    $theme_selected = !empty($values['theme']) ? $values['theme'] : $themes['default'];
-    $item['theme'] = [
-      '#type' => 'select',
-      '#weight' => -100,
-      '#title' => t('Item Theme'),
-      '#description' => t('Select A Widget Sub Theme.'),
-      '#options' => $themes['themes'],
-      '#default_value' => $theme_selected,
-      '#ajax' => [
-        'url' => Url::fromRoute('dcb.admin.wizard.ajax.step', $this->parameters),
-        'options' => ['query' => \Drupal::request()->query->all() + [FormBuilderInterface::AJAX_FORM_REQUEST => TRUE]],
-        'callback' => [$this, 'fieldAjaxCallback'],
-        'wrapper' => $container_id,
-        'method' => 'replace',
-        'type' => 'sub_item_theme',
-      ],
-      '#attributes' => [
-        'delta' => $delta,
-        'data-drupal-target' => $container_id,
-      ],
-    ];
-
-    if ($theme_selected && $theme_selected != 'default') {
-      $theme = $plugin->loadTheme($theme_selected);
-      $item['preview']['#value'] = $theme->preview();
-
-      if ($number_of_themes <= 1) {
-        $item['theme'] = [
-          '#type' => 'hidden',
-          '#value' => $themes['default'],
-        ];
-      }
-      $theme->form($item);
-    }
-    if (!is_object($this->form_state)) {
-      if (empty($this->form_state['dyno_system']['themes_selected'][$container_id])) {
-        $this->form_state['dyno_system']['themes_selected'][$container_id] = $theme_selected;
-      }
-    }
-  }
-
-  /**
-   * @param $plugin
-   * @param $form
-   * @param $values
-   * @param $wrapper
-   * @param $fields
-   * @param int $delta
-   */
-  public function fieldOptions(DCBComponentBase $plugin, &$form, $values, $wrapper, $type, $fields, $delta = 0) {
-    $fields_selected = !empty($values['field_options']) ? $values['field_options'] : [];
-    $field_options = [];
-    foreach ($fields as $key => $field) {
-      $field_options[$field['plugin'] . '|' . $field['field_name'] . '|' . $key] = $field['label'];
-    }
-    $form['field_options'] = [
-      '#type' => 'checkboxes',
-      '#weight' => -99,
-      '#title' => t('Extra Fields'),
-      '#description' => t('Add Extra Fields.'),
-      '#options' => $field_options,
-      '#multiple' => TRUE,
-      '#default_value' => $fields_selected,
-      '#ajax' => [
-        'url' => Url::fromRoute('dcb.admin.wizard.ajax.step', $this->parameters),
-        'options' => ['query' => \Drupal::request()->query->all() + [FormBuilderInterface::AJAX_FORM_REQUEST => TRUE]],
-        'callback' => [$this, 'extraFieldCallback'],
-        'wrapper' => $wrapper,
-        'method' => 'replaceWith',
-        'event' => 'change',
-        'delta' => $delta,
-        'plugin' => $plugin->getId(),
-        'type' => $type,
-      ],
-      '#attributes' => [
-        'delta' => $delta,
-        'target' => $wrapper,
-        'class' => ['dynoblock-extra-fields'],
-      ],
-    ];
-    if (!empty($fields_selected)) {
-      foreach ($fields_selected as $class) {
-        if (!empty($class)) {
-          list($field_plugin, $field_name, $delta) = explode('|', $class);
-          $field = $plugin->getField($field_plugin, TRUE, $this->form_state);
-          $form[$field_name] = $field->form(!empty($fields[$delta]['properties']) ? $fields[$delta]['properties'] : []);
-        }
-      }
     }
   }
 

@@ -61,21 +61,19 @@ class Card extends DCBComponentBase {
      * This is an example of creating an optional field. When implementing
      * fieldOptions, pass the array shown below along with the other arguments
      * to invoke an options DCBField of type 'plugin. text_field optional
-     * field is shown below. @see \Drupal\dcb\Form\ComponentWizardBaseForm::fieldOptions()
+     * field is shown below.
      */
-    $this->componentform->fieldOptions($this, $myform, $values, $this->outerId, 'outer',
+    $this->registerOuterFieldOptions([
       [
-        [
-          'plugin' => 'text_field',
-          'field_name' => 'option-text-field',
-          'label' => t('field'),
-          'properties' => [
-            '#title' => t('text'),
-            '#default_value' => !empty($values['option-text-field']['value']) ? $values['option-text-field']['value'] : '',
-          ],
+        'plugin' => 'text_field',
+        'field_name' => 'option-text-field',
+        'label' => t('field'),
+        'properties' => [
+          '#title' => t('text'),
+          '#default_value' => !empty($values['option-text-field']['value']) ? $values['option-text-field']['value'] : '',
         ],
-      ]
-    );
+      ],
+    ]);
 
     return $myform;
   }
@@ -88,17 +86,17 @@ class Card extends DCBComponentBase {
    *
    * @description: The repeatingFields method is used to define a set of fields
    * that repeat. These fields will be wrapped in collapsible details elements
-   * and a "add another" button will be added. $values contains the stored values
+   * and an "add another" button will be added. $values contains the stored values
    * for the specific item being rendered and this method is called repeatedly
-   * to reach the necessary cardinality (cardinality is set in teh plugin annotation
-   * above)
+   * to reach the necessary cardinality (cardinality is set in the plugin annotation
+   * above).
    *
    * In addition to repeating elements, these items can have their own themes and
-   * optional fields. the use of themeOptions and fieldOptions below are exmaples
-   * of how to implement these options for a item.
+   * optional fields. The use of registerItemThemeOptions and
+   * registerInnerFieldOptions below are examples of how to implement these options for a item.
    *
    */
-  public function repeatingFields($values = [], $delta, $container_id) {
+  public function repeatingFields($values = [], $delta) {
     // Shorten the $values array to the necessary items.
     $values = isset($values['widget']['items']) ? $values['widget']['items'] : [];
 
@@ -117,13 +115,16 @@ class Card extends DCBComponentBase {
      * look and act different. Each 'themes' below should be created as a class implementing
      * \DCBComponentTheme.
      * @see \Drupal\dcb\Plugin\DCBComponent\Card\CardsDefaultTheme
+     * @see \Drupal\dcb\Plugin\DCBComponent\Card\AAACardTextCenterItemTheme
      */
-    $this->componentform->themeOptions($this, $item, $delta, $values, $container_id, [
-      'themes' => [
-        'AAACardDefaultItemTheme' => t('Default (text align left)'),
-        'AAACardTextCenterItemTheme' => t('Center (text align center)'),
-      ],
-      'default' => 'AAACardDefaultItemTheme',
+    $this->registerItemThemeOptions([
+      $delta => [
+        'themes' => [
+          'AAACardDefaultItemTheme' => t('Default (text align left)'),
+          'AAACardTextCenterItemTheme' => t('Center (text align center)'),
+        ],
+        'default' => 'AAACardDefaultItemTheme',
+      ]
     ]);
 
     /**
@@ -133,17 +134,19 @@ class Card extends DCBComponentBase {
      * text_field optional field is shown below.
      * @see \Drupal\dcb\Form\ComponentWizardBaseForm::fieldOptions()
      */
-    $this->componentform->fieldOptions($this, $item, $values, $container_id, 'repeating', [
-      [
-        'plugin' => 'text_field',
-        'field_name' => 'test',
-        'label' => t('Textfield'),
-        'properties' => [
-          '#title' => t('Textfield'),
-          '#default_value' => !empty($values['test']['value']) ? $values['test']['value'] : '',
+    $this->registerInnerFieldOptions([
+      $delta => [
+        [
+          'plugin' => 'text_field',
+          'field_name' => 'test',
+          'label' => t('Textfield'),
+          'properties' => [
+            '#title' => t('Textfield'),
+            '#default_value' => !empty($values['test']['value']) ? $values['test']['value'] : '',
+          ],
         ],
       ],
-    ], $delta);
+    ]);
 
     return $item;
   }

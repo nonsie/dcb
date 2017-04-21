@@ -39,6 +39,9 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
   public $parent_theme;
   public $rebuild;
   public $default_theme;
+  public $ItemThemes;
+  public $InnerFieldOptions;
+  public $OuterFieldOptions;
   /**
    * @var ComponentWizardBaseForm
    */
@@ -188,12 +191,12 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
     $this->outerId = $this->componentform->randId();
 
     $this->form['fields'] = [
-      '#type' => 'container',
+        '#type' => 'container',
         '#tree' => TRUE,
         '#attributes' => [
           'id' => $this->outerId,
         ],
-    ] + $this->outerForm(!empty($values['fields']) ? $values['fields'] : []);
+      ] + $this->outerForm(!empty($values['fields']) ? $values['fields'] : []);
   }
 
 
@@ -223,7 +226,7 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
         '#attributes' => [
           'id' => $container_id,
         ],
-      ] + $this->repeatingFields(!empty($items[$delta]) ? $items[$delta] : [], $delta, $container_id);
+      ] + $this->repeatingFields(!empty($items[$delta]) ? $items[$delta] : [], $delta);
     return $element;
   }
 
@@ -234,7 +237,7 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
    * @param $container_id
    * @return null
    */
-  public function repeatingFields($values = [], $delta, $container_id) {
+  public function repeatingFields($values = [], $delta) {
     return NULL;
   }
 
@@ -315,6 +318,29 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
       }
     }
     return $open;
+  }
+
+  /**
+   * @param $options
+   */
+  public function registerItemThemeOptions($options) {
+    $key = array_keys($options);
+    $this->ItemThemes[$key[0]] = $options[$key[0]];
+  }
+
+  /**
+   * @param $field_info
+   */
+  public function registerInnerFieldOptions($field_info) {
+    $key = array_keys($field_info);
+    $this->InnerFieldOptions[$key[0]] = $field_info[$key[0]];
+  }
+
+  /**
+   * @param $field_info
+   */
+  public function registerOuterFieldOptions($field_info) {
+    $this->OuterFieldOptions[] = $field_info;
   }
 
 }
