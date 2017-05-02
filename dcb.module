@@ -93,25 +93,30 @@ function dcb_theme($existing, $type, $theme, $path) {
       'render element' => 'element',
       'function' => 'theme_dcb_image_thumbnail',
     ],
+    'dcb_component' => [
+      'render element' => 'block',
+      'variables' => ['block' => NULL],
+    ],
   ];
-  $dcb = \Drupal::service('dcb.core');
-  $plugins = $dcb->loadWidgets();
-  foreach ($plugins as $key => $plugin) {
-    $plugin = $dcb->pluginManager->createInstance($key);
-    if (!empty($plugin->themes)) {
-      foreach ($plugin->themes as $tid => $properties) {
-        if (!empty($properties['template_dir'])) {
-          $themes[$tid] = [
-            'render element' => 'block',
-            'variables' => ['block' => NULL],
-            'path' => drupal_get_path('module', $plugin->module) . '/' . $properties['template_dir'],
-            'template' => $tid,
-          ];
-        }
-      }
-    }
-  }
   return $themes;
+}
+
+/**
+ * @param $string
+ * @return string
+ */
+function _dcb_themeclean($string) {
+  return strtolower(str_replace('-', '_', $string));
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK().
+ */
+function dcb_theme_suggestions_dcb_component(array $variables) {
+  $suggestions = [];
+  $suggestions[] = 'dcb_component__' . _dcb_themeclean($variables['block']['widget']);
+  $suggestions[] = 'dcb_component__' . _dcb_themeclean($variables['block']['widget']) . '__' . _dcb_themeclean($variables['block']['theme']);
+  return $suggestions;
 }
 
 /**
@@ -149,8 +154,6 @@ function theme_dcb_image_thumbnail($variables) {
     ];
     return render($logo_render_array);
   }
-
-
 }
 
 
