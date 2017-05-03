@@ -1,0 +1,8 @@
+{
+  "name": "nonsie/dcb",
+  "description": "Dynamic Content Builder",
+  "type": "drupal-module",
+  "homepage": "https://github.com/nonsie/dcb",
+  "license": "proprietary",
+  "minimum-stability": "dev"
+}
