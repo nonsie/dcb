@@ -28,8 +28,10 @@ abstract class ComponentWizardBaseForm extends FormBase {
   /**
    * @var
    */
-  public $widget;
   public $sub_widget_ids = [];
+  /**
+   * @var
+   */
   public $method;
   public $form_state;
   public $widget_deltas = [];
@@ -37,6 +39,12 @@ abstract class ComponentWizardBaseForm extends FormBase {
   public $wizard;
   public $parameters;
   public $request;
+  public $form_settings;
+
+  /**
+   * @var \Drupal\dcb\Plugin\DCBComponent\DCBComponentBase $componentInstance
+   */
+  public $componentInstance;
 
   /**
    * SelectGroup constructor.
@@ -53,8 +61,6 @@ abstract class ComponentWizardBaseForm extends FormBase {
    * @return static
    */
   public static function create(ContainerInterface $container) {
-    /** @noinspection PhpParamsInspection */
-    /** @noinspection PhpParamsInspection */
     return new static(
       $container->get('dcb.core'),
       $container->get('request_stack')
@@ -70,6 +76,14 @@ abstract class ComponentWizardBaseForm extends FormBase {
     $this->wizard = $wizard;
     $this->parameters['step'] = $this->wizard->getStep($cached_values);
     $this->form_state = $form_state;
+  }
+
+
+  /**
+   * @param \Drupal\dcb\Plugin\DCBComponent\DCBComponentBase $componentInstance
+   */
+  public function setComponentInstance(DCBComponentBase $componentInstance) {
+    $this->componentInstance = $componentInstance;
   }
 
   /**
@@ -99,19 +113,17 @@ abstract class ComponentWizardBaseForm extends FormBase {
     }
   }
 
+
   /**
-   * @param $form
-   * @param $widget
    * @param $eid
-   * @internal param $nid
    */
-  protected function addDefaultFields(&$form, $widget, $eid) {
-    $form->form['widget_label'] = [
+  protected function addDefaultFields($eid) {
+    $this->componentInstance->form['widget_label'] = [
       '#weight' => -100,
       '#type' => 'html_tag',
       '#tag' => 'div',
-      '#value' => t('<h5><strong>Widget</strong>: <em>@widget</em></h5>', [
-        '@widget' => $widget['name']
+      '#value' => t('<h5><strong>Component</strong>: <em>@component</em></h5>', [
+        '@component' => $this->componentInstance->getName(),
       ]),
       '#attributes' => [
         'class' => ['widget-form-widget-type'],
@@ -119,28 +131,28 @@ abstract class ComponentWizardBaseForm extends FormBase {
     ];
     // Add node ID if it exists.
     $eid = $eid == 'NA' ? NULL : $eid;
-    $form->form['nid'] = [
+    $this->componentInstance->form['nid'] = [
       '#type' => 'hidden',
       '#value' => $eid,
     ];
   }
 
+
   /**
-   * @param $form
    * @param array $default_values
    */
-  protected function addExtraSettings(&$form, $default_values = []) {
-    $form->form['extra_settings'] = [
+  protected function addExtraSettings($default_values = []) {
+    $this->componentInstance->form['extra_settings'] = [
       '#type' => 'details',
-      '#title' => t('Widget Settings'),
+      '#title' => t('Component Settings'),
       '#open' => FALSE,
       '#weight' => 100,
       '#attributes' => [
         'class' => ['dyno-widget-settings-container'],
       ],
     ];
-    $form->form['extra_settings'] += $this->_dcb_condition_form($default_values);
-    $form->form['extra_settings'] += $this->_dcb_weight_form($default_values);
+    $this->componentInstance->form['extra_settings'] += $this->_dcb_condition_form($default_values);
+    $this->componentInstance->form['extra_settings'] += $this->_dcb_weight_form($default_values);
 
     // TODO: token tree does not load since theme function is not available.
     //$form->form['extra_settings'] += _dynoblock_add_token_support();
@@ -229,20 +241,17 @@ abstract class ComponentWizardBaseForm extends FormBase {
   }
 
   /**
-   * @param $widget
-   * @param \Drupal\dcb\Plugin\DCBComponent\DCBComponentBase $form
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    */
-  public function buildWidgetForm($widget, DCBComponentBase &$form, FormStateInterface &$form_state) {
-    $id = $widget['id'];
-    $this->widget = $widget;
+  public function buildWidgetForm(FormStateInterface &$form_state) {
+    $id = $this->componentInstance->getId();
     $this->widget_deltas[$id] = isset($this->widget_deltas[$id]) && is_numeric($this->widget_deltas[$id]) ? $this->widget_deltas[$id] + 1 : 0;
-    $form->form['widget'] = [
+    $this->componentInstance->form['widget'] = [
       '#type' => 'hidden',
       '#value' => $id,
     ];
-    $cardinality = isset($widget['form_settings']['cardinality']) ? $widget['form_settings']['cardinality'] : NULL;
-    $variant_support = isset($widget['form_settings']['variant_support']) ? $widget['form_settings']['variant_support'] : NULL;
+    $cardinality = isset($this->componentInstance->form_settings['cardinality']) ? $this->componentInstance->form_settings['cardinality'] : NULL;
+    $variant_support = isset($this->componentInstance->form_settings['variant_support']) ? $this->componentInstance->form_settings['variant_support'] : NULL;
     if (!empty($cardinality)) {
       if (!empty($form_state->getValue($id))) {
         $items = $form_state->getValue($id);
@@ -251,12 +260,12 @@ abstract class ComponentWizardBaseForm extends FormBase {
         $items = [];
       }
       $sub_widgets_amounts = count($items);
-      if (is_object($form_state) && isset($form->rebuild) && $form->rebuild == TRUE) {
+      if (is_object($form_state) && isset($this->componentInstance->rebuild) && $this->componentInstance->rebuild == TRUE) {
         $storage = $form_state->getStorage();
         $sub_widgets_amounts = isset($storage['sub_widgets_amount']) ? $storage['sub_widgets_amount'] : 1;
       }
       $container_id = 'widget-field-groups';
-      $form->form[$id] = [
+      $this->componentInstance->form[$id] = [
         '#type' => 'container',
         '#tree' => TRUE,
         '#theme_wrappers' => ['dcb_tabledrag'],
@@ -271,34 +280,185 @@ abstract class ComponentWizardBaseForm extends FormBase {
       }
 
       $add_another_name = $id . '[' . $this->widget_deltas[$id] . '][add]';
-      $form->form['add_another'] = self::addAnotherBtn($container_id, $add_another_name);
+      $this->componentInstance->form['add_another'] = self::addAnotherBtn($container_id, $add_another_name);
 
       if (is_array($items)) {
         $items = array_values($items);
       }
 
       for ($i = 0; $i < $cardinality; $i++) {
-        $sub_widget_id = self::createId($widget, $i . '-sub-widgets');
+        $sub_widget_id = self::createId($id, $i . '-sub-widgets');
         $this->sub_widget_ids[$i] = $sub_widget_id;
-        $form->form[$id][$i] = [
+        $this->componentInstance->form[$id][$i] = [
           '#type' => 'container',
           '#attributes' => [
             'class' => ['widget-field-group'],
             'id' => $sub_widget_id,
           ],
         ];
-        $form->form[$id][$i]['widget'] = $form->widgetForm($form_state, $items, $i);
+
+        $this->componentInstance->form[$id][$i]['widget'] = $this->componentInstance->widgetForm($form_state, $items, $i);
 
         if ($cardinality > 1) {
           $name = $id . '[' . $this->widget_deltas[$id] . '][remove][' . $i . ']';
-          $form->form[$id][$i]['widget']['items']['remove'] = self::removeItemBtn($id, $i, $container_id, $name);
+          $this->componentInstance->form[$id][$i]['widget']['items']['remove'] = self::removeItemBtn($id, $i, $container_id, $name);
         }
 
         if ($variant_support) {
-          $form->form[$id][$i]['id'] = [
+          $this->componentInstance->form[$id][$i]['id'] = [
             '#type' => 'hidden',
             '#default_value' => (empty($items[$i]['id']) ? self::randId() : $items[$i]['id']),
           ];
+        }
+      }
+      $this->fieldOptions('repeating');
+      $this->fieldOptions('outer');
+      $this->themeOptions();
+    }
+  }
+
+
+  /**
+   *
+   */
+  public function themeOptions() {
+    if (!empty($this->componentInstance->ItemThemes)) {
+      foreach ($this->componentInstance->ItemThemes as $delta => $themes) {
+        $number_of_themes = count($themes['themes']);
+        $innerform = &$this->componentInstance->form[$this->componentInstance->getId()][$delta]['widget']['items'];
+        $values = $this->form_state->getValue([
+          $this->componentInstance->getId(),
+          $delta,
+          'widget',
+          'items'
+        ]);
+
+        $innerform['preview'] = [
+          '#weight' => -99,
+          '#type' => 'html_tag',
+          '#tag' => 'div',
+          '#value' => '',
+          '#attributes' => [
+            'class' => ['dyno-sub-item', 'dyno-sub-theme-preview'],
+          ],
+        ];
+
+        $theme_selected = !empty($values['theme']) ? $values['theme'] : $themes['default'];
+
+        $innerform['theme'] = [
+          '#type' => 'select',
+          '#weight' => -100,
+          '#title' => t('Item Theme'),
+          '#description' => t('Select A Widget Sub Theme.'),
+          '#options' => $themes['themes'],
+          '#default_value' => $theme_selected,
+          '#ajax' => [
+            'url' => Url::fromRoute('dcb.admin.wizard.ajax.step', $this->parameters),
+            'options' => ['query' => \Drupal::request()->query->all() + [FormBuilderInterface::AJAX_FORM_REQUEST => TRUE]],
+            'callback' => [$this, 'fieldAjaxCallback'],
+            'wrapper' => $innerform['#attributes']['id'],
+            'method' => 'replace',
+            'type' => 'sub_item_theme',
+          ],
+          '#attributes' => [
+            'delta' => $delta,
+            'data-drupal-target' => $innerform['#attributes']['id'],
+          ],
+        ];
+
+        if ($theme_selected && $theme_selected != 'default') {
+          $theme = $this->componentInstance->loadTheme($theme_selected);
+          $innerform['preview']['#value'] = $theme->preview();
+
+          if ($number_of_themes <= 1) {
+            $innerform['theme'] = [
+              '#type' => 'hidden',
+              '#value' => $themes['default'],
+            ];
+          }
+          $theme->form($innerform);
+        }
+      }
+    }
+  }
+
+
+  /**
+   * @param $location
+   */
+  public function fieldOptions($location) {
+
+    switch ($location) {
+      case 'outer' :
+        $registered_fields = $this->componentInstance->OuterFieldOptions;
+        break;
+      case 'repeating' :
+        $registered_fields = $this->componentInstance->InnerFieldOptions;
+        break;
+    }
+
+    // Check that Inner Field options have been registered.
+    if (!empty($registered_fields)) {
+      // Loop Through the fields by item delta
+      foreach ($registered_fields as $delta => $field_def) {
+
+        switch ($location) {
+          case 'outer' :
+            $innerform = &$this->componentInstance->form['fields'];
+            $values = $this->form_state->getValue(['fields']);
+            break;
+          case 'repeating' :
+            $innerform = &$this->componentInstance->form[$this->componentInstance->getId()][$delta]['widget']['items'];
+            $values = $this->form_state->getValue([
+              $this->componentInstance->getId(),
+              $delta,
+              'widget',
+              'items'
+            ]);
+            break;
+        }
+
+        $fields_selected = !empty($values['field_options']) ? $values['field_options'] : [];
+        $field_options = [];
+        // For each of the deltas, loop through the fields since there could be multiple.
+        foreach ($field_def as $key => $field) {
+          $field_options[$field['plugin'] . '|' . $field['field_name'] . '|' . $key] = $field['label'];
+        }
+        // Build out the selection form.
+        $innerform['field_options'] = [
+          '#type' => 'checkboxes',
+          '#weight' => -98,
+          '#title' => t('Extra Fields'),
+          '#description' => t('Add Extra Fields.'),
+          '#options' => $field_options,
+          '#multiple' => TRUE,
+          '#default_value' => $fields_selected,
+          '#ajax' => [
+            'url' => Url::fromRoute('dcb.admin.wizard.ajax.step', $this->parameters),
+            'options' => ['query' => \Drupal::request()->query->all() + [FormBuilderInterface::AJAX_FORM_REQUEST => TRUE]],
+            'callback' => [$this, 'extraFieldCallback'],
+            'wrapper' => $innerform['#attributes']['id'],
+            'method' => 'replaceWith',
+            'event' => 'change',
+            'delta' => $delta,
+            'plugin' => $this->componentInstance->getId(),
+            'type' => $location,
+          ],
+          '#attributes' => [
+            'delta' => $delta,
+            'target' => $innerform['#attributes']['id'],
+            'class' => ['dynoblock-extra-fields'],
+          ],
+        ];
+
+        if (!empty($fields_selected)) {
+          foreach ($fields_selected as $class) {
+            if (!empty($class)) {
+              list($field_plugin, $field_name, $delta) = explode('|', $class);
+              $field = $this->componentInstance->getField($field_plugin, TRUE, $this->form_state);
+              $innerform[$field_name] = $field->form(!empty($field_def[$delta]['properties']) ? $field_def[$delta]['properties'] : []);
+            }
+          }
         }
       }
     }
@@ -311,16 +471,15 @@ abstract class ComponentWizardBaseForm extends FormBase {
     return md5(random_bytes(32) . time());
   }
 
+
   /**
-   * @param $widget
-   * @param $form
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    */
-  public function buildParentThemeSettings($widget, &$form, FormStateInterface &$form_state) {
-    if (!empty($widget['parent_theme']['handler'])) {
-      $settings_form = $widget['parent_theme']['handler']->globalSettings($form->form, $form_state->getValues());
+  public function buildParentThemeSettings(FormStateInterface &$form_state) {
+    if (isset($this->componentInstance->parent_theme['handler']) && !empty($this->componentInstance->parent_theme['handler'])) {
+      $settings_form = $this->componentInstance->parent_theme['handler']->globalSettings($this->componentInstance->form, $form_state->getValues());
       if (!empty($settings_form)) {
-        $form->form['global_theme_settings'] = [
+        $this->componentInstance->form['global_theme_settings'] = [
           '#type' => 'fieldset',
           '#weight' => 101,
           '#tree' => TRUE,
@@ -328,26 +487,25 @@ abstract class ComponentWizardBaseForm extends FormBase {
           '#collapsed' => TRUE,
           '#collapsible' => TRUE,
         ];
-        $form->form['global_theme_settings'] += $settings_form;
-        $form->form['global_theme_settings']['handler'] = [
+        $this->componentInstance->form['global_theme_settings'] += $settings_form;
+        $this->componentInstance->form['global_theme_settings']['handler'] = [
           '#type' => 'hidden',
-          '#value' => get_class($widget['parent_theme']['handler']),
+          '#value' => get_class($this->componentInstance->parent_theme['handler']),
         ];
       }
     }
   }
 
+
   /**
-   * @param $widget
-   * @param $form
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    */
-  public function buildThemeSelection($widget, &$form, FormStateInterface &$form_state) {
-    if (!empty($form->themes)) {
-      $number_of_themes = count($form->themes);
-      $container_id = self::createId($widget, 'theme_overview');
-      $preview_container_id = self::createId($widget, 'preview');
-      $form->form['theme_overview'] = [
+  public function buildThemeSelection(FormStateInterface &$form_state) {
+    if (!empty($this->componentInstance->themes)) {
+      $number_of_themes = count($this->componentInstance->themes);
+      $container_id = self::createId($this->componentInstance->getId(), 'theme_overview');
+      $preview_container_id = self::createId($this->componentInstance->getId(), 'preview');
+      $this->componentInstance->form['theme_overview'] = [
         '#type' => 'container',
         '#weight' => -99,
         '#attributes' => [
@@ -355,7 +513,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
           'id' => $container_id,
         ],
       ];
-      $form->form['theme_overview']['preview'] = [
+      $this->componentInstance->form['theme_overview']['preview'] = [
         '#weight' => 0,
         '#type' => 'html_tag',
         '#tag' => 'div',
@@ -375,10 +533,10 @@ abstract class ComponentWizardBaseForm extends FormBase {
       // # need to add hidden value to $this->form with the default theme.
       // Theme selection select list.
       $theme_options = [];
-      foreach ($form->themes as $template => $properties) {
+      foreach ($this->componentInstance->themes as $template => $properties) {
         $theme_options[$template] = $properties['label'];
       }
-      $form->form['theme_overview']['theme'] = [
+      $this->componentInstance->form['theme_overview']['theme'] = [
         '#type' => 'select',
         '#weight' => -100,
         '#title' => t('Layout Theme'),
@@ -397,26 +555,26 @@ abstract class ComponentWizardBaseForm extends FormBase {
           'type' => 'widget_theme',
         ],
       ];
-      $theme_selected = empty($default) && !empty($form->default_theme) ? $form->default_theme : $default;
-      if ($theme_selected && !empty($form->themes[$theme_selected])) {
-        $theme_selected = $form->themes[$theme_selected]['handler'];
-        $theme = $form->loadTheme($theme_selected);
+      $theme_selected = empty($default) && !empty($this->componentInstance->default_theme) ? $this->componentInstance->default_theme : $default;
+      if ($theme_selected && !empty($this->componentInstance->themes[$theme_selected])) {
+        $theme_selected = $this->componentInstance->themes[$theme_selected]['handler'];
+        $theme = $this->componentInstance->loadTheme($theme_selected);
         // Dont show preview unless they select a different one.
         // This happens because they already know what the default one looks like.
         if ($number_of_themes > 1 && is_object($form_state) && !empty($form_state)) {
-          $form->form['theme_overview']['preview']['#value'] = $theme->preview();
+          $this->componentInstance->form['theme_overview']['preview']['#value'] = $theme->preview();
         }
         // Hide theme selection if there is only one option.
         // Create a hidden field containing the default theme handler.
         if ($number_of_themes <= 1) {
-          $form->form['theme_overview']['theme'] = [
+          $this->componentInstance->form['theme_overview']['theme'] = [
             '#type' => 'hidden',
-            '#value' => key($form->themes),
+            '#value' => key($this->componentInstance->themes),
           ];
         }
-        $theme_form = $theme->form($form->form, $form_state);
+        $theme_form = $theme->form($this->componentInstance->form, $form_state);
         if (!empty($theme_form) && is_array($theme_form)) {
-          $form->form['theme_overview']['theme_settings'] = [
+          $this->componentInstance->form['theme_overview']['theme_settings'] = [
             '#type' => 'fieldset',
             '#title' => t('Theme Settings'),
             '#weight' => 1,
@@ -427,7 +585,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
               'class' => ['dyno-theme-settings'],
             ],
           ];
-          $form->form['theme_overview']['theme_settings'] += $theme_form;
+          $this->componentInstance->form['theme_overview']['theme_settings'] += $theme_form;
         }
       }
     }
@@ -453,121 +611,13 @@ abstract class ComponentWizardBaseForm extends FormBase {
     }
   }
 
-  /**
-   * @param $plugin
-   * @param $item
-   * @param $delta
-   * @param $values
-   * @param $container_id
-   * @param $themes
-   */
-  public function themeOptions($plugin, &$item, $delta, $values, $container_id, $themes) {
-    $number_of_themes = count($themes['themes']);
-    $item['preview'] = [
-      '#weight' => -99,
-      '#type' => 'html_tag',
-      '#tag' => 'div',
-      '#value' => '',
-      '#attributes' => [
-        'class' => ['dyno-sub-item', 'dyno-sub-theme-preview'],
-      ],
-    ];
-    $theme_selected = !empty($values['theme']) ? $values['theme'] : $themes['default'];
-    $item['theme'] = [
-      '#type' => 'select',
-      '#weight' => -100,
-      '#title' => t('Item Theme'),
-      '#description' => t('Select A Widget Sub Theme.'),
-      '#options' => $themes['themes'],
-      '#default_value' => $theme_selected,
-      '#ajax' => [
-        'url' => Url::fromRoute('dcb.admin.wizard.ajax.step', $this->parameters),
-        'options' => ['query' => \Drupal::request()->query->all() + [FormBuilderInterface::AJAX_FORM_REQUEST => TRUE]],
-        'callback' => [$this, 'fieldAjaxCallback'],
-        'wrapper' => $container_id,
-        'method' => 'replace',
-        'type' => 'sub_item_theme',
-      ],
-      '#attributes' => [
-        'delta' => $delta,
-        'data-drupal-target' => $container_id,
-      ],
-    ];
-
-    if ($theme_selected && $theme_selected != 'default') {
-      $theme = $plugin->loadTheme($theme_selected);
-      $item['preview']['#value'] = $theme->preview();
-
-      if ($number_of_themes <= 1) {
-        $item['theme'] = [
-          '#type' => 'hidden',
-          '#value' => $themes['default'],
-        ];
-      }
-      $theme->form($item);
-    }
-    if (!is_object($this->form_state)) {
-      if (empty($this->form_state['dyno_system']['themes_selected'][$container_id])) {
-        $this->form_state['dyno_system']['themes_selected'][$container_id] = $theme_selected;
-      }
-    }
-  }
 
   /**
-   * @param $plugin
-   * @param $form
-   * @param $values
-   * @param $wrapper
-   * @param $fields
-   * @param int $delta
-   */
-  public function fieldOptions($plugin, &$form, $values, $wrapper, $fields, $delta = 0) {
-    $fields_selected = !empty($values['field_options']) ? $values['field_options'] : [];
-    $field_options = [];
-    foreach ($fields as $key => $field) {
-      $field_options[$field['plugin'] . '|' . $field['field_name'] . '|' . $key] = $field['label'];
-    }
-    $form['field_options'] = [
-      '#type' => 'checkboxes',
-      '#weight' => -99,
-      '#title' => t('Extra Fields'),
-      '#description' => t('Add Extra Fields.'),
-      '#options' => $field_options,
-      '#multiple' => TRUE,
-      '#default_value' => $fields_selected,
-      '#ajax' => [
-        'url' => Url::fromRoute('dcb.admin.wizard.ajax.step', $this->parameters),
-        'options' => ['query' => \Drupal::request()->query->all() + [FormBuilderInterface::AJAX_FORM_REQUEST => TRUE]],
-        'callback' => [$this, 'extraFieldCallback'],
-        'wrapper' => $wrapper,
-        'method' => 'replaceWith',
-        'event' => 'change',
-        'delta' => $delta,
-      ],
-      '#attributes' => [
-        'delta' => $delta,
-        'target' => $wrapper,
-        'class' => ['dynoblock-extra-fields'],
-      ],
-    ];
-    if (!empty($fields_selected)) {
-      foreach ($fields_selected as $class) {
-        if (!empty($class)) {
-          list($field_plugin, $field_name, $delta) = explode('|', $class);
-          $field = $plugin->getField($field_plugin, TRUE, $this->form_state);
-          $form[$field_name] = $field->form(!empty($fields[$delta]['properties']) ? $fields[$delta]['properties'] : []);
-        }
-      }
-    }
-  }
-
-
-  /**
-   * @param $id
+   * @param $ajax_target
    * @param $name
    * @return array
    */
-  public function addAnotherBtn($id, $name) {
+  public function addAnotherBtn($ajax_target, $name) {
     return [
       'outer' => [
         '#type' => 'container',
@@ -586,7 +636,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
           '#ajax' => [
             'url' => Url::fromRoute('dcb.admin.wizard.ajax.step', $this->parameters),
             'options' => ['query' => \Drupal::request()->query->all() + [FormBuilderInterface::AJAX_FORM_REQUEST => TRUE]],
-            'wrapper' => $id,
+            'wrapper' => $ajax_target,
             'callback' => [$this, 'cardinalityCallback'],
             'method' => 'replaceWith',
             'effect' => 'fade',
@@ -594,21 +644,22 @@ abstract class ComponentWizardBaseForm extends FormBase {
           ],
           '#attributes' => [
             '#type' => 'add',
-            'data-drupal-target' => $id,
+            'data-drupal-target' => $ajax_target,
           ],
         ],
       ],
     ];
   }
 
+
   /**
-   * @param $widget
+   * @param $componentName
    * @param $delta
    * @param $ajax_target
    * @param $name
    * @return array
    */
-  public function removeItemBtn($widget, $delta, $ajax_target, $name) {
+  public function removeItemBtn($componentName, $delta, $ajax_target, $name) {
     return [
       '#type' => 'submit',
       '#submit' => [[$this, 'cardinalitySubmit']],
@@ -629,19 +680,19 @@ abstract class ComponentWizardBaseForm extends FormBase {
         'effect' => 'fade',
         'type' => 'remove',
         'delta' => $delta,
-        'widget' => $widget,
+        'widget' => $componentName,
       ],
     ];
   }
 
   /**
-   * @param $widget
+   * @param $componentInstanceType
    * @param $type
    * @return string
    */
-  public function createId($widget, $type) {
-    $id = !empty($this->widget_deltas[$widget['id']]) ? $this->widget_deltas[$widget['id']] : 0;
-    return $widget['id'] . '-' . $id . '-' . $type;
+  public function createId($componentInstanceType, $type) {
+    $id = !empty($this->widget_deltas[$componentInstanceType]) ? $this->widget_deltas[$componentInstanceType] : 0;
+    return $componentInstanceType . '-' . $id . '-' . $type;
   }
 
   /**
@@ -729,11 +780,14 @@ abstract class ComponentWizardBaseForm extends FormBase {
    */
   public function extraFieldCallback(array $form = [], FormStateInterface $form_state) {
     $trigger = $form_state->getTriggeringElement();
-    array_pop($trigger['#array_parents']);
-    array_pop($trigger['#array_parents']);
-    array_pop($trigger['#array_parents']);
-    array_pop($trigger['#array_parents']);
-    return NestedArray::getValue($form, $trigger['#array_parents']);
+    if ($trigger['#ajax']['type'] == 'outer') {
+      // If this is an outer triggering the extra field, return the outer container.
+      return $form['fields'];
+    }
+    elseif ($trigger['#ajax']['type'] == 'repeating') {
+      // If this is a repeating element, return the container for the correct delta.
+      return $form[$trigger['#ajax']['plugin']][$trigger['#ajax']['delta']];
+    }
   }
 
 }

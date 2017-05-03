@@ -189,8 +189,6 @@ class DCBCore {
             'data-dyno-handler' => $id,
             'data-dyno-weight' => $weight,
             'data-dyno-label' => $plugin->getName(),
-            'data-alacarte-id' => 'dynoblock-' . $data['bid'],
-            'data-alacarte-type' => 'block',
           ],
         ];
         if (!empty($html)) {
@@ -201,18 +199,14 @@ class DCBCore {
             ],
           ];
           // Render content in theme template if available.
-          if ($data['theme'] && !empty($plugin->themes[$data['theme']]['template_dir'])) {
-            $render[$delta]['content']['theme'] = [
-              '#theme' => $data['theme'],
-              '#block' => $html,
-            ];
-          }
-          else {
-            $render[$delta]['content']['dyno_block'] = $html;
-          }
+          $render[$delta]['content']['theme'] = [
+            '#theme' => 'dcb_component',
+            '#component_data' => $html,
+          ];
         }
       }
     }
+
     return $render;
   }
 
@@ -317,11 +311,11 @@ class DCBCore {
 
   /**
    * @param $plugin
-   * @return object
+   * @return \Drupal\dcb\Plugin\DCBComponent\DCBComponentBase
    */
-  public function initPlugin($plugin) {
-    if (array_key_exists($plugin, $this->loadWidgets())) {
-      $plugin = $this->pluginManager->createInstance($plugin);
+  public function initPlugin($plugin_name) {
+    if (array_key_exists($plugin_name, $this->loadWidgets())) {
+      $plugin = $this->pluginManager->createInstance($plugin_name);
       $path = $this->findThemePath($plugin->getId());
       $plugin->directory = $path . $plugin->getId();
       return $plugin;

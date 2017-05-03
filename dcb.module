@@ -93,25 +93,30 @@ function dcb_theme($existing, $type, $theme, $path) {
       'render element' => 'element',
       'function' => 'theme_dcb_image_thumbnail',
     ],
+    'dcb_component' => [
+      'render element' => 'component_data',
+      'variables' => ['component_data' => NULL],
+    ],
   ];
-  $dcb = \Drupal::service('dcb.core');
-  $plugins = $dcb->loadWidgets();
-  foreach ($plugins as $key => $plugin) {
-    $plugin = $dcb->pluginManager->createInstance($key);
-    if (!empty($plugin->themes)) {
-      foreach ($plugin->themes as $tid => $properties) {
-        if (!empty($properties['template_dir'])) {
-          $themes[$tid] = [
-            'render element' => 'block',
-            'variables' => ['block' => NULL],
-            'path' => drupal_get_path('module', $plugin->module) . '/' . $properties['template_dir'],
-            'template' => $tid,
-          ];
-        }
-      }
-    }
-  }
   return $themes;
+}
+
+/**
+ * @param $string
+ * @return string
+ */
+function _dcb_themeclean($string) {
+  return strtolower(str_replace('-', '_', $string));
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK().
+ */
+function dcb_theme_suggestions_dcb_component(array $variables) {
+  $suggestions = [];
+  $suggestions[] = 'dcb_component__' . _dcb_themeclean($variables['component_data']['widget']);
+  $suggestions[] = 'dcb_component__' . _dcb_themeclean($variables['component_data']['widget']) . '__' . _dcb_themeclean($variables['component_data']['theme']);
+  return $suggestions;
 }
 
 /**
@@ -122,29 +127,34 @@ function dcb_theme($existing, $type, $theme, $path) {
  */
 function theme_dcb_image_thumbnail($variables) {
   $element = $variables['element'];
-  $output = '';
-  $output .= '<div class="image-widget form-managed-file input-group clearfix">';
-  if ($element['fid']['#value'] != 0) {
-    // Replace default image style with thumbnail format.
-    $element['filename']['#markup'] = '<div class="form-control"><span class="file">';
-    $element['filename']['#markup'] .= theme('image_style', [
+  if (isset($element['#fid'][0]) && !empty($element['#fid'][0])) {
+    $file = \Drupal\file\Entity\File::load($element['#fid'][0]);
+
+    $variables = [
       'style_name' => 'thumbnail',
-      'path' => $element['#file']->uri,
-      'getsize' => FALSE
-    ]);
-    $file_url = file_create_url($element['#file']->uri);
-    $element['filename']['#markup'] .= l($element['#file']->filename, $file_url) . '</span></div>';
-    if (isset($element['remove_button'])) {
-      $element['remove_button']['#prefix'] = '<span class="input-group-btn">';
-      $element['remove_button']['#sufffix'] = '</span';
+      'uri' => $file->getFileUri(),
+    ];
+
+    // The image.factory service will check if our image is valid.
+    /** @var \Drupal\Core\Image\Image $image */
+    $image = \Drupal::service('image.factory')->get($file->getFileUri());
+    if ($image->isValid()) {
+      $variables['width'] = $image->getWidth();
+      $variables['height'] = $image->getHeight();
     }
+    else {
+      $variables['width'] = $variables['height'] = NULL;
+    }
+
+    $logo_render_array['thumb'] = [
+      '#theme' => 'image_style',
+      '#width' => $variables['width'],
+      '#height' => $variables['height'],
+      '#style_name' => $variables['style_name'],
+      '#uri' => $variables['uri'],
+    ];
+    return render($logo_render_array);
   }
-
-  // The remove button is already taken care of by rendering the rest of the form.
-  $output .= drupal_render_children($element);
-  $output .= '</div>';
-
-  return $output;
 }
 
 

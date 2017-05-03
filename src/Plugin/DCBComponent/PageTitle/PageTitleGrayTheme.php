@@ -21,12 +21,6 @@ class PageTitleGrayTheme extends PageTitleDefaultTheme {
 
     $content = parent::display($values, $settings);
 
-    $content['wrapper']['#attributes']['class'] = [
-      'columns-container-outer',
-      'container-fluid',
-      'gray-bg'
-    ];
-
     return $content;
 
   }

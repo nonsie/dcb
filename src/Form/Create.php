@@ -67,34 +67,53 @@ class Create extends ComponentWizardBaseForm {
       $this->method = 'new';
     }
 
+
     if (!empty($form_state->getValue('widget'))) {
       // If this "widget" value is set, we already have a good form state.
       // Init the plugin and set the rebuild value.
-      $handler = $core->initPlugin($form_state->getValue('widget'));
-      $widget = $core->getWidget($form_state->getValue('widget'));
-      $handler->rebuild = TRUE;
-      $handler->form = [];
+      $componentInstance = $core->initPlugin($form_state->getValue('widget'));
+      $componentInstance->rebuild = TRUE;
+      $componentInstance->form = [];
+      $form_state->set('widget', $form_state->getValue('widget'));
     }
-    else {
+    elseif (!empty($form_state->get('widget'))) {
+      $componentInstance = $core->initPlugin($form_state->get('widget'));
+      $componentInstance->rebuild = TRUE;
+    }
+    elseif (isset($cached_values['selected_component'])) {
       // This is a new first time load, use the value from the wizard.
-      $handler = $core->initPlugin($cached_values['selected_component']);
-      $widget = $core->getWidget($cached_values['selected_component']);
+      $componentInstance = $core->initPlugin($cached_values['selected_component']);
+      $form_state->set('widget', $cached_values['selected_component']);
     }
+
+
+    //ksm($form_state->getValues());
+
+    // Add the Component instance as a property of this form for easy access.
+    $this->setComponentInstance($componentInstance);
 
     // Initialize the component edit form.
-    $handler->init()->build($this, $form_state->getValues());
-    $this->buildWidgetForm($widget, $handler, $form_state);
-    $this->buildThemeSelection($widget, $handler, $form_state);
-    $this->buildParentThemeSettings($widget, $handler, $form_state);
-    $this->addDefaultFields($handler, $widget, $eid);
-    $this->addExtraSettings($handler, $form_state->getValues());
+    $this->componentInstance->init()->build($this, $form_state->getValues());
 
+    // Build the pieces of the form
+    $this->buildWidgetForm($form_state);
+    $this->buildThemeSelection($form_state);
+    $this->buildParentThemeSettings($form_state);
+    $this->addDefaultFields($eid);
+    $this->addExtraSettings($form_state->getValues());
 
-    // If $this->form_state is not unset here, ajax errors occur with complicated forms.
-    // Note this is just a copy of form_state stored on the object for easy access.
+    $returnvalue = $this->componentInstance->form;
+
+    /**
+     * if $this gets too complicated, it tends to cause ajax errors
+     * and crash the ajax responses. Remove the things that are not necessary for
+     * actually rendering the form.
+     */
     unset($this->form_state);
+    unset($this->componentInstance);
 
-    return $handler->form;
+
+    return $returnvalue;
   }
 
   /**
@@ -155,6 +174,10 @@ class Create extends ComponentWizardBaseForm {
       'conditions' => $conditions,
       'weight' => $weight,
     ];
+
+    // run the formsubmit() function on the widget, if there is one
+    $componentInstance = $this->core->initPlugin($form_state->getValue('widget'));
+    $componentInstance->formSubmit($form_state);
 
     // Get render array of the new or updated component.
     $block = $this->core->displayBlocks([$renderRecord]);

@@ -1,85 +1,120 @@
 .dynoblock-region.active {
   border: 3px dashed #1a5ca0;
-  cursor: pointer; }
-  .dynoblock-region.active .dynoblock .dynoblock-content {
-    margin-left: 20px; }
-  .dynoblock-region.active .dynoblock.active {
-    border: 1px dashed #1a5ca0; }
-  .dynoblock-region.active .dyno-add-block {
-    padding: 10px 10px; }
-  .dynoblock-region.active .dyno-drag-element {
-    position: absolute;
-    cursor: move;
-    float: left;
-    height: 1.7em;
-    margin-left: -1em;
-    overflow: hidden;
-    text-decoration: none; }
+  cursor: pointer;
+}
+
+.dynoblock-region.active .dynoblock .dynoblock-content {
+  margin-left: 20px;
+}
+
+.dynoblock-region.active .dynoblock.active {
+  border: 1px dashed #1a5ca0;
+}
+
+.dynoblock-region.active .dyno-add-block {
+  padding: 10px 10px;
+}
+
+.dynoblock-region.active .dyno-drag-element {
+  position: absolute;
+  cursor: move;
+  float: left;
+  height: 1.7em;
+  margin-left: -1em;
+  overflow: hidden;
+  text-decoration: none;
+}
 
 .dynoblock-region .dyno-add-block {
   width: 100%;
-  padding: 10px 0; }
+  padding: 10px 0;
+}
+
 .dynoblock-region .dynoblock {
   position: relative;
-  clear: both; }
+  clear: both;
+}
 
 .dynoblock-body {
-  width: 100%; }
+  width: 100%;
+}
 
 .dynoblock.active {
   position: relative;
   min-height: 25px;
-  cursor: pointer; }
+  cursor: pointer;
+}
 
 .dynoblock-actions {
   position: absolute;
   top: -20px;
-  right: 0; }
+  right: 0;
+}
 
 /**
  * Dyno Ui
  */
 .dyno-ui {
-  font-family: sans-serif; }
-  .dyno-ui .dyno-toggle {
-    font-size: 20px;
-    font-weight: bold;
-    top: 55%;
-    width: 80px;
-    float: right;
-    color: #000; }
-    .dyno-ui .dyno-toggle .dyno-label {
-      -webkit-transform: rotate(-90deg);
-      -webkit-transform-origin: top left 0;
-      transform: rotate(-90deg);
-      transform-origin: top left 0;
-      float: right;
-      position: absolute;
-      top: 52%;
-      margin: 20px; }
-    .dyno-ui .dyno-toggle .dyno-expand {
-      float: right;
-      position: absolute;
-      top: 30%;
-      margin: 30px;
-      color: #333; }
-    .dyno-ui .dyno-toggle .dyno-back {
-      display: none; }
+  font-family: sans-serif;
+}
+
+.dyno-ui .dyno-toggle {
+  font-size: 20px;
+  font-weight: bold;
+  top: 55%;
+  width: 80px;
+  float: right;
+  color: #000;
+}
+
+.dyno-ui .dyno-toggle .dyno-label {
+  -webkit-transform: rotate(-90deg);
+  -webkit-transform-origin: top left 0;
+  transform: rotate(-90deg);
+  transform-origin: top left 0;
+  float: right;
+  position: absolute;
+  top: 52%;
+  margin: 20px;
+}
+
+.dyno-ui .dyno-toggle .dyno-expand {
+  float: right;
+  position: absolute;
+  top: 30%;
+  margin: 30px;
+  color: #333;
+}
+
+.dyno-ui .dyno-toggle .dyno-back {
+  display: none;
+}
 
 .dyno-ui.open {
-  color: black; }
-  .dyno-ui.open .dyno-ui-content {
-    float: right; }
-    .dyno-ui.open .dyno-ui-content .dyno-ui-region.dyno-editable .list-group li {
-      padding-left: 5px;
-      padding-right: 5px;
-      text-align: left; }
-      .dyno-ui.open .dyno-ui-content .dyno-ui-region.dyno-editable .list-group li span {
-        padding-left: 10px; }
-    .dyno-ui.open .dyno-ui-content .list-group {
-      cursor: pointer; }
-      .dyno-ui.open .dyno-ui-content .list-group button {
-        display: none; }
+  color: black;
+}
+
+.dyno-ui.open .dyno-ui-content {
+  float: right;
+}
+
+.dyno-ui.open .dyno-ui-content .dyno-ui-region.dyno-editable .list-group li {
+  padding-left: 5px;
+  padding-right: 5px;
+  text-align: left;
+}
+
+.dyno-ui.open .dyno-ui-content .dyno-ui-region.dyno-editable .list-group li span {
+  padding-left: 10px;
+}
+
+.dyno-ui.open .dyno-ui-content .list-group {
+  cursor: pointer;
+}
+
+.dyno-ui.open .dyno-ui-content .list-group button {
+  display: none;
+}
 
 /** D8 styles */
 .dyno-ui.menu {
@@ -96,83 +131,114 @@
   left: 0;
   transition: all 0.3s;
   -webkit-transition: all 0.3s;
-  color: #222; }
-  .dyno-ui.menu.closed {
-    left: -450px; }
-  .dyno-ui.menu .title {
-    position: absolute;
-    top: 40%;
-    right: -30px;
-    -webkit-transform: translateY(-50%);
-    -ms-transform: translateY(-50%);
-    transform: translateY(-50%) rotate(270deg);
-    font-weight: 800;
-    font-size: 15px; }
-    .dyno-ui.menu .title .dyno-expand {
-      padding: 5px; }
-  .dyno-ui.menu .region-title {
-    float: right;
-    font-weight: 400; }
-  .dyno-ui.menu .nav {
-    position: absolute;
-    top: 50%;
-    left: 0;
-    width: 400px;
-    -webkit-transform: translateY(-50%);
-    -ms-transform: translateY(-50%);
-    transform: translateY(-50%);
-    font-weight: 100; }
-    .dyno-ui.menu .nav li:first-child {
-      padding-top: 20px;
-      padding-bottom: 20px;
-      list-style-type: none;
-      border-top: none; }
-    .dyno-ui.menu .nav li {
-      padding-top: 20px;
-      padding-bottom: 20px;
-      list-style-type: none;
-      border-top: solid 2px #ccc; }
-      .dyno-ui.menu .nav li a {
-        text-decoration: none;
-        border-bottom-style: none;
-        color: inherit;
-        transition: all 0.3s;
-        -webkit-transition: all 0.3s;
-        padding-right: 20px;
-        font-weight: 900; }
-        .dyno-ui.menu .nav li a a:hover {
-          color: #333; }
-    .dyno-ui.menu .nav .dyno-ui-actions {
-      padding-left: 1em;
-      font-size: 1em; }
-      .dyno-ui.menu .nav .dyno-ui-actions span.action {
-        text-decoration: none;
-        color: inherit;
-        transition: all 0.3s;
-        -webkit-transition: all 0.3s;
-        padding-right: 20px;
-        font-weight: 900;
-        font-size: 1.5em; }
-  .dyno-ui.menu .d-icons {
-    float: right; }
-    .dyno-ui.menu .d-icons a {
-      text-decoration: none;
-      border-bottom-style: none;
-      color: inherit;
-      transition: all 0.3s;
-      -webkit-transition: all 0.3s;
-      padding-right: 20px;
-      font-weight: 900; }
-      .dyno-ui.menu .d-icons a a:hover {
-        color: #333; }
-  .dyno-ui.menu .badge {
-    padding: 4px;
-    min-width: 1.5em;
-    border-radius: 1rem;
-    text-align: center;
-    background: #767676;
-    color: #fefefe;
-    float: right;
-    font-size: 12px; }
+  color: #222;
+}
+
+.dyno-ui.menu.closed {
+  left: -450px;
+}
+
+.dyno-ui.menu .title {
+  position: absolute;
+  top: 40%;
+  right: -30px;
+  -webkit-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%) rotate(270deg);
+  font-weight: 800;
+  font-size: 15px;
+}
+
+.dyno-ui.menu .title .dyno-expand {
+  padding: 5px;
+}
+
+.dyno-ui.menu .region-title {
+  float: right;
+  font-weight: 400;
+}
+
+.dyno-ui.menu .nav {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 400px;
+  -webkit-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+  font-weight: 100;
+}
+
+.dyno-ui.menu .nav li:first-child {
+  padding-top: 20px;
+  padding-bottom: 20px;
+  list-style-type: none;
+  border-top: none;
+}
+
+.dyno-ui.menu .nav li {
+  padding-top: 20px;
+  padding-bottom: 20px;
+  list-style-type: none;
+  border-top: solid 2px #ccc;
+}
+
+.dyno-ui.menu .nav li a {
+  text-decoration: none;
+  border-bottom-style: none;
+  color: inherit;
+  transition: all 0.3s;
+  -webkit-transition: all 0.3s;
+  padding-right: 20px;
+  font-weight: 900;
+}
+
+.dyno-ui.menu .nav li a a:hover {
+  color: #333;
+}
+
+.dyno-ui.menu .nav .dyno-ui-actions {
+  padding-left: 1em;
+  font-size: 1em;
+}
+
+.dyno-ui.menu .nav .dyno-ui-actions span.action {
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.3s;
+  -webkit-transition: all 0.3s;
+  padding-right: 20px;
+  font-weight: 900;
+  font-size: 1.5em;
+}
+
+.dyno-ui.menu .d-icons {
+  float: right;
+}
+
+.dyno-ui.menu .d-icons a {
+  text-decoration: none;
+  border-bottom-style: none;
+  color: inherit;
+  transition: all 0.3s;
+  -webkit-transition: all 0.3s;
+  padding-right: 20px;
+  font-weight: 900;
+}
+
+.dyno-ui.menu .d-icons a a:hover {
+  color: #333;
+}
+
+.dyno-ui.menu .badge {
+  padding: 4px;
+  min-width: 1.5em;
+  border-radius: 1rem;
+  text-align: center;
+  background: #767676;
+  color: #fefefe;
+  float: right;
+  font-size: 12px;
+}
 
 /*# sourceMappingURL=dcb.css.map */
