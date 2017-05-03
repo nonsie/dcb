@@ -44,13 +44,13 @@ class Card extends DCBComponentBase {
    * @return mixed
    * @description: The outerForm method is used to define form elements that
    * appear only once on a component. $values contains the stored previous values
-   * of the form and should be used to populate #default_value
+   * of the form and should be used to populate #default_value.
    *
-   * return a standard form render array.
+   * Return a standard form render array.
    */
   public function outerForm($values) {
 
-    $myform = [
+    $outerFormArray = [
       'textfield' => [
         '#type' => 'textfield',
         '#title' => t('Outer Field'),
@@ -59,10 +59,8 @@ class Card extends DCBComponentBase {
     ];
 
     /**
-     * This is an example of creating an optional field. When implementing
-     * fieldOptions, pass the array shown below along with the other arguments
-     * to invoke an options DCBField of type 'plugin. text_field optional
-     * field is shown below.
+     * This is an example of creating optional fields.
+     * @see DCBComponentBase
      */
     $this->registerOuterFieldOptions([
       [
@@ -85,7 +83,7 @@ class Card extends DCBComponentBase {
       ],
     ]);
 
-    return $myform;
+    return $outerFormArray;
   }
 
   /**
@@ -116,7 +114,7 @@ class Card extends DCBComponentBase {
      */
     $textarea_field = $this->getField('ckeditor_field', TRUE);
     $item['body'] = $textarea_field->form([
-      "#title" => 'testing field title',
+      "#title" => 'ckeditor field title',
       '#default_value' => !empty($values['body']['value']['value']) ? $values['body']['value']['value'] : '',
     ]);
 
@@ -143,11 +141,8 @@ class Card extends DCBComponentBase {
     ]);
 
     /**
-     * This is an example of creating an optional field. This can also be used in
-     * outerForm above. When implementing fieldOptions, pass the array shown below
-     * along with the other arguments to invoke an options DCBField of type 'plugin.
-     * text_field optional field is shown below.
-     * @see \Drupal\dcb\Form\ComponentWizardBaseForm::fieldOptions()
+     * This is an example of creating optional fields.
+     * @see \Drupal\dcb\DCBComponentInterface
      */
     $this->registerInnerFieldOptions([
       $delta => [
@@ -187,6 +182,7 @@ class Card extends DCBComponentBase {
     $values = $form_state->getValue($this->getId());
 
     foreach ($values as $delta => $value) {
+      ksm($value['widget']['items']['img']['value']);
       if (!empty($value['widget']['items']['img']['value'])) {
         $handler = $this->getField('image_field', TRUE);
         $handler->onSubmit($value['widget']['items']['img']['value'], $form_state->getValue('bid'));

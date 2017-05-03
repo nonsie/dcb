@@ -785,7 +785,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
       return $form['fields'];
     }
     elseif ($trigger['#ajax']['type'] == 'repeating') {
-      // if this is a repeating element, return the container for the correct delta.
+      // If this is a repeating element, return the container for the correct delta.
       return $form[$trigger['#ajax']['plugin']][$trigger['#ajax']['delta']];
     }
   }

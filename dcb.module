@@ -127,15 +127,16 @@ function dcb_theme_suggestions_dcb_component(array $variables) {
  */
 function theme_dcb_image_thumbnail($variables) {
   $element = $variables['element'];
-  if (isset($element['fid'][0]) && $element['fid'][0] != 0) {
-    $file = \Drupal\file\Entity\File::load($element['fid'][0]);
+  if (isset($element['#fid'][0]) && !empty($element['#fid'][0])) {
+    $file = \Drupal\file\Entity\File::load($element['#fid'][0]);
 
-    $variables = array(
+    $variables = [
       'style_name' => 'thumbnail',
       'uri' => $file->getFileUri(),
-    );
+    ];
 
     // The image.factory service will check if our image is valid.
+    /** @var \Drupal\Core\Image\Image $image */
     $image = \Drupal::service('image.factory')->get($file->getFileUri());
     if ($image->isValid()) {
       $variables['width'] = $image->getWidth();
@@ -145,7 +146,7 @@ function theme_dcb_image_thumbnail($variables) {
       $variables['width'] = $variables['height'] = NULL;
     }
 
-    $logo_render_array = [
+    $logo_render_array['thumb'] = [
       '#theme' => 'image_style',
       '#width' => $variables['width'],
       '#height' => $variables['height'],

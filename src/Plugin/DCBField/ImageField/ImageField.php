@@ -34,14 +34,14 @@ class ImageField extends DCBFieldBase {
         'file_validate_extensions' => ['gif png jpg jpeg'],
       ],
       '#attributes' => [
-        'class' => ['none'],
         'data-widget' => 'Card',
       ],
     ];
     if (!empty($properties['#default_value']['value']['image'])) {
       $field['thumb'] = [
+        '#type' => 'container',
         '#theme' => 'dcb_image_thumbnail',
-        'fid' => $properties['#default_value']['value']['image'],
+        '#fid' => $properties['#default_value']['value']['image'],
       ];
     }
     $field['alt'] = [
@@ -53,8 +53,6 @@ class ImageField extends DCBFieldBase {
     $this->field['value'] += [
       '#type' => 'fieldset',
       '#title' => t('Image'),
-      '#collapsed' => FALSE,
-      '#collapsible' => TRUE,
     ];
     return $this->field;
   }

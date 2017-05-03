@@ -253,7 +253,7 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
    */
   public function ajaxCallback($form, FormStateInterface &$form_state) {
     $trigger = $form_state->getTriggeringElement();
-    // this returnes a group of fields after an extra field is selected in the UI.
+    // This returns a group of fields after an extra field is selected in the UI.
     return ['return_element' => $form[$this->getId()][$trigger['#attributes']['delta']]];
   }
 
@@ -265,14 +265,14 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
   }
 
   /**
-   * @param $values
+   * @param $form_values
    * @return mixed
    */
-  public function preRender($values) {
-    $this->form_state = $values;
-    $theme = !empty($this->themes[$values['theme']]['handler']) ? $this->themes[$values['theme']]['handler'] : NULL;
+  public function preRender($form_values) {
+    $this->form_state = $form_values;
+    $theme = !empty($this->themes[$form_values['theme']]['handler']) ? $this->themes[$form_values['theme']]['handler'] : NULL;
     if ($theme = $this->loadTheme($theme)) {
-      $this->output = $theme->display($values);
+      $this->output = $theme->display($form_values);
     }
     return $this->output;
   }
