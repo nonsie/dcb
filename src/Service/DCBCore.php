@@ -201,7 +201,7 @@ class DCBCore {
           // Render content in theme template if available.
           $render[$delta]['content']['theme'] = [
             '#theme' => 'dcb_component',
-            '#block' => $html,
+            '#component_data' => $html,
           ];
         }
       }

@@ -94,8 +94,8 @@ function dcb_theme($existing, $type, $theme, $path) {
       'function' => 'theme_dcb_image_thumbnail',
     ],
     'dcb_component' => [
-      'render element' => 'block',
-      'variables' => ['block' => NULL],
+      'render element' => 'component_data',
+      'variables' => ['component_data' => NULL],
     ],
   ];
   return $themes;
@@ -114,8 +114,8 @@ function _dcb_themeclean($string) {
  */
 function dcb_theme_suggestions_dcb_component(array $variables) {
   $suggestions = [];
-  $suggestions[] = 'dcb_component__' . _dcb_themeclean($variables['block']['widget']);
-  $suggestions[] = 'dcb_component__' . _dcb_themeclean($variables['block']['widget']) . '__' . _dcb_themeclean($variables['block']['theme']);
+  $suggestions[] = 'dcb_component__' . _dcb_themeclean($variables['component_data']['widget']);
+  $suggestions[] = 'dcb_component__' . _dcb_themeclean($variables['component_data']['widget']) . '__' . _dcb_themeclean($variables['component_data']['theme']);
   return $suggestions;
 }
 
