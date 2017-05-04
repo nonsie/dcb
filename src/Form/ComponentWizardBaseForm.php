@@ -312,9 +312,9 @@ abstract class ComponentWizardBaseForm extends FormBase {
         }
       }
       $this->fieldOptions('repeating');
-      $this->fieldOptions('outer');
       $this->themeOptions();
     }
+    $this->fieldOptions('outer');
   }
 
 

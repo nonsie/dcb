@@ -152,7 +152,7 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
    * {@inheritdoc}
    */
   public function getNamespace() {
-    return __NAMESPACE__;
+    return 'Drupal\\' . $this->module . '\Plugin\DCBComponent';
   }
 
   /**
@@ -238,7 +238,7 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
    * @return null
    */
   public function repeatingFields($values = [], $delta) {
-    return NULL;
+    return [];
   }
 
   /**
