@@ -1,0 +1,7 @@
+name: DCB Extras
+type: module
+description: Additional field types and components not included in DCB core
+core: 8.x
+package: DCB
+dependencies:
+  - dcb
