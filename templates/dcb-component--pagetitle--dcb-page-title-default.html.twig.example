@@ -1,14 +1,14 @@
-{% set tag = block.fields.tag.value %}
+{% set tag = component_data.fields.tag.value %}
 {% if tag is not empty %}
-<div class="{{ block.theme }}">
-    {% set classes = block.fields.class_name %}
+<div class="{{ component_data.theme }}">
+    {% set classes = component_data.fields.class_name %}
     {% if classes is not empty %}
         <{{ tag }} class="{{ classes }}">
-        {{ block.fields.title }}
+        {{ component_data.fields.title }}
         </{{ tag }}>
     {% else %}
         <{{ tag }}>
-        {{ block.fields.title }}
+        {{ component_data.fields.title }}
         </{{ tag }}>
     {% endif %}
     </div>
