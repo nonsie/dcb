@@ -1,0 +1,8 @@
+{
+  "name": "drupal/dcb_extras",
+  "type": "drupal-module",
+  "homepage": "https://github.com/nonsie/dcb",
+  "description": "Additional field types and components not included in DCB core",
+  "license": "proprietary",
+  "minimum-stability": "dev",
+}
