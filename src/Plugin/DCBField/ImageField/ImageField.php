@@ -79,10 +79,10 @@ class ImageField extends DCBFieldBase {
    * @param array $settings
    * @return array
    */
-  public function render($value, $settings = []) {
+  public static function preRender(&$value, &$settings = []) {
     if (isset($value['image']['fid'])) {
       if ($file = File::load($value['image']['fid'])) {
-        return $settings + [
+        $value = $settings + [
             '#theme' => 'image_style',
             '#style_name' => 'large',
             '#uri' => $file->getFileUri(),

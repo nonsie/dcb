@@ -83,7 +83,7 @@ class DCBFieldBase extends PluginBase implements DCBFieldInterface, ContainerFac
    * @param array $settings
    *  An array of settings that may be used in the building of the fields display.
    */
-  function render($value, $settings = []) {
+  public static function preRender(&$value, &$settings = []) {
   }
 
   /**

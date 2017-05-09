@@ -35,9 +35,9 @@ class Select extends DCBFieldBase {
    * @param array $settings
    * @return array
    */
-  public function render($value, $settings = []) {
+  public static function preRender(&$value, &$settings = []) {
     if (!empty($value)) {
-      return $settings + [
+      $value = $settings + [
           '#type' => 'html_tag',
           '#tag' => 'div',
           '#value' => $value,

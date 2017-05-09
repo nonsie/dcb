@@ -7,6 +7,7 @@
 namespace Drupal\dcb\Plugin\DCBComponent;
 
 use Drupal\Component\Plugin\PluginBase;
+use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\dcb\Form\ComponentWizardBaseForm;
@@ -270,6 +271,58 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
    */
   public function preRender($form_values) {
     $this->form_state = $form_values;
+
+    if (!empty($form_values['fields'])) {
+      $iterator = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($form_values['fields']), \RecursiveIteratorIterator::LEAVES_ONLY);
+      foreach ($iterator as $key => $value) {
+        if ($key == 'handler') {
+          $keys = [];
+          for ($i = $iterator->getDepth() - 1; $i >= 0; $i--) {
+            $keys[] = $iterator->getSubIterator($i)->key();
+          }
+          $keys = array_reverse($keys);
+          $array_list[] = $keys;
+        }
+      }
+
+      if (isset($array_list) && !empty($array_list)) {
+        foreach ($array_list as $array_item) {
+          $field_base_array = NestedArray::getValue($form_values['fields'], $array_item);
+          $field_base_array['handler']::preRender($field_base_array['value']);
+          $array_item[] = 'value';
+          NestedArray::setValue($form_values['fields'], $array_item, $field_base_array['value']);
+        }
+      }
+    }
+
+    $iterator = NULL;
+    $key = NULL;
+    $value = NULL;
+    $array_list = NULL;
+
+    if (!empty($form_values[$form_values['widget']])) {
+      $iterator = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($form_values[$form_values['widget']]), \RecursiveIteratorIterator::LEAVES_ONLY);
+      foreach ($iterator as $key => $value) {
+        if ($key == 'handler') {
+          $keys = [];
+          for ($i = $iterator->getDepth() - 1; $i >= 0; $i--) {
+            $keys[] = $iterator->getSubIterator($i)->key();
+          }
+          $keys = array_reverse($keys);
+          $array_list[] = $keys;
+        }
+      }
+
+      if (isset($array_list) && !empty($array_list)) {
+        foreach ($array_list as $array_item) {
+          $field_base_array = NestedArray::getValue($form_values[$form_values['widget']], $array_item);
+          $field_base_array['handler']::preRender($field_base_array['value']);
+          $array_item[] = 'value';
+          NestedArray::setValue($form_values[$form_values['widget']], $array_item, $field_base_array['value']);
+        }
+      }
+    }
+
     $theme = !empty($this->themes[$form_values['theme']]['handler']) ? $this->themes[$form_values['theme']]['handler'] : NULL;
     if ($theme = $this->loadTheme($theme)) {
       $this->output = $theme->display($form_values);
