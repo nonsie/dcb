@@ -26,9 +26,9 @@ class ImageField extends DCBFieldBase {
   public function form($properties = []) {
     $field['image'] = [
       '#type' => 'managed_file',
-      '#title' => t('Image'),
+      '#title' => isset($properties['#title']) ? $properties['#title'] : t('Image'),
       '#default_value' => !empty($properties['#default_value']['value']['image']) ? $properties['#default_value']['value']['image'] : NULL,
-      '#description' => t('Allowed extensions: gif png jpg jpeg'),
+      '#description' => isset($properties['#description']) ? $properties['#description'] : '' . t('Allowed extensions: gif png jpg jpeg'),
       '#upload_location' => 'public://',
       '#upload_validators' => [
         'file_validate_extensions' => ['gif png jpg jpeg'],
