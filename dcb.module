@@ -1,12 +1,18 @@
 <?php
 
+/**
+ * @file
+ * The dcb.module file.
+ */
+
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\file\Entity\File;
+use Drupal\Core\Render\Element;
 
 /**
  * Implements hook_entity_presave().
  *
  * Populates dcb region if it currently has no value.
- * @param \Drupal\Core\Entity\EntityInterface $entity
  */
 function dcb_entity_presave(EntityInterface $entity) {
   if ($entity->getEntityTypeId() !== 'node') {
@@ -43,7 +49,6 @@ function dcb_entity_presave(EntityInterface $entity) {
  * Implements hook_page_attachments().
  *
  * Adds DCB javascript and css to the page.
- * @param array $page
  */
 function dcb_page_attachments(array &$page) {
   $is_admin = \Drupal::service('router.admin_context')->isAdminRoute();
@@ -74,14 +79,8 @@ function dcb_page_attachments(array &$page) {
   }
 }
 
-
 /**
  * Implements hook_theme().
- * @param $existing
- * @param $type
- * @param $theme
- * @param $path
- * @return array
  */
 function dcb_theme($existing, $type, $theme, $path) {
   $themes = [
@@ -102,8 +101,13 @@ function dcb_theme($existing, $type, $theme, $path) {
 }
 
 /**
- * @param $string
+ * Helper function to convert a string into a theme suggestion.
+ *
+ * @param string $string
+ *   The String that needs converted.
+ *
  * @return string
+ *   The converted string
  */
 function _dcb_themeclean($string) {
   return strtolower(str_replace('-', '_', $string));
@@ -122,13 +126,17 @@ function dcb_theme_suggestions_dcb_component(array $variables) {
 /**
  * Formats uploaded image thumbnail display.
  *
- * @param $variables
- * @return string
+ * @param array $variables
+ *   Variables provided by the theme system.
+ *
+ * @return array
+ *   Render array of the thumbnail image.
  */
-function theme_dcb_image_thumbnail($variables) {
+function theme_dcb_image_thumbnail(array $variables) {
   $element = $variables['element'];
   if (isset($element['#fid'][0]) && !empty($element['#fid'][0])) {
-    $file = \Drupal\file\Entity\File::load($element['#fid'][0]);
+
+    $file = File::load($element['#fid'][0]);
 
     $variables = [
       'style_name' => 'thumbnail',
@@ -146,24 +154,27 @@ function theme_dcb_image_thumbnail($variables) {
       $variables['width'] = $variables['height'] = NULL;
     }
 
-    $logo_render_array['thumb'] = [
+    $render_array['thumb'] = [
       '#theme' => 'image_style',
       '#width' => $variables['width'],
       '#height' => $variables['height'],
       '#style_name' => $variables['style_name'],
       '#uri' => $variables['uri'],
     ];
-    return render($logo_render_array);
+    return render($render_array);
   }
 }
 
-
 /**
  * Adds Drupal tabledrag support to set of containers.
- * @param $vars
+ *
+ * @param array $vars
+ *   Array of table data.
+ *
  * @return string
+ *   Themed tabledrag element.
  */
-function theme_dcb_tabledrag($vars) {
+function theme_dcb_tabledrag(array $vars) {
   $element = $vars['element'];
   $content['table'] = [
     '#type' => 'table',
@@ -184,11 +195,12 @@ function theme_dcb_tabledrag($vars) {
     ],
   ];
   $i = 0;
-  foreach (\Drupal\Core\Render\Element::children($element) as $key) {
+  foreach (Element::children($element) as $key) {
     if ($key !== 'add_another') {
       // TableDrag: Mark the table row as draggable.
       $content['table']['#rows'][$key]['class'][] = 'draggable';
-      // TableDrag: Sort the table row according to its existing/configured weight.
+      // TableDrag: Sort the table row according to its
+      // existing/configured weight.
       $content['table']['#rows'][$key]['#weight'] = $i;
       // Some table columns containing raw markup.
       $content['table']['#rows'][$key]['data'][] = render($element[$key]);
@@ -202,8 +214,8 @@ function theme_dcb_tabledrag($vars) {
         '#attributes' => [
           'class' => [
             'table-order-weight',
-            'widget-table-sort'
-          ]
+            'widget-table-sort',
+          ],
         ],
       ];
       $content['table']['#rows'][$key]['data'][] = render($weight);
@@ -216,17 +228,20 @@ function theme_dcb_tabledrag($vars) {
   $output .= render($element['add_another']);
   $output .= '</div>';
 
-  drupal_attach_tabledrag($content['table'], [
-    'table_id' => 'widget-table-sort',
-    'action' => 'order',
-    'relationship' => 'sibling',
-    'group' => 'widget-table-sort',
-  ]);
+  drupal_attach_tabledrag($content['table'],
+    [
+      'table_id' => 'widget-table-sort',
+      'action' => 'order',
+      'relationship' => 'sibling',
+      'group' => 'widget-table-sort',
+    ]
+  );
+
   return $output;
 }
 
 /**
- * Implements hook_dcb_themes()
+ * Implements hook_dcb_themes().
  */
 function dcb_dcb_themes() {
   return [
@@ -239,6 +254,3 @@ function dcb_dcb_themes() {
     ],
   ];
 }
-
-
-

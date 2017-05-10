@@ -11,7 +11,6 @@ use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\dcb\Form\ComponentWizardBaseForm;
-use Drupal\dcb\Plugin\DCBField\DCBFieldInterface;
 use Drupal\dcb\Plugin\DCBField\DCBFieldManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\dcb\DCBComponentInterface;
@@ -20,7 +19,7 @@ use Drupal\dcb\DCBComponentInterface;
  * Class DCBComponentBase
  * @package Drupal\dcb\Plugin\DCBComponent
  */
-class DCBComponentBase extends PluginBase implements DCBComponentInterface, ContainerFactoryPluginInterface {
+abstract class DCBComponentBase extends PluginBase implements DCBComponentInterface, ContainerFactoryPluginInterface {
 
   public $preview_image;
   public $module;
@@ -87,12 +86,9 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
   }
 
   /**
-   * @param $id
-   * @param bool $init
-   * @param array $form_state
-   * @return mixed|null|object
+   * {@inheritdoc}
    */
-  public function getField($id, $init = FALSE, $form_state = []) {
+  public function getField($id, bool $init = FALSE, FormStateInterface $form_state = NULL) {
     $fields = $this->loadFields();
     $field = array_key_exists($id, $fields) ? $fields[$id] : NULL;
     if ($field) {
@@ -106,8 +102,7 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
   }
 
   /**
-   * @param DCBFieldInterface $field
-   * @return object
+   * {@inheritdoc}
    */
   public function initField($field) {
     return $this->dcbFieldManager->createInstance($field['id']);
@@ -187,7 +182,7 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
   /**
    * {@inheritdoc}
    */
-  public function build(ComponentWizardBaseForm $componentform, array $values) {
+  public function getOuterForm(ComponentWizardBaseForm $componentform, array $values) {
     $this->componentform = $componentform;
     $this->outerId = $this->componentform->randId();
 
@@ -200,22 +195,17 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
       ] + $this->outerForm(!empty($values['fields']) ? $values['fields'] : []);
   }
 
-
   /**
-   * @param $values
-   * @return null
+   * {@inheritdoc}
    */
   public function outerForm($values) {
     return NULL;
   }
 
   /**
-   * @param array $form_state
-   * @param $items
-   * @param $delta
-   * @return mixed
+   * {@inheritdoc}
    */
-  public function widgetForm(&$form_state = [], $items, $delta) {
+  public function getRepeatingFields(&$form_state = [], $items, $delta) {
     $container_id = $this->componentform->randId();
     $element['items'] = [
         '#type' => 'details',
@@ -233,10 +223,7 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
 
 
   /**
-   * @param array $values
-   * @param $delta
-   * @param $container_id
-   * @return null
+   * {@inheritdoc}
    */
   public function repeatingFields($values = [], $delta) {
     return [];
@@ -266,8 +253,7 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
   }
 
   /**
-   * @param $form_values
-   * @return mixed
+   * {@inheritdoc}
    */
   public function preRender($form_values) {
     $this->form_state = $form_values;
@@ -288,6 +274,7 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
       if (isset($array_list) && !empty($array_list)) {
         foreach ($array_list as $array_item) {
           $field_base_array = NestedArray::getValue($form_values['fields'], $array_item);
+          /* @var $field_base_array \Drupal\dcb\Plugin\DCBField\DCBFieldInterface */
           $field_base_array['handler']::preRender($field_base_array['value']);
           $array_item[] = 'value';
           NestedArray::setValue($form_values['fields'], $array_item, $field_base_array['value']);
@@ -316,6 +303,7 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
       if (isset($array_list) && !empty($array_list)) {
         foreach ($array_list as $array_item) {
           $field_base_array = NestedArray::getValue($form_values[$form_values['widget']], $array_item);
+          /* @var $field_base_array \Drupal\dcb\Plugin\DCBField\DCBFieldInterface */
           $field_base_array['handler']::preRender($field_base_array['value']);
           $array_item[] = 'value';
           NestedArray::setValue($form_values[$form_values['widget']], $array_item, $field_base_array['value']);
@@ -333,13 +321,6 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
   /**
    * {@inheritdoc}
    */
-  public function render() {
-
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function loadTheme($theme) {
     if ($theme) {
       return $this->initTheme($this->pluginId, $theme);
@@ -347,9 +328,7 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
   }
 
   /**
-   * @param $pluginId
-   * @param $theme
-   * @return mixed
+   * {@inheritdoc}
    */
   public function initTheme($pluginId, $theme) {
     $theme = $this->namespace . '\\' . $pluginId . '\\' . $theme;
@@ -374,7 +353,7 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
   }
 
   /**
-   * @param $options
+   * {@inheritdoc}
    */
   public function registerItemThemeOptions($options) {
     $key = array_keys($options);
@@ -382,7 +361,7 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
   }
 
   /**
-   * @param $field_info
+   * {@inheritdoc}
    */
   public function registerInnerFieldOptions($field_info) {
     $key = array_keys($field_info);
@@ -390,7 +369,7 @@ class DCBComponentBase extends PluginBase implements DCBComponentInterface, Cont
   }
 
   /**
-   * @param $field_info
+   * {@inheritdoc}
    */
   public function registerOuterFieldOptions($field_info) {
     $this->OuterFieldOptions[] = $field_info;
