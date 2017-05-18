@@ -31,11 +31,12 @@ class TextArea extends DCBFieldBase {
    * @param array $settings
    * @return array
    */
-  public function render($value, $settings = []) {
+  // @todo: token_replace does not work in D8. this needs a revisit.
+ /* public static function preRender(&$value, &$settings = []) {
     if (!empty($value['value']) || (!empty($value) && is_string($value))) {
       $value_text = isset($value['value']) ? $value['value'] : $value;
       $this->filter($value_text);
-      return $settings + [
+      $value = $settings + [
           '#type' => 'html_tag',
           '#tag' => 'div',
           '#value' => token_replace($value_text),
@@ -45,7 +46,7 @@ class TextArea extends DCBFieldBase {
           ],
         ];
     }
-  }
+  }*/
 
   /**
    * @param $text

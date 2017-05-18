@@ -23,6 +23,7 @@ use Drupal\dcb\Plugin\DCBComponent\DCBComponentBase;
  *        "label" = "Default",
  *        "handler" = "CardsDefaultTheme",
  *        "preview_image" = "cards.png",
+ *        "template_dir" = "src/Plugin/DCBComponent/Card",
  *     },
  *   },
  *   form_settings = {

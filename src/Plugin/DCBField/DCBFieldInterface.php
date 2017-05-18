@@ -48,7 +48,7 @@ interface DCBFieldInterface extends PluginInspectionInterface {
    * @return $display
    *  An render array containing the fields output.
    */
-  function render($value, $settings = []);
+  public static function preRender(&$value, &$settings = []);
 
   /**
    * Called when a widget is saved.

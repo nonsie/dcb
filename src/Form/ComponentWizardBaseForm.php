@@ -297,7 +297,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
           ],
         ];
 
-        $this->componentInstance->form[$id][$i]['widget'] = $this->componentInstance->widgetForm($form_state, $items, $i);
+        $this->componentInstance->form[$id][$i]['widget'] = $this->componentInstance->getRepeatingFields($form_state, $items, $i);
 
         if ($cardinality > 1) {
           $name = $id . '[' . $this->widget_deltas[$id] . '][remove][' . $i . ']';

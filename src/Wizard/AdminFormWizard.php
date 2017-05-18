@@ -1,11 +1,6 @@
 <?php
 
-/**
- * @File: Implementation of Ctools Wizard.
- */
-
 namespace Drupal\dcb\Wizard;
-
 
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\CloseModalDialogCommand;
@@ -13,8 +8,9 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\ctools\Wizard\FormWizardBase;
 
 /**
- * Class AdminFormWizard
- * @package Drupal\dcb\Wizard
+ * Class AdminFormWizard.
+ *
+ * @package Drupal\dcb\Wizard.
  */
 class AdminFormWizard extends FormWizardBase {
 
@@ -57,7 +53,7 @@ class AdminFormWizard extends FormWizardBase {
       'editform' => [
         'form' => 'Drupal\dcb\Form\Create',
         'title' => $this->t('Create'),
-      ]
+      ],
     ];
 
     return $operations;
@@ -90,14 +86,10 @@ class AdminFormWizard extends FormWizardBase {
   }
 
   /**
-   * {@inheritdoc}
-   */
-  public function finish(array &$form, FormStateInterface $form_state) {
-    parent::finish($form, $form_state);
-  }
-
-  /**
+   * Gets the display name of the "back" button.
+   *
    * @return \Drupal\Core\StringTranslation\TranslatableMarkup
+   *   The translated string for the display of the back button.
    */
   public function getPrevOp() {
     return $this->t('Previous');
@@ -105,6 +97,7 @@ class AdminFormWizard extends FormWizardBase {
 
   /**
    * {@inheritdoc}
+   *
    * Override parent method to add our own commands when the wizard finishes.
    */
   public function ajaxFinish(array $form, FormStateInterface $form_state) {
@@ -120,7 +113,6 @@ class AdminFormWizard extends FormWizardBase {
    */
   public function previous(array &$form, FormStateInterface $form_state) {
     $cached_values = $form_state->getTemporaryValue($this->getMachineName());
-    // TODO: need to save values in $cached_values before going back.
     $parameters = $this->getPreviousParameters($cached_values);
     if (!$form_state->get('ajax')) {
       $form_state->setRedirect($this->getRouteName(), $parameters);

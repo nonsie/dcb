@@ -93,7 +93,7 @@ class Create extends ComponentWizardBaseForm {
     $this->setComponentInstance($componentInstance);
 
     // Initialize the component edit form.
-    $this->componentInstance->init()->build($this, $form_state->getValues());
+    $this->componentInstance->init()->getOuterForm($this, $form_state->getValues());
 
     // Build the pieces of the form
     $this->buildWidgetForm($form_state);

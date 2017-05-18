@@ -10,17 +10,16 @@
  * Most of the d7 hooks have been converted to plugins. The only Remaining
  * hook is hook_dcb_themes() which allows you to declare groups of components
  * for organizational purposes. See dcb.module for the implementation of this
- * hook.
- *
+ * hook
  */
-
 
 /**
  * Hook to allow custom themes into DCB.
  *
- * - Each themes array key needs to be the same as the theme directory.
- * @return array $themes
- *  An array of themes that provide widgets.
+ * Each themes array key needs to be the same as the theme directory.
+ *
+ * @return array
+ *   An array of themes that provide widgets.
  */
 function hook_dcb_themes() {
   return [];

@@ -37,11 +37,11 @@ class CkeditorField extends DCBFieldBase {
    * @param array $settings
    * @return array|null
    */
-  public function render($value, $settings = []) {
+  public static function preRender(&$value, &$settings = []) {
     if (empty($value)) {
       return NULL;
     }
-    $display = parent::render($value, $settings);
+    $display = parent::preRender($value, $settings);
     $display['#type'] = 'markup';
     $display['#markup'] = check_markup($value['value'], 'full_html');
     $container = [
@@ -51,6 +51,6 @@ class CkeditorField extends DCBFieldBase {
         'class' => ['custom-text'],
       ],
     ];
-    return $container;
+    $value = $container;
   }
 }
