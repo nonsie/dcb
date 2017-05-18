@@ -96,6 +96,11 @@ function dcb_theme($existing, $type, $theme, $path) {
       'render element' => 'component_data',
       'variables' => ['component_data' => NULL],
     ],
+    'dcb_component__card' => [
+      'render element' => 'component_data',
+      'variables' => ['component_data' => NULL],
+      'base hook' => 'dcb_component',
+    ],
   ];
   return $themes;
 }
@@ -110,7 +115,7 @@ function dcb_theme($existing, $type, $theme, $path) {
  *   The converted string
  */
 function _dcb_themeclean($string) {
-  return strtolower(str_replace('-', '_', $string));
+  return strtolower(str_replace(' ', '-', str_replace('-', '_', $string)));
 }
 
 /**
