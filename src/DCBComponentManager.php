@@ -1,14 +1,15 @@
 <?php
-/**
- * @file
- * Contains DCBComponentManager.
- */
 
 namespace Drupal\dcb;
 
 use Drupal\Core\Plugin\DefaultPluginManager;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
+
+/**
+ * @file
+ * Contains DCBComponentManager.
+ */
 
 /**
  * Dynoblocks plugin manager.
@@ -20,7 +21,7 @@ class DCBComponentManager extends DefaultPluginManager {
    *
    * @param \Traversable $namespaces
    *   An object that implements \Traversable which contains the root paths
-   *   keyed by the corresponding namespace to look for plugin implementations,
+   *   keyed by the corresponding namespace to look for plugin implementations.
    * @param \Drupal\Core\Cache\CacheBackendInterface $cache_backend
    *   Cache backend instance to use.
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
@@ -32,4 +33,5 @@ class DCBComponentManager extends DefaultPluginManager {
     $this->alterInfo('dcb_info');
     $this->setCacheBackend($cache_backend, 'dcb');
   }
+
 }

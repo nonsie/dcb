@@ -31,7 +31,7 @@ class DCBFieldManager extends DefaultPluginManager {
   public function __construct(\Traversable $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler) {
     parent::__construct('Plugin/DCBField', $namespaces, $module_handler, 'Drupal\dcb\Plugin\DCBField\DCBFieldInterface', 'Drupal\dcb\Annotation\DCBField');
 
-    $this->alterInfo('dcb_field_info');
+    $this->alterInfo('dcb_fieldInfo');
     $this->setCacheBackend($cache_backend, 'dcbfield');
   }
 

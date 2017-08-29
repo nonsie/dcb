@@ -1,9 +1,5 @@
 <?php
 
-/**
- * @File: Plugin implementation of the 'dcb' field type.
- */
-
 namespace Drupal\dcb\Plugin\Field\FieldType;
 
 use Drupal\Component\Utility\Random;
@@ -14,6 +10,8 @@ use Drupal\Core\TypedData\DataDefinition;
 
 /**
  * Plugin implementation of the 'dcb' field type.
+ *
+ * @File: Plugin implementation of the 'dcb' field type.
  *
  * @FieldType(
  *   id = "dcb",

@@ -30,7 +30,7 @@ class PageTitleGrayTheme extends PageTitleDefaultTheme {
    * @return mixed|null
    */
   public function preview($file = '') {
-    return parent::preview($this->plugin->themes['dcb-page-title-gray']['preview_image']);
+    return parent::preview($this->plugin->themes['dcb-page-title-gray']['previewImage']);
   }
 
 }

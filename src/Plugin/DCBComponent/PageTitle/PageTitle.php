@@ -15,28 +15,28 @@ use Drupal\dcb\Plugin\DCBComponent\DCBComponentBase;
  *   id = "PageTitle",
  *   name = @Translation("Page Title"),
  *   description_short = "Page title widget",
- *   default_theme = "dcb-page-title-default",
+ *   defaultTheme = "dcb-page-title-default",
  *   themes = {
  *     "dcb-page-title-default" = {
  *        "label" = "Default",
  *        "template_dir" = "src/Plugin/DCBComponent/PageTitle",
  *        "handler" = "PageTitleDefaultTheme",
- *        "preview_image" = "title.png",
+ *        "previewImage" = "title.png",
  *     },
  *     "dcb-page-title-gray" = {
  *        "label" = "Gray",
  *        "template_dir" = "src/Plugin/DCBComponent/PageTitle",
  *        "handler" = "PageTitleGrayTheme",
- *        "preview_image" = "one_col.png",
+ *        "previewImage" = "one_col.png",
  *     }
  *   },
- *   form_settings = {
+ *   formSettings = {
  *     "variant_support" = 1,
  *   },
  *   properties = {
  *    "theme" = "dcb",
  *    "module" = "dcb",
- *    "preview_image" = "src/Plugin/DCBComponent/PageTitle/title.png",
+ *    "previewImage" = "src/Plugin/DCBComponent/PageTitle/title.png",
  *   }
  * )
  */

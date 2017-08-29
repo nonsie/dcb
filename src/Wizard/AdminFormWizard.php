@@ -64,24 +64,24 @@ class AdminFormWizard extends FormWizardBase {
    *
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state) {
-    $cached_values = $form_state->getTemporaryValue('wizard');
+  public function buildForm(array $form, FormStateInterface $formState) {
+    $cached_values = $formState->getTemporaryValue('wizard');
     // Get the current form operation.
     $operation = $this->getOperation($cached_values);
-    $form = $this->customizeForm($form, $form_state);
+    $form = $this->customizeForm($form, $formState);
     /* @var $formClass \Drupal\Core\Form\FormInterface */
     $formClass = $this->classResolver->getInstanceFromDefinition($operation['form']);
     // Pass include any custom values for this operation.
     if (!empty($operation['values'])) {
       $cached_values = array_merge($cached_values, $operation['values']);
-      $form_state->setTemporaryValue('wizard', $cached_values);
+      $formState->setTemporaryValue('wizard', $cached_values);
     }
     // Build the form.
-    $form = $formClass->buildForm($form, $form_state, $this);
+    $form = $formClass->buildForm($form, $formState, $this);
     if (isset($operation['title'])) {
       $form['#title'] = $operation['title'];
     }
-    $form['actions'] = $this->actions($formClass, $form_state);
+    $form['actions'] = $this->actions($formClass, $formState);
     return $form;
   }
 
@@ -100,9 +100,9 @@ class AdminFormWizard extends FormWizardBase {
    *
    * Override parent method to add our own commands when the wizard finishes.
    */
-  public function ajaxFinish(array $form, FormStateInterface $form_state) {
+  public function ajaxFinish(array $form, FormStateInterface $formState) {
     $response = new AjaxResponse();
-    $newCommand = $form_state->getValue('ajaxcommand');
+    $newCommand = $formState->getValue('ajaxcommand');
     $response->addCommand(new CloseModalDialogCommand());
     $response->addCommand($newCommand);
     return $response;
@@ -111,11 +111,11 @@ class AdminFormWizard extends FormWizardBase {
   /**
    * {@inheritdoc}
    */
-  public function previous(array &$form, FormStateInterface $form_state) {
-    $cached_values = $form_state->getTemporaryValue($this->getMachineName());
+  public function previous(array &$form, FormStateInterface $formState) {
+    $cached_values = $formState->getTemporaryValue($this->getMachineName());
     $parameters = $this->getPreviousParameters($cached_values);
-    if (!$form_state->get('ajax')) {
-      $form_state->setRedirect($this->getRouteName(), $parameters);
+    if (!$formState->get('ajax')) {
+      $formState->setRedirect($this->getRouteName(), $parameters);
     }
     else {
       if (!empty($parameters['step'])) {
@@ -127,11 +127,11 @@ class AdminFormWizard extends FormWizardBase {
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
-    parent::submitForm($form, $form_state);
+  public function submitForm(array &$form, FormStateInterface $formState) {
+    parent::submitForm($form, $formState);
     $cached_values = $this->getTempstore()->get($this->getMachineName());
-    if ($form_state->get('ajax')) {
-      if ((string) $form_state->getValue('op') == (string) $this->getNextOp()) {
+    if ($formState->get('ajax')) {
+      if ((string) $formState->getValue('op') == (string) $this->getNextOp()) {
         $parameters = $this->getNextParameters($cached_values);
         if (!empty($parameters['step'])) {
           $this->step = $parameters['step'];

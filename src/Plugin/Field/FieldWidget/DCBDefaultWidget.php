@@ -1,14 +1,14 @@
 <?php
 
-/**
- * @File: Plugin implementation of the 'dcb_default' field widget.
- */
-
 namespace Drupal\dcb\Plugin\Field\FieldWidget;
 
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\WidgetBase;
 use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * @File: Plugin implementation of the 'dcb_default' field widget.
+ */
 
 /**
  * Plugin implementation of the 'dcb_default' widget.
@@ -26,7 +26,7 @@ class DCBDefaultWidget extends WidgetBase {
   /**
    * {@inheritdoc}
    */
-  public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
+  public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $formState) {
     $value = isset($items[$delta]->id) ? $items[$delta]->id : '';
 
     $element['id'] = [
@@ -44,20 +44,22 @@ class DCBDefaultWidget extends WidgetBase {
 
   /**
    * Validate dcb field.
+   *
    * @param $element
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $formState
    */
-  public function validate($element, FormStateInterface $form_state) {
+  public function validate($element, FormStateInterface $formState) {
     $value = $element['#value'];
     if (strlen($value) == 0) {
-      $form_state->setValueForElement($element, '');
+      $formState->setValueForElement($element, '');
       return;
     }
     else {
       // DCB field cannot contain spaces.
       if (preg_match('/\s/', strtolower($value))) {
-        $form_state->setError($element, t("DCB field cannot contain spaces"));
+        $formState->setError($element, t("DCB field cannot contain spaces"));
       }
     }
   }
+
 }

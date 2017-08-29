@@ -41,7 +41,7 @@ class PageTitleDefaultTheme extends DCBComponentTheme {
    */
   public function preview($file = '') {
     if (empty($file)) {
-      return parent::preview($this->plugin->themes['dcb-page-title-default']['preview_image']);
+      return parent::preview($this->plugin->themes['dcb-page-title-default']['previewImage']);
     }
     else {
       return parent::preview($file);

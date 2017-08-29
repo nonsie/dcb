@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @File: Base form that all steps of the wizard extend. Contains functions
- * necessary for creating the DCB admin forms.
- */
-
 namespace Drupal\dcb\Form;
 
 use Drupal\Component\Utility\NestedArray;
@@ -20,34 +15,70 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * Class ComponentWizardBaseForm
+ * @File: Base form that all steps of the wizard extend. Contains functions
+ * necessary for creating the DCB admin forms.
+ */
+
+/**
+ * Class ComponentWizardBaseForm.
+ *
  * @package Drupal\dcb\Form
  */
 abstract class ComponentWizardBaseForm extends FormBase {
 
   /**
-   * @var
+   * @var array
    */
-  public $sub_widget_ids = [];
+  public $subWidgetIds = [];
+
   /**
    * @var
    */
   public $method;
-  public $form_state;
-  public $widget_deltas = [];
-  public $core;
-  public $wizard;
-  public $parameters;
-  public $request;
-  public $form_settings;
 
   /**
-   * @var \Drupal\dcb\Plugin\DCBComponent\DCBComponentBase $componentInstance
+   * @var
+   */
+  public $formState;
+
+  /**
+   * @var array
+   */
+  public $widgetDeltas = [];
+
+  /**
+   * @var \Drupal\dcb\Service\DCBCore
+   */
+  public $core;
+
+  /**
+   * @var
+   */
+  public $wizard;
+
+  /**
+   * @var
+   */
+  public $parameters;
+
+  /**
+   * @var \Symfony\Component\HttpFoundation\RequestStack
+   */
+  public $request;
+
+  /**
+   * @var
+   */
+  public $formSettings;
+
+  /**
+   * @var \Drupal\dcb\Plugin\DCBComponent\DCBComponentBase
    */
   public $componentInstance;
 
   /**
    * SelectGroup constructor.
+   *
    * @param \Drupal\dcb\Service\DCBCore $core
    * @param \Symfony\Component\HttpFoundation\RequestStack $request
    */
@@ -58,6 +89,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
 
   /**
    * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
+   *
    * @return static
    */
   public static function create(ContainerInterface $container) {
@@ -69,15 +101,14 @@ abstract class ComponentWizardBaseForm extends FormBase {
 
   /**
    * @param \Drupal\ctools\Wizard\FormWizardBase $wizard
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $formState
    */
-  public function initwizard(FormWizardBase $wizard, FormStateInterface $form_state) {
-    $cached_values = $form_state->getTemporaryValue('wizard');
+  public function initwizard(FormWizardBase $wizard, FormStateInterface $formState) {
+    $cached_values = $formState->getTemporaryValue('wizard');
     $this->wizard = $wizard;
     $this->parameters['step'] = $this->wizard->getStep($cached_values);
-    $this->form_state = $form_state;
+    $this->formState = $formState;
   }
-
 
   /**
    * @param \Drupal\dcb\Plugin\DCBComponent\DCBComponentBase $componentInstance
@@ -87,32 +118,31 @@ abstract class ComponentWizardBaseForm extends FormBase {
   }
 
   /**
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $formState
    */
-  protected function setArgsFromURI(FormStateInterface $form_state) {
+  protected function setArgsFromUri(FormStateInterface $formState) {
     $args = UrlHelper::parse($this->request->getCurrentRequest()
       ->getUri())['query'];
     $expected_args = ['rid', 'bid', 'etype', 'eid'];
     foreach ($expected_args as $arg) {
       if (isset($args[$arg])) {
-        $form_state->set($arg, $args[$arg]);
+        $formState->set($arg, $args[$arg]);
       }
     }
   }
 
   /**
    * @param $cached_values
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $formState
    */
-  protected function setArgsFromCache($cached_values, FormStateInterface $form_state) {
+  protected function setArgsFromCache($cached_values, FormStateInterface $formState) {
     $expected_args = ['rid', 'bid', 'etype', 'eid'];
     foreach ($expected_args as $arg) {
       if (isset($cached_values[$arg])) {
-        $form_state->set($arg, $cached_values[$arg]);
+        $formState->set($arg, $cached_values[$arg]);
       }
     }
   }
-
 
   /**
    * @param $eid
@@ -137,11 +167,10 @@ abstract class ComponentWizardBaseForm extends FormBase {
     ];
   }
 
-
   /**
    * @param array $default_values
    */
-  protected function addExtraSettings($default_values = []) {
+  protected function addExtraSettings(array $default_values = []) {
     $this->componentInstance->form['extra_settings'] = [
       '#type' => 'details',
       '#title' => t('Component Settings'),
@@ -151,18 +180,19 @@ abstract class ComponentWizardBaseForm extends FormBase {
         'class' => ['dyno-widget-settings-container'],
       ],
     ];
-    $this->componentInstance->form['extra_settings'] += $this->_dcb_condition_form($default_values);
-    $this->componentInstance->form['extra_settings'] += $this->_dcb_weight_form($default_values);
+    $this->componentInstance->form['extra_settings'] += $this->dcbConditionForm($default_values);
+    $this->componentInstance->form['extra_settings'] += $this->dcbWeightForm($default_values);
 
     // TODO: token tree does not load since theme function is not available.
-    //$form->form['extra_settings'] += _dynoblock_add_token_support();
+    // $form->form['extra_settings'] += _dynoblock_add_token_support();
   }
 
   /**
    * @param array $values
+   *
    * @return mixed
    */
-  public static function _dcb_condition_form($values = []) {
+  public static function dcbConditionForm(array $values = []) {
     $condition['conditions'] = [
       '#type' => 'details',
       '#weight' => 98,
@@ -217,12 +247,12 @@ abstract class ComponentWizardBaseForm extends FormBase {
     return $condition;
   }
 
-
   /**
    * @param array $values
+   *
    * @return mixed
    */
-  public static function _dcb_weight_form($values = []) {
+  public static function dcbWeightForm(array $values = []) {
     $form['weight'] = [
       '#type' => 'container',
       '#weight' => 97,
@@ -241,27 +271,27 @@ abstract class ComponentWizardBaseForm extends FormBase {
   }
 
   /**
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $formState
    */
-  public function buildWidgetForm(FormStateInterface &$form_state) {
+  public function buildWidgetForm(FormStateInterface &$formState) {
     $id = $this->componentInstance->getId();
-    $this->widget_deltas[$id] = isset($this->widget_deltas[$id]) && is_numeric($this->widget_deltas[$id]) ? $this->widget_deltas[$id] + 1 : 0;
+    $this->widgetDeltas[$id] = isset($this->widgetDeltas[$id]) && is_numeric($this->widgetDeltas[$id]) ? $this->widgetDeltas[$id] + 1 : 0;
     $this->componentInstance->form['widget'] = [
       '#type' => 'hidden',
       '#value' => $id,
     ];
-    $cardinality = isset($this->componentInstance->form_settings['cardinality']) ? $this->componentInstance->form_settings['cardinality'] : NULL;
-    $variant_support = isset($this->componentInstance->form_settings['variant_support']) ? $this->componentInstance->form_settings['variant_support'] : NULL;
+    $cardinality = isset($this->componentInstance->formSettings['cardinality']) ? $this->componentInstance->formSettings['cardinality'] : NULL;
+    $variant_support = isset($this->componentInstance->formSettings['variant_support']) ? $this->componentInstance->formSettings['variant_support'] : NULL;
     if (!empty($cardinality)) {
-      if (!empty($form_state->getValue($id))) {
-        $items = $form_state->getValue($id);
+      if (!empty($formState->getValue($id))) {
+        $items = $formState->getValue($id);
       }
       else {
         $items = [];
       }
       $sub_widgets_amounts = count($items);
-      if (is_object($form_state) && isset($this->componentInstance->rebuild) && $this->componentInstance->rebuild == TRUE) {
-        $storage = $form_state->getStorage();
+      if (is_object($formState) && isset($this->componentInstance->rebuild) && $this->componentInstance->rebuild == TRUE) {
+        $storage = $formState->getStorage();
         $sub_widgets_amounts = isset($storage['sub_widgets_amount']) ? $storage['sub_widgets_amount'] : 1;
       }
       $container_id = 'widget-field-groups';
@@ -279,7 +309,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
         $cardinality = empty($items) ? 1 : $sub_widgets_amounts;
       }
 
-      $add_another_name = $id . '[' . $this->widget_deltas[$id] . '][add]';
+      $add_another_name = $id . '[' . $this->widgetDeltas[$id] . '][add]';
       $this->componentInstance->form['add_another'] = self::addAnotherBtn($container_id, $add_another_name);
 
       if (is_array($items)) {
@@ -288,7 +318,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
 
       for ($i = 0; $i < $cardinality; $i++) {
         $sub_widget_id = self::createId($id, $i . '-sub-widgets');
-        $this->sub_widget_ids[$i] = $sub_widget_id;
+        $this->subWidgetIds[$i] = $sub_widget_id;
         $this->componentInstance->form[$id][$i] = [
           '#type' => 'container',
           '#attributes' => [
@@ -297,10 +327,10 @@ abstract class ComponentWizardBaseForm extends FormBase {
           ],
         ];
 
-        $this->componentInstance->form[$id][$i]['widget'] = $this->componentInstance->getRepeatingFields($form_state, $items, $i);
+        $this->componentInstance->form[$id][$i]['widget'] = $this->componentInstance->getRepeatingFields($formState, $items, $i);
 
         if ($cardinality > 1) {
-          $name = $id . '[' . $this->widget_deltas[$id] . '][remove][' . $i . ']';
+          $name = $id . '[' . $this->widgetDeltas[$id] . '][remove][' . $i . ']';
           $this->componentInstance->form[$id][$i]['widget']['items']['remove'] = self::removeItemBtn($id, $i, $container_id, $name);
         }
 
@@ -317,7 +347,6 @@ abstract class ComponentWizardBaseForm extends FormBase {
     $this->fieldOptions('outer');
   }
 
-
   /**
    *
    */
@@ -326,11 +355,11 @@ abstract class ComponentWizardBaseForm extends FormBase {
       foreach ($this->componentInstance->ItemThemes as $delta => $themes) {
         $number_of_themes = count($themes['themes']);
         $innerform = &$this->componentInstance->form[$this->componentInstance->getId()][$delta]['widget']['items'];
-        $values = $this->form_state->getValue([
+        $values = $this->formState->getValue([
           $this->componentInstance->getId(),
           $delta,
           'widget',
-          'items'
+          'items',
         ]);
 
         $innerform['preview'] = [
@@ -382,45 +411,47 @@ abstract class ComponentWizardBaseForm extends FormBase {
     }
   }
 
-
   /**
    * @param $location
    */
   public function fieldOptions($location) {
 
     switch ($location) {
-      case 'outer' :
+      case 'outer':
         $registered_fields = $this->componentInstance->OuterFieldOptions;
         break;
-      case 'repeating' :
+
+      case 'repeating':
         $registered_fields = $this->componentInstance->InnerFieldOptions;
         break;
     }
 
     // Check that Inner Field options have been registered.
     if (!empty($registered_fields)) {
-      // Loop Through the fields by item delta
+      // Loop Through the fields by item delta.
       foreach ($registered_fields as $delta => $field_def) {
 
         switch ($location) {
-          case 'outer' :
+          case 'outer':
             $innerform = &$this->componentInstance->form['fields'];
-            $values = $this->form_state->getValue(['fields']);
+            $values = $this->formState->getValue(['fields']);
             break;
-          case 'repeating' :
+
+          case 'repeating':
             $innerform = &$this->componentInstance->form[$this->componentInstance->getId()][$delta]['widget']['items'];
-            $values = $this->form_state->getValue([
+            $values = $this->formState->getValue([
               $this->componentInstance->getId(),
               $delta,
               'widget',
-              'items'
+              'items',
             ]);
             break;
         }
 
         $fields_selected = !empty($values['field_options']) ? $values['field_options'] : [];
         $field_options = [];
-        // For each of the deltas, loop through the fields since there could be multiple.
+        // For each of the deltas, loop through the fields since there could be
+        // multiple.
         foreach ($field_def as $key => $field) {
           $field_options[$field['plugin'] . '|' . $field['field_name'] . '|' . $key] = $field['label'];
         }
@@ -455,7 +486,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
           foreach ($fields_selected as $class) {
             if (!empty($class)) {
               list($field_plugin, $field_name, $delta) = explode('|', $class);
-              $field = $this->componentInstance->getField($field_plugin, TRUE, $this->form_state);
+              $field = $this->componentInstance->getField($field_plugin, TRUE, $this->formState);
               $innerform[$field_name] = $field->form(!empty($field_def[$delta]['properties']) ? $field_def[$delta]['properties'] : []);
             }
           }
@@ -471,13 +502,12 @@ abstract class ComponentWizardBaseForm extends FormBase {
     return md5(random_bytes(32) . time());
   }
 
-
   /**
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $formState
    */
-  public function buildParentThemeSettings(FormStateInterface &$form_state) {
-    if (isset($this->componentInstance->parent_theme['handler']) && !empty($this->componentInstance->parent_theme['handler'])) {
-      $settings_form = $this->componentInstance->parent_theme['handler']->globalSettings($this->componentInstance->form, $form_state->getValues());
+  public function buildParentThemeSettings(FormStateInterface &$formState) {
+    if (isset($this->componentInstance->parentTheme['handler']) && !empty($this->componentInstance->parentTheme['handler'])) {
+      $settings_form = $this->componentInstance->parentTheme['handler']->globalSettings($this->componentInstance->form, $formState->getValues());
       if (!empty($settings_form)) {
         $this->componentInstance->form['global_theme_settings'] = [
           '#type' => 'fieldset',
@@ -490,17 +520,16 @@ abstract class ComponentWizardBaseForm extends FormBase {
         $this->componentInstance->form['global_theme_settings'] += $settings_form;
         $this->componentInstance->form['global_theme_settings']['handler'] = [
           '#type' => 'hidden',
-          '#value' => get_class($this->componentInstance->parent_theme['handler']),
+          '#value' => get_class($this->componentInstance->parentTheme['handler']),
         ];
       }
     }
   }
 
-
   /**
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $formState
    */
-  public function buildThemeSelection(FormStateInterface &$form_state) {
+  public function buildThemeSelection(FormStateInterface &$formState) {
     if (!empty($this->componentInstance->themes)) {
       $number_of_themes = count($this->componentInstance->themes);
       $container_id = self::createId($this->componentInstance->getId(), 'theme_overview');
@@ -523,8 +552,8 @@ abstract class ComponentWizardBaseForm extends FormBase {
           'id' => $preview_container_id,
         ],
       ];
-      if (!empty($form_state->getValue('theme'))) {
-        $default = $form_state->getValue('theme');
+      if (!empty($formState->getValue('theme'))) {
+        $default = $formState->getValue('theme');
       }
       else {
         $default = NULL;
@@ -555,13 +584,14 @@ abstract class ComponentWizardBaseForm extends FormBase {
           'type' => 'widget_theme',
         ],
       ];
-      $theme_selected = empty($default) && !empty($this->componentInstance->default_theme) ? $this->componentInstance->default_theme : $default;
+      $theme_selected = empty($default) && !empty($this->componentInstance->defaultTheme) ? $this->componentInstance->defaultTheme : $default;
       if ($theme_selected && !empty($this->componentInstance->themes[$theme_selected])) {
         $theme_selected = $this->componentInstance->themes[$theme_selected]['handler'];
         $theme = $this->componentInstance->loadTheme($theme_selected);
-        // Dont show preview unless they select a different one.
-        // This happens because they already know what the default one looks like.
-        if ($number_of_themes > 1 && is_object($form_state) && !empty($form_state)) {
+        // Don't show preview unless they select a different one.
+        // This happens because they already know what the default one looks
+        // like.
+        if ($number_of_themes > 1 && is_object($formState) && !empty($formState)) {
           $this->componentInstance->form['theme_overview']['preview']['#value'] = $theme->preview();
         }
         // Hide theme selection if there is only one option.
@@ -572,7 +602,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
             '#value' => key($this->componentInstance->themes),
           ];
         }
-        $theme_form = $theme->form($this->componentInstance->form, $form_state);
+        $theme_form = $theme->form($this->componentInstance->form, $formState);
         if (!empty($theme_form) && is_array($theme_form)) {
           $this->componentInstance->form['theme_overview']['theme_settings'] = [
             '#type' => 'fieldset',
@@ -593,11 +623,12 @@ abstract class ComponentWizardBaseForm extends FormBase {
 
   /**
    * @param $widget
+   *
    * @return array
    */
   public static function getPreview($widget) {
-    if (!empty($widget->preview_image)) {
-      $image_path = $widget->preview_image;
+    if (!empty($widget->previewImage)) {
+      $image_path = $widget->previewImage;
       return [
         '#type' => 'markup',
         '#markup' => '<img height="280px" src="' . $image_path . '"/>',
@@ -611,10 +642,10 @@ abstract class ComponentWizardBaseForm extends FormBase {
     }
   }
 
-
   /**
    * @param $ajax_target
    * @param $name
+   *
    * @return array
    */
   public function addAnotherBtn($ajax_target, $name) {
@@ -651,12 +682,12 @@ abstract class ComponentWizardBaseForm extends FormBase {
     ];
   }
 
-
   /**
    * @param $componentName
    * @param $delta
    * @param $ajax_target
    * @param $name
+   *
    * @return array
    */
   public function removeItemBtn($componentName, $delta, $ajax_target, $name) {
@@ -688,25 +719,27 @@ abstract class ComponentWizardBaseForm extends FormBase {
   /**
    * @param $componentInstanceType
    * @param $type
+   *
    * @return string
    */
   public function createId($componentInstanceType, $type) {
-    $id = !empty($this->widget_deltas[$componentInstanceType]) ? $this->widget_deltas[$componentInstanceType] : 0;
+    $id = !empty($this->widgetDeltas[$componentInstanceType]) ? $this->widgetDeltas[$componentInstanceType] : 0;
     return $componentInstanceType . '-' . $id . '-' . $type;
   }
 
   /**
    * @param array $form
-   * @param FormStateInterface $form_state
-   * @return mixed
+   * @param \Drupal\Core\Form\FormStateInterface $formState
+   *
+   * @return array|mixed
    */
-  public function cardinalityCallback(array &$form, FormStateInterface &$form_state) {
-    $trigger = $form_state->getTriggeringElement();
+  public function cardinalityCallback(array &$form, FormStateInterface &$formState) {
+    $trigger = $formState->getTriggeringElement();
     switch ($trigger['#ajax']['type']) {
       case 'add':
       case 'remove':
-        return $form[$form_state->getValue('widget')];
-        break;
+        return $form[$formState->getValue('widget')];
+
       default:
         return [];
     }
@@ -714,78 +747,85 @@ abstract class ComponentWizardBaseForm extends FormBase {
 
   /**
    * @param array $form
-   * @param FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $formState
    */
-  public function cardinalitySubmit(array &$form, FormStateInterface &$form_state) {
-    $form_state->setRebuild(TRUE);
-    $trigger = $form_state->getTriggeringElement();
+  public function cardinalitySubmit(array &$form, FormStateInterface &$formState) {
+    $formState->setRebuild(TRUE);
+    $trigger = $formState->getTriggeringElement();
     $type = $trigger['#attributes']['#type'];
-    $storage = $form_state->getStorage();
+    $storage = $formState->getStorage();
     $storage['sub_widgets_amount'] = isset($storage['sub_widgets_amount']) ? $storage['sub_widgets_amount'] : 1;
+
     switch ($type) {
       case 'remove':
-        $input = &$form_state->getUserInput();
-        $plugin_id = $input['widget'];
-        $plugin_values = &$input[$plugin_id];
+        $input = &$formState->getUserInput();
+        $pluginId = $input['widget'];
+        $plugin_values = &$input[$pluginId];
         $delta = $trigger['#ajax']['delta'];
         if (isset($plugin_values[$delta])) {
           unset($plugin_values[$delta]);
           $plugin_values = array_values($plugin_values);
-          $form_state->setUserInput($input);
+          $formState->setUserInput($input);
         }
         $storage['sub_widgets_amount']--;
         break;
+
       case 'add':
         $storage['sub_widgets_amount']++;
         break;
     }
-    $form_state->setStorage($storage);
+    $formState->setStorage($storage);
   }
 
   /**
    * @param array $form
-   * @param FormStateInterface $form_state
-   * @return mixed
+   * @param \Drupal\Core\Form\FormStateInterface $formState
+   *
+   * @return array|mixed
    */
-  public function fieldAjaxCallback(array $form = [], FormStateInterface $form_state) {
-    $trigger = $form_state->getTriggeringElement();
+  public function fieldAjaxCallback(array $form = [], FormStateInterface $formState) {
+    $trigger = $formState->getTriggeringElement();
     $type = $trigger['#ajax']['type'];
+
     switch ($type) {
       case 'sub_item_theme':
         array_pop($trigger['#array_parents']);
         array_pop($trigger['#array_parents']);
         array_pop($trigger['#array_parents']);
         return NestedArray::getValue($form, $trigger['#array_parents']);
-        break;
+
       case 'widget_theme':
         return $form['theme_overview'];
-        break;
+
       default:
         return [];
     }
   }
 
   /**
+   * @param \Drupal\Core\Form\FormStateInterface $formState
    * @param array $form
-   * @param FormStateInterface $form_state
    */
-  public function fieldAjaxSubmit(array $form = [], FormStateInterface $form_state) {
+  public function fieldajaxSubmit(FormStateInterface $formState, array $form = []) {
 
   }
 
   /**
+   * @param \Drupal\Core\Form\FormStateInterface $formState
    * @param array $form
-   * @param FormStateInterface $form_state
+   *
    * @return mixed
    */
-  public function extraFieldCallback(array $form = [], FormStateInterface $form_state) {
-    $trigger = $form_state->getTriggeringElement();
+  public function extraFieldCallback(array $form = [], FormStateInterface $formState) {
+    $trigger = $formState->getTriggeringElement();
     if ($trigger['#ajax']['type'] == 'outer') {
-      // If this is an outer triggering the extra field, return the outer container.
+      // If this is an outer triggering the extra field, return the outer
+      // container.
       return $form['fields'];
     }
     elseif ($trigger['#ajax']['type'] == 'repeating') {
-      // If this is a repeating element, return the container for the correct delta.
+      // If this is a repeating element, return the container for the correct
+      // delta.
       return $form[$trigger['#ajax']['plugin']][$trigger['#ajax']['delta']];
     }
   }

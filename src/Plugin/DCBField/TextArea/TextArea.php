@@ -20,8 +20,8 @@ class TextArea extends DCBFieldBase {
    */
   public function form($properties = []) {
     $field = $properties + [
-        '#type' => 'textarea',
-      ];
+      '#type' => 'textarea',
+    ];
     $this->setFormElement($field);
     return $this->field;
   }
@@ -31,22 +31,25 @@ class TextArea extends DCBFieldBase {
    * @param array $settings
    * @return array
    */
+
   // @todo: token_replace does not work in D8. this needs a revisit.
- /* public static function preRender(&$value, &$settings = []) {
-    if (!empty($value['value']) || (!empty($value) && is_string($value))) {
-      $value_text = isset($value['value']) ? $value['value'] : $value;
-      $this->filter($value_text);
-      $value = $settings + [
-          '#type' => 'html_tag',
-          '#tag' => 'div',
-          '#value' => token_replace($value_text),
-          '#desctiption' => t('Use :script::/script: instead of <script></script> if you would like to add inline javascript.'),
-          '#attributes' => [
-            'class' => ['dyno-DTextArea'],
-          ],
-        ];
-    }
-  }*/
+  /* public static function preRender(&$value, &$settings = []) {
+  if (!empty($value['value']) || (!empty($value) && is_string($value))) {
+  $value_text = isset($value['value']) ? $value['value'] : $value;
+  $this->filter($value_text);
+  $value = $settings + [
+  '#type' => 'html_tag',
+  '#tag' => 'div',
+  '#value' => token_replace($value_text),
+  '#desctiption' => t('Use :script::/script: instead of <script></script> if
+  you would like to add inline javascript.'),
+  '#attributes' => [
+  'class' => ['dyno-DTextArea'],
+  ],
+  ];
+  }
+  }
+   */
 
   /**
    * @param $text
@@ -54,7 +57,7 @@ class TextArea extends DCBFieldBase {
   public function filter(&$text) {
     $filtered = preg_replace([
       "^\[script(.*?)\]^",
-      "^\[\/script(.*?)\]^"
+      "^\[\/script(.*?)\]^",
     ], ['<script${1}>', '</script>'], $text);
     if ($filtered) {
       $text = $filtered;

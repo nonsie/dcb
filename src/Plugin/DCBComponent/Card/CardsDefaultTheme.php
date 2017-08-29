@@ -33,7 +33,7 @@ class CardsDefaultTheme extends DCBComponentTheme {
    */
   public function preview($file = '') {
     if (empty($file)) {
-      return parent::preview($this->plugin->themes['dcb-cards-default']['preview_image']);
+      return parent::preview($this->plugin->themes['dcb-cards-default']['previewImage']);
     }
     else {
       return parent::preview($file);

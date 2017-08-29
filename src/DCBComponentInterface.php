@@ -37,7 +37,7 @@ interface DCBComponentInterface extends PluginInspectionInterface {
    *     "dcb-cards-default" => [
    *        "label" = "Default",
    *        "handler" = "CardsDefaultTheme",
-   *        "preview_image" = "cards.png",
+   *        "previewImage" = "cards.png",
    *     ],
    *      "another-theme" => ....
    *   ];
@@ -71,22 +71,22 @@ interface DCBComponentInterface extends PluginInspectionInterface {
    * This method should append the "fields" key to the administrative form.
    * The outer array should be a container with the key of "fields"
    *
-   * @param \Drupal\dcb\Form\ComponentWizardBaseForm $componentform
+   * @param \Drupal\dcb\Form\ComponentWizardBaseForm $componentForm
    *   The administrative form for the component.
    * @param array $values
    *   Array of the administrative form's values.
    *
    * @see \Drupal\dcb\Plugin\DCBComponent\DCBComponentBase::getOuterForm()
    */
-  public function getOuterForm(ComponentWizardBaseForm $componentform, array $values);
+  public function getOuterForm(ComponentWizardBaseForm $componentForm, array $values);
 
   /**
    * Build the repeating form elements.
    *
    * Builds the repeating admin form elements for the component.
    *
-   * @param array $form_state
-   *   The Drupal form_state.
+   * @param array $formState
+   *   The Drupal formState.
    * @param $items
    *   The form values for the specific fieldset.
    * @param $delta
@@ -94,9 +94,8 @@ interface DCBComponentInterface extends PluginInspectionInterface {
    *
    * @return array
    *   Form array of one of the repeating items to be added to the admin form.
-   *
    */
-  public function getRepeatingFields(&$form_state = [], $items, $delta);
+  public function getRepeatingFields(&$formState = [], $items, $delta);
 
   /**
    * Component form submit handler.
@@ -104,11 +103,12 @@ interface DCBComponentInterface extends PluginInspectionInterface {
    * This method can be implemented by a component plugin when something needs
    * to be done when the admin form is submitted.
    *
-   * @param FormStateInterface $form_state
-   *   The Drupal form_state.
+   * @param \Drupal\Core\Form\FormStateInterface $formState
+   *   The Drupal formState.
    *
+   * @return mixed
    */
-  public function formSubmit(FormStateInterface $form_state);
+  public function formSubmit(FormStateInterface $formState);
 
   /**
    * Pre render the component.
@@ -119,13 +119,13 @@ interface DCBComponentInterface extends PluginInspectionInterface {
    * Calls preRender on each DCB field that this component implements then
    * passes the values to the specified DCB theme class for final modifications.
    *
-   * @param $form_values
+   * @param $formValues
    *   The raw values from the admin form.
    *
    * @return array
    *   The final array that will be passed to the specified twig template.
    */
-  public function preRender($form_values);
+  public function preRender($formValues);
 
   /**
    * Loads and returns an instance of the requested DCB theme class.
@@ -165,24 +165,24 @@ interface DCBComponentInterface extends PluginInspectionInterface {
   public function registerItemThemeOptions($options);
 
   /**
-   * @param $field_info
+   * @param $fieldInfo
    * @return mixed
    */
-  public function registerInnerFieldOptions($field_info);
+  public function registerInnerFieldOptions($fieldInfo);
 
   /**
-   * @param $field_info
+   * @param $fieldInfo
    * @return mixed
    */
-  public function registerOuterFieldOptions($field_info);
+  public function registerOuterFieldOptions($fieldInfo);
 
   /**
    * @param $id
    * @param bool $init
-   * @param array $form_state
+   * @param array $formState
    * @return mixed
    */
-  public function getField($id, bool $init = FALSE, FormStateInterface $form_state = NULL);
+  public function getField($id, bool $init = FALSE, FormStateInterface $formState = NULL);
 
   /**
    * @param $field
@@ -213,6 +213,6 @@ interface DCBComponentInterface extends PluginInspectionInterface {
   /**
    * @return mixed
    */
-  public function ajaxsubmit();
+  public function ajaxSubmit();
 
 }

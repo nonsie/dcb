@@ -17,23 +17,23 @@ use Drupal\dcb\Plugin\DCBComponent\DCBComponentBase;
  *   id = "Card",
  *   name = @Translation("Card"),
  *   description_short = "A card is a flexible and extensible content container. It includes options for headers and footers, a wide variety of content, contextual background colors, and powerful display options.",
- *   default_theme = "dcb-cards-default",
+ *   defaultTheme = "dcb-cards-default",
  *   themes = {
  *     "dcb-cards-default" = {
  *        "label" = "Default",
  *        "handler" = "CardsDefaultTheme",
- *        "preview_image" = "cards.png",
+ *        "previewImage" = "cards.png",
  *        "template_dir" = "src/Plugin/DCBComponent/Card",
  *     },
  *   },
- *   form_settings = {
+ *   formSettings = {
  *     "variant_support" = 1,
  *     "cardinality" = -1,
  *   },
  *   properties = {
  *    "theme" = "dcb",
  *    "module" = "dcb",
- *    "preview_image" = "src/Plugin/DCBComponent/Card/cards.png",
+ *    "previewImage" = "src/Plugin/DCBComponent/Card/cards.png",
  *   }
  * )
  */
@@ -178,15 +178,15 @@ class Card extends DCBComponentBase {
    * One use case is for images & managed_file that needs to save the images.
    *
    */
-  public function formSubmit(FormStateInterface $form_state) {
+  public function formSubmit(FormStateInterface $formState) {
     // This loops through the field groups and permanently saves images that have been uploaded.
-    $values = $form_state->getValue($this->getId());
+    $values = $formState->getValue($this->getId());
 
     foreach ($values as $delta => $value) {
       ksm($value['widget']['items']['img']['value']);
       if (!empty($value['widget']['items']['img']['value'])) {
         $handler = $this->getField('image_field', TRUE);
-        $handler->onSubmit($value['widget']['items']['img']['value'], $form_state->getValue('bid'));
+        $handler->onSubmit($value['widget']['items']['img']['value'], $formState->getValue('bid'));
       }
     }
 

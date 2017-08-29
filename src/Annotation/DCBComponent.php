@@ -50,7 +50,7 @@ class DCBComponent extends Plugin {
    *
    * @var string
    */
-  public $default_theme;
+  public $defaultTheme;
 
   /**
    * @var string.
@@ -73,6 +73,6 @@ class DCBComponent extends Plugin {
    * @var array
    *   e.g array('cardinality' => -1, 'variant_support' => TRUE)
    */
-  public $form_settings;
+  public $formSettings;
 
 }

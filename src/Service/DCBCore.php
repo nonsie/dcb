@@ -174,9 +174,9 @@ class DCBCore {
         $plugin->entity = $entity;
         $html = $plugin->init($data)->preRender($data);
         // Call theme preRender so it can modify final output.
-        if (!empty($widget['parent_theme']['handler'])) {
+        if (!empty($widget['parentTheme']['handler'])) {
           $theme_settings = !empty($data['global_theme_settings']) ? $data['global_theme_settings'] : [];
-          $widget['parent_theme']['handler']->preRender($widget, $data, $html, $theme_settings);
+          $widget['parentTheme']['handler']->preRender($widget, $data, $html, $theme_settings);
         }
         $weight = isset($data['weight']) ? $data['weight'] : 0;
         $render[$delta] = [

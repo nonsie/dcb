@@ -1,39 +1,47 @@
 <?php
+
+namespace Drupal\dcb;
+
 /**
  * @File: Abstract class used to create a new Component theme. Components use
  * themes to define different display options with similar field sets.
  */
 
-namespace Drupal\dcb;
-
 /**
  * Class DCBComponentTheme.
  *
- * @package Drupal\dynoblock
+ * @package Drupal\dcb
  */
 abstract class DCBComponentTheme {
 
-  public $form_state = [];
+  /**
+   * @var array
+   */
+  public $formState = [];
+
+  /**
+   * @var \Drupal\dcb\DCBComponentInterface
+   */
   public $plugin;
 
   /**
    * DCBComponentTheme constructor.
    *
-   * @param array $form_state
+   * @param array $formState
    * @param DCBComponentInterface $plugin
    */
-  public function __construct(&$form_state = [], DCBComponentInterface $plugin) {
+  public function __construct(&$formState = [], DCBComponentInterface $plugin) {
     $this->plugin = $plugin;
-    $this->form_state = $form_state;
+    $this->formState = $formState;
   }
 
   /**
    * This is used for adding theme specific form elements to the widgets form.
    *
    * @param $widget_form
-   *  The widgets form
+   *   The widgets form
    * @param $settings
-   *  an array of settings to be used in creating/adding form elements.
+   *   An array of settings to be used in creating/adding form elements.
    */
   abstract public function form(&$widget_form, $settings = []);
 
@@ -41,19 +49,22 @@ abstract class DCBComponentTheme {
    * Called when a widget using this theme needs displayed.
    *
    * @param $values
-   *  and array of field values or $form_state['values']
+   *   An array of field values or $formState['values']
    * @param $settings
-   *  an array of settings to be used when building the widgets display.
+   *   An array of settings to be used when building the widgets display.
    */
   abstract public function display($values = [], $settings = []);
 
   /**
    * Gets called when the widgets form is built.
+   *
    * This displays in the widget UI showing a preview image of the theme.
    *
    * @param $file
-   *  a filename string that will be used to display its preview.
+   *   A filename string that will be used to display its preview.
+   *
    * @return mixed|null
+   *   Return the theme preview.
    */
   public function preview($file = '') {
     if ($file) {
@@ -65,4 +76,5 @@ abstract class DCBComponentTheme {
       return render($preview);
     }
   }
+
 }

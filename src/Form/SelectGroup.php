@@ -1,17 +1,15 @@
 <?php
 
-/**
- * @File: Step 1 of admin wizard. Allows admin to select component group.
- */
-
 namespace Drupal\dcb\Form;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\ctools\Wizard\FormWizardBase;
 
-
 /**
- * Class SelectGroup
+ * Class SelectGroup.
+ *
+ * @File: Step 1 of admin wizard. Allows admin to select component group.
+ *
  * @package Drupal\dcb\Form
  */
 class SelectGroup extends ComponentWizardBaseForm {
@@ -31,21 +29,23 @@ class SelectGroup extends ComponentWizardBaseForm {
    *
    * @param array $form
    *   An associative array containing the structure of the form.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $formState
    *   The current state of the form.
    * @param \Drupal\ctools\Wizard\FormWizardBase|null $wizard
-   * @return array The form structure.
-   * The form structure.
+   *   The form base.
+   *
+   * @return array
+   *   The form structure.
    */
-  public function buildForm(array $form, FormStateInterface $form_state, FormWizardBase $wizard = NULL) {
-    $cached_values = $form_state->getTemporaryValue('wizard');
+  public function buildForm(array $form, FormStateInterface $formState, FormWizardBase $wizard = NULL) {
+    $cached_values = $formState->getTemporaryValue('wizard');
 
     $expected_args = ['rid', 'bid', 'etype', 'eid'];
-    $storage = &$form_state->getStorage();
+    $storage = &$formState->getStorage();
     $storage['expected_args'] = $expected_args;
-    $form_state->setStorage($storage);
+    $formState->setStorage($storage);
 
-    $this->setArgsFromURI($form_state);
+    $this->setArgsFromUri($formState);
 
     $themes = $this->core->getThemes();
     $selected_theme = isset($cached_values['theme']['id']) ? $cached_values['theme']['id'] : NULL;
@@ -69,20 +69,20 @@ class SelectGroup extends ComponentWizardBaseForm {
    *
    * @param array $form
    *   An associative array containing the structure of the form.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $formState
    *   The current state of the form.
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $formState) {
 
     $themes = $this->core->getThemes();
-    $cached_values = $form_state->getTemporaryValue('wizard');
-    $cached_values['theme'] = $themes[$form_state->getValue('theme')];
-    $form_state->setTemporaryValue('wizard', $cached_values);
-    $storage = &$form_state->getStorage();
+    $cached_values = $formState->getTemporaryValue('wizard');
+    $cached_values['theme'] = $themes[$formState->getValue('theme')];
+    $formState->setTemporaryValue('wizard', $cached_values);
+    $storage = &$formState->getStorage();
     foreach ($storage['expected_args'] as $arg) {
-      $cached_values[$arg] = $form_state->get($arg);
+      $cached_values[$arg] = $formState->get($arg);
     }
-    $form_state->setTemporaryValue('wizard', $cached_values);
+    $formState->setTemporaryValue('wizard', $cached_values);
   }
 
 }

@@ -7,7 +7,6 @@ use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\ctools\Wizard\FormWizardBase;
 
-
 /**
  * Simple wizard step form.
  */
@@ -28,36 +27,38 @@ class Create extends ComponentWizardBaseForm {
    *
    * @param array $form
    *   An associative array containing the structure of the form.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $formState
    *   The current state of the form.
-   *
    * @param \Drupal\ctools\Wizard\FormWizardBase|null $wizard
-   * @return array The form structure.
-   * The form structure.
+   *   The base form.
+   *
+   * @return array
+   *   The form structure.
    */
-  public function buildForm(array $form, FormStateInterface $form_state, FormWizardBase $wizard = NULL) {
-    $cached_values = $form_state->getTemporaryValue('wizard');
+  public function buildForm(array $form, FormStateInterface $formState, FormWizardBase $wizard = NULL) {
+    $cached_values = $formState->getTemporaryValue('wizard');
     $core = $this->core;
-    $this->initwizard($wizard, $form_state);
-    $this->setArgsFromCache($cached_values, $form_state);
-    $this->setArgsFromURI($form_state);
+    $this->initwizard($wizard, $formState);
+    $this->setArgsFromCache($cached_values, $formState);
+    $this->setArgsFromUri($formState);
 
-    $eid = $form_state->get('eid');
-    $bid = $form_state->get('bid');
-    $rid = $form_state->get('rid');
+    $eid = $formState->get('eid');
+    $bid = $formState->get('bid');
+    $rid = $formState->get('rid');
 
-    if ($bid != 'new' && $form_state->get('initial_load') != 'done') {
+    if ($bid != 'new' && $formState->get('initial_load') != 'done') {
       // Load the component from the database.
       $block = $core->db->getBlock($rid, $bid);
-      // Set form_state storage from the database storage.
-      $form_state->setStorage($block['storage']);
+      // Set formState storage from the database storage.
+      $formState->setStorage($block['storage']);
       // Remove the storage from the array.
       unset($block['storage']);
-      // Set the rest of the values to the form_state
-      $form_state->setValues($block);
-      // Set the 'initial_load" value so this doesn't run on subsequent ajax refreshes.
-      $form_state->set('initial_load', 'done');
-      // Set the method to "edit"
+      // Set the rest of the values to the formState.
+      $formState->setValues($block);
+      // Set the 'initial_load" value so this doesn't run on subsequent ajax
+      // refreshes.
+      $formState->set('initial_load', 'done');
+      // Set the method to "edit".
       $this->method = 'edit';
     }
     elseif ($bid != 'new') {
@@ -67,51 +68,47 @@ class Create extends ComponentWizardBaseForm {
       $this->method = 'new';
     }
 
-
-    if (!empty($form_state->getValue('widget'))) {
+    if (!empty($formState->getValue('widget'))) {
       // If this "widget" value is set, we already have a good form state.
       // Init the plugin and set the rebuild value.
-      $componentInstance = $core->initPlugin($form_state->getValue('widget'));
+      $componentInstance = $core->initPlugin($formState->getValue('widget'));
       $componentInstance->rebuild = TRUE;
       $componentInstance->form = [];
-      $form_state->set('widget', $form_state->getValue('widget'));
+      $formState->set('widget', $formState->getValue('widget'));
     }
-    elseif (!empty($form_state->get('widget'))) {
-      $componentInstance = $core->initPlugin($form_state->get('widget'));
+    elseif (!empty($formState->get('widget'))) {
+      $componentInstance = $core->initPlugin($formState->get('widget'));
       $componentInstance->rebuild = TRUE;
     }
     elseif (isset($cached_values['selected_component'])) {
       // This is a new first time load, use the value from the wizard.
       $componentInstance = $core->initPlugin($cached_values['selected_component']);
-      $form_state->set('widget', $cached_values['selected_component']);
+      $formState->set('widget', $cached_values['selected_component']);
     }
 
-
-    //ksm($form_state->getValues());
-
+    // ksm($formState->getValues());
     // Add the Component instance as a property of this form for easy access.
     $this->setComponentInstance($componentInstance);
 
     // Initialize the component edit form.
-    $this->componentInstance->init()->getOuterForm($this, $form_state->getValues());
+    $this->componentInstance->init()->getOuterForm($this, $formState->getValues());
 
-    // Build the pieces of the form
-    $this->buildWidgetForm($form_state);
-    $this->buildThemeSelection($form_state);
-    $this->buildParentThemeSettings($form_state);
+    // Build the pieces of the form.
+    $this->buildWidgetForm($formState);
+    $this->buildThemeSelection($formState);
+    $this->buildParentThemeSettings($formState);
     $this->addDefaultFields($eid);
-    $this->addExtraSettings($form_state->getValues());
+    $this->addExtraSettings($formState->getValues());
 
     $returnvalue = $this->componentInstance->form;
 
-    /**
-     * if $this gets too complicated, it tends to cause ajax errors
-     * and crash the ajax responses. Remove the things that are not necessary for
-     * actually rendering the form.
+    /*
+     * If $this gets too complicated, it tends to cause ajax errors
+     * and crash the ajax responses. Remove the things that are not necessary
+     * for actually rendering the form.
      */
-    unset($this->form_state);
+    unset($this->formState);
     unset($this->componentInstance);
-
 
     return $returnvalue;
   }
@@ -121,41 +118,42 @@ class Create extends ComponentWizardBaseForm {
    *
    * @param array $form
    *   An associative array containing the structure of the form.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $formState
    *   The current state of the form.
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $formState) {
     // Prepare some variables for easier use further down.
-    $bid = $form_state->get('bid');
-    $rid = $form_state->get('rid');
-    $eid = $form_state->get('eid');
-    $etype = $form_state->get('etype');
-    $weight = $form_state->getValue('weight');
-    $conditions['condition_token'] = $form_state->getValue('condition_token');
-    $conditions['condition_value'] = $form_state->getValue('value');
-    $conditions['condition_operators'] = $form_state->getValue('operators');
+    $bid = $formState->get('bid');
+    $rid = $formState->get('rid');
+    $eid = $formState->get('eid');
+    $etype = $formState->get('etype');
+    $weight = $formState->getValue('weight');
+    $conditions['condition_token'] = $formState->getValue('condition_token');
+    $conditions['condition_value'] = $formState->getValue('value');
+    $conditions['condition_operators'] = $formState->getValue('operators');
 
-    // If this is a new block, generate the bid and set it to the form_state.
+    // If this is a new block, generate the bid and set it to the formState.
     if ($bid == 'new') {
       $method = 'new';
       $bid = time();
-      $form_state->set('bid', $bid);
+      $formState->set('bid', $bid);
     }
     else {
       $method = 'edit';
     }
 
     // Set some arbitrary form state values to the "values" store.
-    $form_state->setValue('bid', $bid);
-    $form_state->setValue('rid', $rid);
-    $form_state->setValue('nid', $eid);
+    $formState->setValue('bid', $bid);
+    $formState->setValue('rid', $rid);
+    $formState->setValue('nid', $eid);
 
-    // Get only the good stuff from the form_state. @See Drupal\Core\Form\FormStateInterface
-    $form_state->cleanValues();
+    // Get only the good stuff from the formState.
+    // @See Drupal\Core\Form\FormStateInterface.
+    $formState->cleanValues();
 
     // Add the storage to the array as well.
-    $prepared_values = $form_state->getValues();
-    $prepared_values['storage'] = $form_state->getStorage();
+    $prepared_values = $formState->getValues();
+    $prepared_values['storage'] = $formState->getStorage();
 
     // Prepare the data for saving.
     $record = [
@@ -170,14 +168,14 @@ class Create extends ComponentWizardBaseForm {
     $renderRecord = [
       'rid' => $rid,
       'bid' => $bid,
-      'data' => $form_state->getValues(),
+      'data' => $formState->getValues(),
       'conditions' => $conditions,
       'weight' => $weight,
     ];
 
-    // run the formsubmit() function on the widget, if there is one
-    $componentInstance = $this->core->initPlugin($form_state->getValue('widget'));
-    $componentInstance->formSubmit($form_state);
+    // Run the formsubmit() function on the widget, if there is one.
+    $componentInstance = $this->core->initPlugin($formState->getValue('widget'));
+    $componentInstance->formSubmit($formState);
 
     // Get render array of the new or updated component.
     $block = $this->core->displayBlocks([$renderRecord]);
@@ -187,8 +185,9 @@ class Create extends ComponentWizardBaseForm {
       // Save the record.
       $this->core->db->save($record);
       $command = new AppendCommand('div.dynoblock-region[data-dyno-rid="' . $record['rid'] . '"]', $block);
-      // Place the ajax command on the form state so it can be processed by the wizard.
-      $form_state->setValue('ajaxcommand', $command);
+      // Place the ajax command on the form state so it can be processed by
+      // the wizard.
+      $formState->setValue('ajaxcommand', $command);
     }
 
     // If this is an edit, replace the current component on the page.
@@ -196,8 +195,9 @@ class Create extends ComponentWizardBaseForm {
       // Update the record.
       $this->core->db->update($record);
       $command = new ReplaceCommand('div[data-dyno-bid="' . $bid . '"]', $block);
-      // Place the ajax command on the form state so it can be processed by the wizard.
-      $form_state->setValue('ajaxcommand', $command);
+      // Place the ajax command on the form state so it can be processed by
+      // the wizard.
+      $formState->setValue('ajaxcommand', $command);
     }
 
     // Clear the entity cache tag for this entity.

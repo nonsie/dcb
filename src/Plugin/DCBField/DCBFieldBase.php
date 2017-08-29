@@ -17,30 +17,30 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class DCBFieldBase extends PluginBase implements DCBFieldInterface, ContainerFactoryPluginInterface {
 
-  public $form_state = [];
+  public $formState = [];
   public $field;
   public $display;
   public $fileUsage;
 
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, FileUsageInterface $fileUsage) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition);
+  public function __construct(array $configuration, $pluginId, $pluginDefinition, FileUsageInterface $fileUsage) {
+    parent::__construct($configuration, $pluginId, $pluginDefinition);
     $this->fileUsage = $fileUsage;
   }
 
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+  public static function create(ContainerInterface $container, array $configuration, $pluginId, $pluginDefinition) {
     return new static(
       $configuration,
-      $plugin_id,
-      $plugin_definition,
+      $pluginId,
+      $pluginDefinition,
       $container->get('file.usage')
     );
   }
 
   /**
-   * @param $form_state
+   * @param $formState
    */
-  public function init($form_state) {
-    $this->form_state = $form_state;
+  public function init($formState) {
+    $this->formState = $formState;
     $this->field = [
       'handler' => [
         '#type' => 'hidden',
@@ -73,7 +73,7 @@ class DCBFieldBase extends PluginBase implements DCBFieldInterface, ContainerFac
    * @param array $properties
    *  An array of field properties. eg: array('#title' => t('Link'))
    */
-  function form($properties = []) {
+  function form(array $properties = []) {
   }
 
   /**
@@ -92,7 +92,7 @@ class DCBFieldBase extends PluginBase implements DCBFieldInterface, ContainerFac
    *    One use case example is when a widget has an image field.
    *    The widget would call this method so it could save the image permanently.
    * @internal param $value An array containing the field values.*  An array containing the field values.
-   * @internal param $value an array containing the fields value(s) or $form_state['values'].*  an array containing the fields value(s) or $form_state['values'].
+   * @internal param $value an array containing the fields value(s) or $formState['values'].*  an array containing the fields value(s) or $formState['values'].
    * @param $value
    * @param $bid
    */
