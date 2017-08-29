@@ -183,7 +183,6 @@ class Card extends DCBComponentBase {
     $values = $form_state->getValue($this->getId());
 
     foreach ($values as $delta => $value) {
-      ksm($value['widget']['items']['img']['value']);
       if (!empty($value['widget']['items']['img']['value'])) {
         $handler = $this->getField('image_field', TRUE);
         $handler->onSubmit($value['widget']['items']['img']['value'], $form_state->getValue('bid'));
