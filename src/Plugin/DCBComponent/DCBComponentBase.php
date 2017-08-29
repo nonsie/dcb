@@ -260,7 +260,7 @@ abstract class DCBComponentBase extends PluginBase implements DCBComponentInterf
     if (!empty($formValues['fields'])) {
       $iterator = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($formValues['fields']), \RecursiveIteratorIterator::LEAVES_ONLY);
       foreach ($iterator as $key => $value) {
-        if ($key == 'handler') {
+        if ($key === 'handler') {
           $keys = [];
           for ($i = $iterator->getDepth() - 1; $i >= 0; $i--) {
             $keys[] = $iterator->getSubIterator($i)->key();
@@ -289,7 +289,7 @@ abstract class DCBComponentBase extends PluginBase implements DCBComponentInterf
     if (!empty($formValues[$formValues['widget']])) {
       $iterator = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($formValues[$formValues['widget']]), \RecursiveIteratorIterator::LEAVES_ONLY);
       foreach ($iterator as $key => $value) {
-        if ($key == 'handler') {
+        if ($key === 'handler') {
           $keys = [];
           for ($i = $iterator->getDepth() - 1; $i >= 0; $i--) {
             $keys[] = $iterator->getSubIterator($i)->key();
