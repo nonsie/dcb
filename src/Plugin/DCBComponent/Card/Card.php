@@ -7,7 +7,8 @@
 namespace Drupal\dcb\Plugin\DCBComponent\Card;
 
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\dcb\Plugin\DCBComponent\DCBComponentBase;
+use Drupal\dcb\Base\Component\DCBComponentBase;
+use Drupal\dcb\Base\Component\DCBComponentInterface;
 
 
 /**
@@ -37,7 +38,7 @@ use Drupal\dcb\Plugin\DCBComponent\DCBComponentBase;
  *   }
  * )
  */
-class Card extends DCBComponentBase {
+class Card extends DCBComponentBase implements DCBComponentInterface{
 
 
   /**

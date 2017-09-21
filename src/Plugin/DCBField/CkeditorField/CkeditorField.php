@@ -6,7 +6,7 @@
 
 namespace Drupal\dcb\Plugin\DCBField\CkeditorField;
 
-use Drupal\dcb\Plugin\DCBField\DCBFieldBase;
+use Drupal\dcb\Base\Field\DCBFieldBase;
 
 /**
  * Provides a 'Ckeditor Field' DCBField Widget.
@@ -22,7 +22,7 @@ class CkeditorField extends DCBFieldBase {
    * @param array $properties
    * @return mixed
    */
-  public function form($properties = []) {
+  public function form(array $properties = []) {
     $field = $properties + [
         '#type' => 'text_format',
         '#format' => 'full_html',

@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\dcb;
+namespace Drupal\dcb\Manager;
 
 use Drupal\Core\Plugin\DefaultPluginManager;
 use Drupal\Core\Cache\CacheBackendInterface;
@@ -28,10 +28,10 @@ class DCBComponentManager extends DefaultPluginManager {
    *   The module handler to invoke the alter hook with.
    */
   public function __construct(\Traversable $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler) {
-    parent::__construct('Plugin/DCBComponent', $namespaces, $module_handler, 'Drupal\dcb\DCBComponentInterface', 'Drupal\dcb\Annotation\DCBComponent');
+    parent::__construct('Plugin/DCBComponent', $namespaces, $module_handler, 'Drupal\dcb\Base\Component\DCBComponentInterface', 'Drupal\dcb\Annotation\DCBComponent');
 
-    $this->alterInfo('dcb_info');
-    $this->setCacheBackend($cache_backend, 'dcb');
+    $this->alterInfo('dcb_component_info');
+    $this->setCacheBackend($cache_backend, 'dcb_component');
   }
 
 }

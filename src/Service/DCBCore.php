@@ -8,7 +8,7 @@ namespace Drupal\dcb\Service;
 
 use Drupal\Core\Cache\CacheTagsInvalidator;
 use Drupal\Core\Extension\ModuleHandler;
-use Drupal\dcb\DCBComponentManager;
+use Drupal\dcb\Manager\DCBComponentManager;
 
 /**
  * Class DCBCore.
@@ -20,7 +20,7 @@ class DCBCore {
   /**
    * DCB Plugin Manager.
    *
-   * @var \Drupal\dcb\DCBComponentManager.
+   * @var \Drupal\dcb\Manager\DCBComponentManager.
    */
   public $pluginManager;
 

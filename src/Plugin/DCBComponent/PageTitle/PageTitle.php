@@ -6,7 +6,8 @@
 
 namespace Drupal\dcb\Plugin\DCBComponent\PageTitle;
 
-use Drupal\dcb\Plugin\DCBComponent\DCBComponentBase;
+use Drupal\dcb\Base\Component\DCBComponentBase;
+use Drupal\dcb\Base\Component\DCBComponentInterface;
 
 /**
  * Provides a 'Page Title' DCB Component.
@@ -40,7 +41,7 @@ use Drupal\dcb\Plugin\DCBComponent\DCBComponentBase;
  *   }
  * )
  */
-class PageTitle extends DCBComponentBase {
+class PageTitle extends DCBComponentBase implements DCBComponentInterface {
 
   /**
    * @param $values

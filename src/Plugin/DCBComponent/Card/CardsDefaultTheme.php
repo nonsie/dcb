@@ -2,7 +2,7 @@
 
 namespace Drupal\dcb\Plugin\DCBComponent\Card;
 
-use Drupal\dcb\DCBComponentTheme;
+use Drupal\dcb\Base\Theme\DCBComponentTheme;
 
 /**
  * Class AAACardsDefaultTheme.

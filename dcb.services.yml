@@ -8,9 +8,9 @@ services:
     arguments: ['@database']
 
   plugin.manager.dcbcomponent:
-    class: Drupal\dcb\DCBComponentManager
+    class: Drupal\dcb\Manager\DCBComponentManager
     parent: default_plugin_manager
 
   plugin.manager.dcbfield:
-    class: Drupal\dcb\Plugin\DCBField\DCBFieldManager
+    class: Drupal\dcb\Manager\DCBFieldManager
     parent: default_plugin_manager

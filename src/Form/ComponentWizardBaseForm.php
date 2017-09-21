@@ -9,7 +9,7 @@ use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\ctools\Wizard\FormWizardBase;
-use Drupal\dcb\Plugin\DCBComponent\DCBComponentBase;
+use Drupal\dcb\Base\Component\DCBComponentBase;
 use Drupal\dcb\Service\DCBCore;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -111,7 +111,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
   }
 
   /**
-   * @param \Drupal\dcb\Plugin\DCBComponent\DCBComponentBase $componentInstance
+   * @param \Drupal\dcb\Base\Component\DCBComponentBase $componentInstance
    */
   public function setComponentInstance(DCBComponentBase $componentInstance) {
     $this->componentInstance = $componentInstance;
@@ -236,6 +236,7 @@ abstract class ComponentWizardBaseForm extends FormBase {
       '#name' => 'condition_operator',
       '#value' => !empty($values['condition_operator']) ? $values['condition_operator'] : '',
     ];
+
     $condition['conditions']['value'] = [
       '#type' => 'textfield',
       '#title' => t('Token value'),

@@ -31,3 +31,5 @@ dcb.admin.wizard.ajax.step:
     js: 'ajax'
   requirements:
     _permission: 'use dcb'
+  options:
+    _admin_route: TRUE

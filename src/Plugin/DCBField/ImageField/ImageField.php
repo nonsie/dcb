@@ -6,7 +6,7 @@
 
 namespace Drupal\dcb\Plugin\DCBField\ImageField;
 
-use Drupal\dcb\Plugin\DCBField\DCBFieldBase;
+use Drupal\dcb\Base\Field\DCBFieldBase;
 use Drupal\file\Entity\File;
 
 /**
@@ -23,7 +23,7 @@ class ImageField extends DCBFieldBase {
    * @param array $properties
    * @return mixed
    */
-  public function form($properties = []) {
+  public function form(array $properties = []) {
     $field['image'] = [
       '#type' => 'managed_file',
       '#title' => isset($properties['#title']) ? $properties['#title'] : t('Image'),

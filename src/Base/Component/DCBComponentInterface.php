@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\dcb;
+namespace Drupal\dcb\Base\Component;
 
 use Drupal\Component\Plugin\PluginInspectionInterface;
 use Drupal\Core\Form\FormStateInterface;

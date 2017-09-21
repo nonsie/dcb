@@ -4,10 +4,11 @@
  * @File: Base class for all DCBField plugins.
  */
 
-namespace Drupal\dcb\Plugin\DCBField;
+namespace Drupal\dcb\Base\Field;
 
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\dcb\Base\Field\DCBFieldInterface;
 use Drupal\file\FileUsage\FileUsageInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 

@@ -1,11 +1,13 @@
 <?php
 
-namespace Drupal\dcb;
+namespace Drupal\dcb\Base\Theme;
 
 /**
  * @File: Abstract class used to create a new Component theme. Components use
  * themes to define different display options with similar field sets.
  */
+
+use Drupal\dcb\Base\Component\DCBComponentInterface;
 
 /**
  * Class DCBComponentTheme.
@@ -20,7 +22,7 @@ abstract class DCBComponentTheme {
   public $formState = [];
 
   /**
-   * @var \Drupal\dcb\DCBComponentInterface
+   * @var \Drupal\dcb\Base\Component\DCBComponentInterface
    */
   public $plugin;
 

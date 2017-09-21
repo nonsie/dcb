@@ -1,15 +1,14 @@
 <?php
 
-namespace Drupal\dcb\Plugin\DCBComponent;
+namespace Drupal\dcb\Base\Component;
 
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\dcb\Form\ComponentWizardBaseForm;
-use Drupal\dcb\Plugin\DCBField\DCBFieldManager;
+use Drupal\dcb\Manager\DCBFieldManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\dcb\DCBComponentInterface;
 
 /**
  * Class DCBComponentBase.
@@ -108,7 +107,7 @@ abstract class DCBComponentBase extends PluginBase implements DCBComponentInterf
   }
 
   /**
-   * @return array|\mixed[]|null
+   * @return array|mixed|null
    */
   public function loadFields() {
     return $this->fields = $this->dcbFieldManager->getDefinitions();

@@ -2,7 +2,7 @@
 
 namespace Drupal\dcb\Plugin\DCBField\TextField;
 
-use Drupal\dcb\Plugin\DCBField\DCBFieldBase;
+use Drupal\dcb\Base\Field\DCBFieldBase;
 
 /**
  * @File: Definition for Text Field DCB Plugin.

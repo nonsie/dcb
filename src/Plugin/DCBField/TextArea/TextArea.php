@@ -2,7 +2,7 @@
 
 namespace Drupal\dcb\Plugin\DCBField\TextArea;
 
-use Drupal\dcb\Plugin\DCBField\DCBFieldBase;
+use Drupal\dcb\Base\Field\DCBFieldBase;
 
 /**
  * Provides a 'Textarea Field' DCBField Widget.
@@ -18,7 +18,7 @@ class TextArea extends DCBFieldBase {
    * @param array $properties
    * @return mixed
    */
-  public function form($properties = []) {
+  public function form(array $properties = []) {
     $field = $properties + [
       '#type' => 'textarea',
     ];

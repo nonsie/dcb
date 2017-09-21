@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\dcb\Plugin\DCBField;
+namespace Drupal\dcb\Base\Field;
 
 use Drupal\Component\Plugin\PluginInspectionInterface;
 

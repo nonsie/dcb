@@ -6,7 +6,7 @@
 
 namespace Drupal\dcb\Plugin\DCBField\Select;
 
-use Drupal\dcb\Plugin\DCBField\DCBFieldBase;
+use Drupal\dcb\Base\Field\DCBFieldBase;
 
 /**
  * Provides a 'Select Field' DCBField Widget.
@@ -22,7 +22,7 @@ class Select extends DCBFieldBase {
    * @param array $properties
    * @return mixed
    */
-  public function form($properties = []) {
+  public function form(array $properties = []) {
     $field = $properties + [
         '#type' => 'select',
       ];
