@@ -36,7 +36,7 @@ class TextField extends DCBFieldBase {
    * @param $value
    * @param array $settings
    */
-  public static function render(&$value, array &$settings = []) {
+  public static function preRender(&$value, &$settings = []) {
     if (!empty($value)) {
       $value = $settings + [
         '#type' => 'html_tag',
