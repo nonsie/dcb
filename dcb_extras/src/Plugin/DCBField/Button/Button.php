@@ -2,7 +2,7 @@
 
 namespace Drupal\dcb_extras\Plugin\DCBField\Button;
 
-use Drupal\dcb\Plugin\DCBField\DCBFieldBase;
+use Drupal\dcb\Base\Field\DCBFieldBase;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Url;
 
@@ -66,7 +66,7 @@ class Button extends DCBFieldBase {
    *
    * @return array
    */
-  public function render($value, $settings = []) {
+  public static function preRender(&$value, &$settings = []) {
     if (isset($value['path'])) {
       $node = \Drupal::request()->attributes->get('node');
       if (!empty($node)) {
