@@ -3,10 +3,7 @@
 namespace Drupal\dcb\Base\Component;
 
 use Drupal\Component\Plugin\PluginBase;
-use Drupal\Component\Utility\NestedArray;
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\dcb\Form\ComponentWizardBaseForm;
 use Drupal\dcb\Manager\DCBFieldManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -17,33 +14,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @package Drupal\dcb\Plugin\DCBComponent
  */
-abstract class DCBComponentBase extends PluginBase implements DCBComponentInterface, ContainerFactoryPluginInterface {
+abstract class DCBComponentBase extends PluginBase implements ContainerFactoryPluginInterface, DCBComponentInterface {
 
-  public $previewImage;
-  public $module;
-  public $class;
-  public $dir;
-  public $properties;
-  public $form;
-  public $formState;
-  public $themes;
-  public $namespace;
-  public $dcbFieldManager;
-  public $fields;
-  public $output;
-  public $layout;
-  public $outerId;
-  public $formSettings;
-  public $parentTheme;
-  public $rebuild;
-  public $defaultTheme;
-  public $ItemThemes;
-  public $InnerFieldOptions;
-  public $OuterFieldOptions;
-  /**
-   * @var ComponentWizardBaseForm
-   */
-  public $componentForm;
+  private $instanceData;
 
   /**
    * DCBComponentBase constructor.
@@ -53,18 +26,8 @@ abstract class DCBComponentBase extends PluginBase implements DCBComponentInterf
    * @param mixed $pluginDefinition
    * @param DCBFieldManager $dcbFieldManager
    */
-  public function __construct(array $configuration, $pluginId, $pluginDefinition, DCBFieldManager $dcbFieldManager) {
+  public function __construct(array $configuration, $pluginId, $pluginDefinition) {
     parent::__construct($configuration, $pluginId, $pluginDefinition);
-    $this->properties = $this->pluginDefinition['properties'];
-    $this->module = $this->properties['module'];
-    $this->class = $this->getClass();
-    $this->dir = drupal_get_path('module', $this->module);
-    $this->themes = $this->getThemes();
-    $this->previewImage = $this->getPreviewImageFilePath($this->properties['previewImage']);
-    $this->namespace = $this->getNamespace();
-    $this->dcbFieldManager = $dcbFieldManager;
-    $this->formSettings = $this->pluginDefinition['formSettings'];
-    $this->parentTheme = isset($this->pluginDefinition['parentTheme']) ? $this->pluginDefinition['parentTheme'] : [];
   }
 
   /**
@@ -78,152 +41,77 @@ abstract class DCBComponentBase extends PluginBase implements DCBComponentInterf
     return new static(
       $configuration,
       $pluginId,
-      $pluginDefinition,
-      $container->get('plugin.manager.dcbfield')
+      $pluginDefinition
     );
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function getField($id, bool $init = FALSE, FormStateInterface $formState = NULL) {
-    $fields = $this->loadFields();
-    $field = array_key_exists($id, $fields) ? $fields[$id] : NULL;
-    if ($field) {
-      if ($init) {
-        $newFieldInstance = $this->initField($field);
-        $newFieldInstance->init($formState);
-        return $newFieldInstance;
-      }
-      return $field;
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function initField($field) {
-    return $this->dcbFieldManager->createInstance($field['id']);
-  }
-
-  /**
-   * @return array|mixed|null
-   */
-  public function loadFields() {
-    return $this->fields = $this->dcbFieldManager->getDefinitions();
-  }
-
-  /**
-   * @param $uri
-   * @return string
-   */
-  private function getPreviewImageFilePath($uri) {
-    return file_create_url(drupal_get_path('module', $this->module) . '/' . $uri);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getShortDesc() {
-    return $this->pluginDefinition['description_short'];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getClass() {
-    return $this->pluginDefinition['class'];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getId() {
+  public function getComponentTypeId() {
     return $this->pluginId;
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function getNamespace() {
-    return 'Drupal\\' . $this->module . '\Plugin\DCBComponent';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getName() {
+  public function getComponentTypeName() {
     return $this->pluginDefinition['name'];
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function getThemes() {
-    return $this->pluginDefinition['themes'];
+  public function getComponentTypeDescription($type = 'short') {
+    if ($type == 'short') {
+      return $this->pluginDefinition['descriptionShort'];
+    }
+    else {
+      return $this->pluginDefinition['description'];
+    }
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function getDefaultTheme() {
-    return $this->pluginDefinition['defaultTheme'];
+  public function getComponentTypeDisplayOptions() {
+    return $this->pluginDefinition['displayOptions'];
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function init() {
-    return $this;
+  public function getComponentDefaultDisplayOption() {
+    return $this->pluginDefinition['defaultDisplayOption'];
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function getOuterForm(ComponentWizardBaseForm $componentForm, array $values) {
-    $this->componentForm = $componentForm;
-    $this->outerId = $this->componentForm->randId();
-
-    $this->form['fields'] = [
-      '#type' => 'container',
-      '#tree' => TRUE,
-      '#attributes' => [
-        'id' => $this->outerId,
-      ],
-    ] + $this->outerForm(!empty($values['fields']) ? $values['fields'] : []);
+  public function getComponentItemCardinalitySettings() {
+    return $this->pluginDefinition['formSettings']['cardinality'];
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function outerForm($values) {
-    return NULL;
+  public function setInstanceData(array $data) {
+    $this->instanceData = $data;
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function getRepeatingFields(&$formState = [], $items, $delta) {
-    $container_id = $this->componentForm->randId();
-    $element['items'] = [
-      '#type' => 'details',
-      '#title' => t('Item @delta', [
-        '@delta' => ($delta + 1),
-      ]),
-      '#open' => $this->getWidgetDetailsState($formState),
-      '#collapsible' => TRUE,
-      '#attributes' => [
-        'id' => $container_id,
-      ],
-    ] + $this->repeatingFields(!empty($items[$delta]) ? $items[$delta] : [], $delta);
-    return $element;
+  public function getInstanceData() {
+    return $this->instanceData;
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function repeatingFields($values = [], $delta) {
-    return [];
+  public function getPreviewImageWebPath() {
+    $path = drupal_get_path('module', $this->pluginDefinition['provider']);
+    return '/' . $path . '/src/Plugin/DCBComponent/' . $this->getComponentTypeId() . '/images';
+  }
+
+  public function getComponentPreviewImage() {
+   return $this->getPreviewImageWebPath() . '/' . $this->getComponentTypeName() . '.png';
+  }
+
+  public function getOuterFieldsDefinition() {
+    return $this->pluginDefinition['fieldSets']['outer']['fields']['visible'];
+  }
+
+  public function getOuterFieldsInstanceData(string $key) {
+    if (isset($this->getInstanceData()['fieldSets']['outer']['fields']['visible'][$key]['field_data'])
+        && !empty($this->getInstanceData()['fieldSets']['outer']['fields']['visible'][$key]['field_data'])) {
+      return $this->getInstanceData()['fieldSets']['outer']['fields']['visible'][$key]['field_data'];
+    }
+    else {
+      return [];
+    }
+  }
+
+  public function preRender(array $data) {
+    return $data;
+  }
+
+  public function getFieldProperties(string $key) {
+    $registered_fields = $this->register();
+    return isset($registered_fields[$key]) ? $registered_fields[$key] : [];
   }
 
   /**
@@ -231,146 +119,6 @@ abstract class DCBComponentBase extends PluginBase implements DCBComponentInterf
    */
   public function formSubmit(FormStateInterface $formState) {
 
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function ajaxCallback($form, FormStateInterface &$formState) {
-    $trigger = $formState->getTriggeringElement();
-    // This returns a group of fields after an extra field is selected in
-    // the UI.
-    return ['return_element' => $form[$this->getId()][$trigger['#attributes']['delta']]];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function ajaxSubmit() {
-
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function preRender($formValues) {
-    $this->formState = $formValues;
-
-    if (!empty($formValues['fields'])) {
-      $iterator = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($formValues['fields']), \RecursiveIteratorIterator::LEAVES_ONLY);
-      foreach ($iterator as $key => $value) {
-        if ($key === 'handler') {
-          $keys = [];
-          for ($i = $iterator->getDepth() - 1; $i >= 0; $i--) {
-            $keys[] = $iterator->getSubIterator($i)->key();
-          }
-          $keys = array_reverse($keys);
-          $array_list[] = $keys;
-        }
-      }
-
-      if (isset($array_list) && !empty($array_list)) {
-        foreach ($array_list as $array_item) {
-          $field_base_array = NestedArray::getValue($formValues['fields'], $array_item);
-          /* @var $field_base_array \Drupal\dcb\Plugin\DCBField\DCBFieldInterface */
-          $field_base_array['handler']::preRender($field_base_array['value']);
-          $array_item[] = 'value';
-          NestedArray::setValue($formValues['fields'], $array_item, $field_base_array['value']);
-        }
-      }
-    }
-
-    $iterator = NULL;
-    $key = NULL;
-    $value = NULL;
-    $array_list = NULL;
-
-    if (!empty($formValues[$formValues['widget']])) {
-      $iterator = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($formValues[$formValues['widget']]), \RecursiveIteratorIterator::LEAVES_ONLY);
-      foreach ($iterator as $key => $value) {
-        if ($key === 'handler') {
-          $keys = [];
-          for ($i = $iterator->getDepth() - 1; $i >= 0; $i--) {
-            $keys[] = $iterator->getSubIterator($i)->key();
-          }
-          $keys = array_reverse($keys);
-          $array_list[] = $keys;
-        }
-      }
-
-      if (isset($array_list) && !empty($array_list)) {
-        foreach ($array_list as $array_item) {
-          $field_base_array = NestedArray::getValue($formValues[$formValues['widget']], $array_item);
-          /* @var $field_base_array \Drupal\dcb\Plugin\DCBField\DCBFieldInterface */
-          $field_base_array['handler']::preRender($field_base_array['value']);
-          $array_item[] = 'value';
-          NestedArray::setValue($formValues[$formValues['widget']], $array_item, $field_base_array['value']);
-        }
-      }
-    }
-
-    $theme = !empty($this->themes[$formValues['theme']]['handler']) ? $this->themes[$formValues['theme']]['handler'] : NULL;
-    if ($theme = $this->loadTheme($theme)) {
-      $this->output = $theme->display($formValues);
-    }
-    return $this->output;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function loadTheme($theme) {
-    if ($theme) {
-      return $this->initTheme($this->pluginId, $theme);
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function initTheme($pluginId, $theme) {
-    $theme = $this->namespace . '\\' . $pluginId . '\\' . $theme;
-    return new $theme($this->formState, $this);
-  }
-
-  /**
-   * @param $formState
-   * @return bool
-   */
-  public function getWidgetDetailsState(FormStateInterface $formState) {
-    $open = FALSE;
-    if (is_object($formState)) {
-      $trigger = $formState->getTriggeringElement();
-    }
-    if (is_object($formState) && isset($trigger['#attributes']['delta'])) {
-      if ($trigger_delta == $delta) {
-        $open = TRUE;
-      }
-    }
-    return $open;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function registerItemThemeOptions($options) {
-    $key = array_keys($options);
-    $this->ItemThemes[$key[0]] = $options[$key[0]];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function registerInnerFieldOptions($fieldInfo) {
-    $key = array_keys($fieldInfo);
-    $this->InnerFieldOptions[$key[0]] = $fieldInfo[$key[0]];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function registerOuterFieldOptions($fieldInfo) {
-    $this->OuterFieldOptions[] = $fieldInfo;
   }
 
 }

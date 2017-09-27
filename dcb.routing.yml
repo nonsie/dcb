@@ -19,8 +19,6 @@ dcb.invalidate_entity_cache:
   requirements:
     _permission: 'use dcb'
 
-# new wizard admin form
-
 dcb.admin.wizard.ajax.step:
   path: '/dcb/admin-wizard/ajax/{step}'
   defaults:

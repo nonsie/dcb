@@ -35,12 +35,14 @@ class DCBDefaultFormatter extends FormatterBase {
    * {@inheritdoc}
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
+    /** @var \Drupal\dcb\Service\DCBCore $DCBCore */
     $DCBCore = \Drupal::service('dcb.core');
+
     $element = [];
     foreach ($items as $delta => $item) {
-      $element[$delta] = $DCBCore->DCBRegion($item->id, $item->getEntity()
-        ->id(), ucfirst($item->id));
-      $element[$delta]['blocks'] = $DCBCore->renderComponents($item->id, $item);
+      //$element[$delta] = $renderer->renderRegion($item->id, $item->getEntity()->id(), ucfirst($item->id));
+      //$element[$delta]['components'] = $DCBCore->renderComponents($item->id, $item, $renderer);
+      $element[$delta] = $DCBCore->renderRegion($item->id, $item->getEntity()->id(), ucfirst($item->id), 'drupal_theme_renderer');
     }
     return $element;
   }

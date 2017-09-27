@@ -1,7 +1,15 @@
 services:
   dcb.core:
     class: Drupal\dcb\Service\DCBCore
-    arguments: ['@plugin.manager.dcbcomponent', '@dcb.database', '@module_handler', '@cache_tags.invalidator']
+    arguments:
+      - '@plugin.manager.dcbcomponent'
+      - '@dcb.database'
+      - '@module_handler'
+      - '@cache_tags.invalidator'
+      - '@dcb.generator.component_admin_form_generator'
+      - '@dcb.generator.component_storage_array_generator'
+      - '@dcb.prerenderer.php'
+      - '@dcb.renderer.factory'
 
   dcb.database:
     class: Drupal\dcb\Service\DCBDb
@@ -14,3 +22,23 @@ services:
   plugin.manager.dcbfield:
     class: Drupal\dcb\Manager\DCBFieldManager
     parent: default_plugin_manager
+
+  dcb.generator.component_admin_form_generator:
+    class: Drupal\dcb\Generator\DCBComponentAdminFormGenerator
+    arguments: ['@plugin.manager.dcbfield']
+
+  dcb.generator.component_storage_array_generator:
+    class: Drupal\dcb\Generator\DCBComponentStorageArrayGenerator
+    arguments: ['@plugin.manager.dcbfield']
+
+  dcb.prerenderer.php:
+    class: Drupal\dcb\PreRenderer\DCBPhpPreRenderer
+    arguments: ['@plugin.manager.dcbfield']
+
+  dcb.renderer.drupal_theme:
+    class: Drupal\dcb\Renderer\DrupalThemeRenderer
+    arguments: ['@plugin.manager.dcbcomponent']
+
+  dcb.renderer.factory:
+    class: Drupal\dcb\Renderer\DCBRendererFactory
+    arguments: ['@plugin.manager.dcbcomponent']

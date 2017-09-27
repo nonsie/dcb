@@ -8,7 +8,12 @@ namespace Drupal\dcb\Service;
 
 use Drupal\Core\Cache\CacheTagsInvalidator;
 use Drupal\Core\Extension\ModuleHandler;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\dcb\Generator\DCBComponentAdminFormGenerator;
+use Drupal\dcb\Generator\DCBComponentStorageArrayGenerator;
 use Drupal\dcb\Manager\DCBComponentManager;
+use Drupal\dcb\PreRenderer\DCBPhpPreRenderer;
+use Drupal\dcb\Renderer\DCBRendererFactory;
 
 /**
  * Class DCBCore.
@@ -22,29 +27,14 @@ class DCBCore {
    *
    * @var \Drupal\dcb\Manager\DCBComponentManager.
    */
-  public $pluginManager;
+  private $pluginManager;
 
   /**
    * DCB DB Service.
    *
    * @var \Drupal\dcb\Service\DCBDb.
    */
-  public $db;
-
-  /**
-   * @var array
-   */
-  public $blocks = [];
-
-  /**
-   * @var array
-   */
-  public $themes = [];
-
-  /**
-   * @var array
-   */
-  public $widgets = [];
+  private $db;
 
   /**
    * Core Cache Tag Invalidator
@@ -53,6 +43,30 @@ class DCBCore {
    */
   public $cacheTagsInvalidator;
 
+  /**
+   * @var \Drupal\dcb\Generator\DCBComponentAdminFormGenerator
+   */
+  private $adminFormGenerator;
+
+  /**
+   * @var \Drupal\Core\Extension\ModuleHandler
+   */
+  private $moduleHandler;
+
+  /**
+   * @var \Drupal\dcb\Generator\DCBComponentStorageArrayGenerator
+   */
+  private $storageArrayGenerator;
+
+  /**
+   * @var \Drupal\dcb\PreRenderer\DCBPhpPreRenderer
+   */
+  private $preRenderer;
+
+  /**
+   * @var \Drupal\dcb\Renderer\DCBRendererFactory
+   */
+  private $rendererFactory;
 
   /**
    * DCBCore constructor.
@@ -63,217 +77,126 @@ class DCBCore {
    *   Injected.
    * @param \Drupal\Core\Extension\ModuleHandler $moduleHandler
    * @param \Drupal\Core\Cache\CacheTagsInvalidator $cacheTagsInvalidator
+   * @param \Drupal\dcb\Generator\DCBComponentAdminFormGenerator $adminFormGenerator
+   * @param \Drupal\dcb\Generator\DCBComponentStorageArrayGenerator $storageArrayGenerator
+   * @param \Drupal\dcb\PreRenderer\DCBPhpPreRenderer $preRenderer
+   * @param \Drupal\dcb\Renderer\DCBRendererFactory $rendererFactory
    */
-  public function __construct(DCBComponentManager $pluginManager, DCBDb $dcbDb, ModuleHandler $moduleHandler, CacheTagsInvalidator $cacheTagsInvalidator) {
+  public function __construct(DCBComponentManager $pluginManager,
+                              DCBDb $dcbDb,
+                              ModuleHandler $moduleHandler,
+                              CacheTagsInvalidator $cacheTagsInvalidator,
+                              DCBComponentAdminFormGenerator $adminFormGenerator,
+                              DCBComponentStorageArrayGenerator $storageArrayGenerator,
+                              DCBPhpPreRenderer $preRenderer,
+                              DCBRendererFactory $rendererFactory) {
     $this->pluginManager = $pluginManager;
     $this->db = $dcbDb;
     $this->moduleHandler = $moduleHandler;
     $this->cacheTagsInvalidator = $cacheTagsInvalidator;
+    $this->adminFormGenerator = $adminFormGenerator;
+    $this->storageArrayGenerator = $storageArrayGenerator;
+    $this->preRenderer = $preRenderer;
+    $this->rendererFactory = $rendererFactory;
   }
 
   /**
-   * @param $id
-   * @return mixed|null
+   * @param $regionId
+   * @param $componentId
+   * @param $entityId
+   * @param $componentType
+   *
+   * @return array
    */
-  public function getTheme($id) {
-    if (empty($this->themes)) {
-      $this->themes = $this->getThemes();
+  public function getComponentAdminForm($regionId, $componentId, $entityId, $componentType) {
+    $data = $this->db->getBlock($regionId, $componentId);
+    if ($componentType === '') {
+      $componentType = $data['meta']['component'];
     }
-    return array_key_exists($id, $this->themes) ? $this->themes[$id] : NULL;
+    $component = $this->getComponentInstance($componentType);
+    $component->setInstanceData($data);
+    $adminform = $this->adminFormGenerator->generate($regionId, $componentId, $entityId, $component);
+    return $adminform;
   }
 
+  /**
+   * @param \Drupal\Core\Form\FormStateInterface $formState
+   *
+   * @param $component_type
+   *
+   * @return array
+   */
+  public function saveComponentStorageArray(FormStateInterface $formState, $component_type) {
+    $component = $this->getComponentInstance($component_type);
+    $storageArray = $this->storageArrayGenerator->generate($formState, $component);
+    $this->db->save($storageArray);
+    return $storageArray;
+  }
 
   /**
-   * @return array|mixed
+   * @param $rid
+   * @param $entity
+   * @param $region_label
+   * @param $renderer_name
+   *
+   * @return mixed
    */
-  public function getThemes() {
-    $themes = [];
-    foreach ($this->moduleHandler->getImplementations('dcb_themes') as $module) {
-      $theme = $this->moduleHandler->invoke($module, 'dcb_themes');
-      foreach ($theme as &$thm) {
-        $thm['full_path'] = drupal_get_path('module', $module) . '/' . $thm['path'];
-        $thm['module'] = $module;
+  public function renderRegion($rid, $entity, $region_label, $renderer_name) {
+    $renderer = $this->rendererFactory->getRenderer($renderer_name);
+    $region_data = $this->db->getBlocks($rid);
+    $prerenderdata = [];
+    foreach($region_data as $component_data) {
+      $prerenderdata[] = $this->preRenderComponent($component_data);
+    }
+    return $renderer->renderRegion($rid, $entity, $region_label, $prerenderdata);
+  }
+
+  /**
+   * @param $rid
+   * @param $bid
+   * @param $renderer_name
+   *
+   * @return mixed
+   */
+  public function renderComponent($rid, $bid, $renderer_name) {
+    $renderer = $this->rendererFactory->getRenderer($renderer_name);
+    $region_data = $this->db->getBlocks($rid);
+    foreach($region_data as $component_data) {
+      if ($component_data['meta']['bid'] === $bid) {
+        $prerenderdata = $this->preRenderComponent($component_data);
+        return $renderer->renderComponent($prerenderdata);
       }
-      $themes += $theme;
     }
-    return $this->themes = $themes;
+    return [];
   }
 
   /**
-   * @param $rid
-   * @param null $nid
-   * @param null $label
-   * @return array
+   * @param $component_data
+   *
+   * @return mixed
    */
-  public function DCBRegion($rid, $eid = NULL, $label = NULL) {
-    return [
-      '#type' => 'container',
-      '#attributes' => [
-        'class' => ['dynoblock-region'],
-        'data-dyno-rid' => $rid,
-        'data-dyno-label' => $label,
-        'data-dyno-nid' => $eid,
-        'data-alacarte-id' => $rid,
-        'data-alacarte-type' => 'block',
-      ],
-    ];
+  public function preRenderComponent($component_data) {
+    $component = $this->getComponentInstance($component_data['meta']['component']);
+    $component->setInstanceData($component_data);
+    return $this->preRenderer->preRender($component);
   }
 
   /**
-   * @param $rid
-   * @param array $entity
-   * @return array
+   * @param $componentType
+   *
+   * @return \Drupal\dcb\Base\Component\DCBComponentInterface
    */
-  public function renderComponents($rid, $entity = []) {
-    $blocks = $this->getBlocks($rid);
-    $blocks = $this->displayBlocks($blocks, $entity);
-    return [
-      '#type' => 'markup',
-      '#markup' => render($blocks),
-    ];
-  }
-
-
-  /**
-   * @param $id
-   * @return null
-   */
-  public function getWidget($id) {
-    $widgets = $this->loadWidgets();
-    return array_key_exists($id, $widgets) ? $widgets[$id] : NULL;
+  public function getComponentInstance($componentType) {
+    /** @var \Drupal\dcb\Base\Component\DCBComponentInterface $componentInstance */
+    $componentInstance = $this->pluginManager->createInstance($componentType);
+    return $componentInstance;
   }
 
   /**
    * @return array|\mixed[]|null
    */
-  public function loadWidgets() {
-    return $this->widgets = $this->pluginManager->getDefinitions();
-  }
-
-  /**
-   * @param $rid
-   * @return array
-   */
-  public function getBlocks($rid) {
-    return $this->blocks = $this->db->getBlocks($rid);
-  }
-
-  /**
-   * @param $blocks
-   * @param array $entity
-   * @return array
-   */
-  public function displayBlocks($blocks, $entity = []) {
-    $render = [];
-    foreach ($blocks as $delta => $block) {
-      $data = $block['data'];
-      $id = !empty($data['widget']) ? $data['widget'] : $data['layout_id'];
-      $plugin = $this->initPlugin($id);
-      $widget = $this->getWidget($data['widget']);
-      if ($plugin && $this->isDisplayable($data)) {
-        $plugin->entity = $entity;
-        $html = $plugin->init($data)->preRender($data);
-        // Call theme preRender so it can modify final output.
-        if (!empty($widget['parentTheme']['handler'])) {
-          $theme_settings = !empty($data['global_theme_settings']) ? $data['global_theme_settings'] : [];
-          $widget['parentTheme']['handler']->preRender($widget, $data, $html, $theme_settings);
-        }
-        $weight = isset($data['weight']) ? $data['weight'] : 0;
-        $render[$delta] = [
-          '#type' => 'container',
-          '#weight' => $weight,
-          '#attributes' => [
-            'class' => ['dynoblock'],
-            'data-dyno-bid' => $data['bid'],
-            'data-dyno-rid' => $data['rid'],
-            'data-dyno-handler' => $id,
-            'data-dyno-weight' => $weight,
-            'data-dyno-label' => $plugin->getName(),
-          ],
-        ];
-        if (!empty($html)) {
-          $render[$delta]['content'] = [
-            '#type' => 'container',
-            '#attributes' => [
-              'class' => ['dynoblock-content'],
-            ],
-          ];
-          // Render content in theme template if available.
-          $render[$delta]['content']['theme'] = [
-            '#theme' => 'dcb_component',
-            '#component_data' => $html,
-          ];
-        }
-      }
-    }
-
-    return $render;
-  }
-
-  /**
-   * @param $block
-   * @return bool
-   */
-  public function isDisplayable($block) {
-    $current_user = \Drupal::currentUser();
-    $roles = $current_user->getRoles();
-    $is_admin = FALSE;
-    if (is_array($roles) && in_array('administrator', array_values($roles))) {
-      $is_admin = TRUE;
-    }
-    if (!empty($block['condition_token']) && !$is_admin) {
-      $value = $block['condition_value'];
-      $token_value = token_replace($block['condition_token']);
-      switch ($block['condition_operator']) {
-        case '==':
-          if ($token_value == $value) {
-            return TRUE;
-          }
-          else {
-
-          }
-          break;
-        case '===':
-          if ($token_value === $value) {
-            return TRUE;
-          }
-          break;
-        case '!=':
-          if ($token_value != $value) {
-            return TRUE;
-          }
-          break;
-        case '!==':
-          if ($token_value !== $value) {
-            return TRUE;
-          }
-          break;
-        case '<':
-          if ($token_value < $value) {
-            return TRUE;
-          }
-          break;
-        case '>':
-          if ($token_value > $value) {
-            return TRUE;
-          }
-          break;
-        case '<=':
-          if ($token_value <= $value) {
-            return TRUE;
-          }
-          break;
-        case '>=':
-          if ($token_value >= $value) {
-            return TRUE;
-          }
-          break;
-      }
-    }
-    else {
-      return TRUE;
-    }
-    return FALSE;
+  public function getComponentList() {
+    return $this->pluginManager->getDefinitions();
   }
 
   /**
@@ -293,11 +216,10 @@ class DCBCore {
         'bid' => $bid,
         'data' => serialize($block)
       ];
-      $result = $this->db->update($record);
+      $result = $this->db->save($record);
     }
     return ['result' => $result];
   }
-
 
   /**
    * @param $rid
@@ -308,35 +230,6 @@ class DCBCore {
     $removed = $this->db->remove($rid, $bid);
     return ['removed' => $removed];
   }
-
-  /**
-   * @param $plugin
-   * @return \Drupal\dcb\Plugin\DCBComponent\DCBComponentBase
-   */
-  public function initPlugin($plugin_name) {
-    if (array_key_exists($plugin_name, $this->loadWidgets())) {
-      $plugin = $this->pluginManager->createInstance($plugin_name);
-      $path = $this->findThemePath($plugin->getId());
-      $plugin->directory = $path . $plugin->getId();
-      return $plugin;
-    }
-  }
-
-  /**
-   * @param $widget
-   * @return string
-   */
-  public function findThemePath($widget) {
-    $widgets = $this->loadWidgets();
-    if (array_key_exists($widget, $widgets)) {
-      $widget = $widgets[$widget];
-      $theme = $this->getTheme($widget['properties']['theme']);
-
-      return $theme['full_path'] . '/';
-    }
-
-  }
-
 
   /**
    * Invalidates cache for a specific entity ID.

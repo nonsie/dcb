@@ -21,7 +21,7 @@
 
     loadRegions: function () {
       var _this = this;
-      $('.dynoblock-region').each(function () {
+      $('.dcb-region').each(function () {
         var region = new DCBRegion($(this));
         _this.regions.push(region);
         region.init();
@@ -124,9 +124,9 @@
   function DCBRegion(region) {
     this.blocks = [];
     this.region = region;
-    this.rid = region.data('dyno-rid');
-    this.nid = region.data('dyno-nid');
-    this.label = region.data('dyno-label');
+    this.rid = region.data('dcb-rid');
+    this.nid = region.data('dcb-nid');
+    this.label = region.data('dcb-label');
     var $this = this;
 
     this.init = function () {
@@ -135,8 +135,8 @@
 
     this.loadDynoBlocks = function () {
       var _this = this;
-      this.region.children('.dynoblock').each(function () {
-        _this.addBlock($(this), $(this).data('dyno-bid'), $(this).data('dyno-rid'), $(this).data('dyno-handler'));
+      this.region.children('.dcb-component').each(function () {
+        _this.addBlock($(this), $(this).data('dcb-bid'), $(this).data('dcb-rid'), $(this).data('dcb-handler'));
       });
       return this.dynoblocks;
     };
@@ -632,8 +632,8 @@
   function DCBComponent(block, bid, rid, handler) {
     this.element = block;
     this.bid = bid;
-    this.label = block.data('dyno-label');
-    this.weight = block.data('dyno-weight');
+    this.label = block.data('dcb-label');
+    this.weight = block.data('dcb-weight');
     this.handler = handler;
     this.rid = rid;
     this.init = function () {

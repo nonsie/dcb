@@ -8,7 +8,6 @@ namespace Drupal\dcb\Base\Field;
 
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\dcb\Base\Field\DCBFieldInterface;
 use Drupal\file\FileUsage\FileUsageInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -16,12 +15,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * Class DCBFieldBase
  * @package Drupal\dcb\Plugin\DCBField
  */
-class DCBFieldBase extends PluginBase implements DCBFieldInterface, ContainerFactoryPluginInterface {
+abstract class DCBFieldBase extends PluginBase implements DCBFieldInterface, ContainerFactoryPluginInterface {
 
-  public $formState = [];
-  public $field;
-  public $display;
-  public $fileUsage;
+  protected $fileUsage;
 
   public function __construct(array $configuration, $pluginId, $pluginDefinition, FileUsageInterface $fileUsage) {
     parent::__construct($configuration, $pluginId, $pluginDefinition);
@@ -35,19 +31,6 @@ class DCBFieldBase extends PluginBase implements DCBFieldInterface, ContainerFac
       $pluginDefinition,
       $container->get('file.usage')
     );
-  }
-
-  /**
-   * @param $formState
-   */
-  public function init($formState) {
-    $this->formState = $formState;
-    $this->field = [
-      'handler' => [
-        '#type' => 'hidden',
-        '#value' => get_called_class(),
-      ],
-    ];
   }
 
   /**
@@ -69,12 +52,12 @@ class DCBFieldBase extends PluginBase implements DCBFieldInterface, ContainerFac
   }
 
   /**
-   * Method for creating fields.
-   * @see https://api.drupal.org/api/drupal/developer!topics!forms_api_reference.html/7
-   * @param array $properties
-   *  An array of field properties. eg: array('#title' => t('Link'))
+   * @param array $values
+   *
+   * @return array
    */
-  function form(array $properties = []) {
+  function prepareStorage($values = []) {
+    return $values;
   }
 
   /**
@@ -84,7 +67,8 @@ class DCBFieldBase extends PluginBase implements DCBFieldInterface, ContainerFac
    * @param array $settings
    *  An array of settings that may be used in the building of the fields display.
    */
-  public static function preRender(&$value, &$settings = []) {
+  public function preRender($properties, $values) {
+    return $values;
   }
 
   /**
@@ -110,14 +94,6 @@ class DCBFieldBase extends PluginBase implements DCBFieldInterface, ContainerFac
    *
    */
   function validate() {
-  }
-
-  /**
-   * @param array $values
-   * @return mixed|void
-   */
-  function setFormElement($values = []) {
-    $this->field['value'] = $values;
   }
 
 }

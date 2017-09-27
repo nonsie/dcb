@@ -40,31 +40,19 @@ class DCBDb {
    */
   public function save($record) {
     return $this->database->merge(self::$db_table)
-      ->key(
+      ->keys(
         [
-          'rid' => $record['rid'],
-          'bid' => $record['bid'],
+          'rid' => $record['data']['meta']['rid'],
+          'bid' => $record['data']['meta']['bid'],
         ]
       )
       ->fields(
         [
-          'data' => $record['data'],
+          'data' => serialize($record['data']),
+          'conditions' => serialize($record['conditions']),
           'weight' => $record['weight'],
-          'conditions' => $record['conditions'],
         ]
       )
-      ->execute();
-  }
-
-  /**
-   * @param $record
-   * @return \Drupal\Core\Database\StatementInterface|int|null
-   */
-  public function update($record) {
-    return $this->database->update(self::$db_table)
-      ->condition('rid', $record['rid'])
-      ->condition('bid', $record['bid'])
-      ->fields(['data' => $record['data'],])
       ->execute();
   }
 
@@ -74,15 +62,14 @@ class DCBDb {
    */
   public function getBlocks($rid) {
     $query = $this->database->select(self::$db_table, 'd');
-    $query->fields('d', ['rid', 'bid', 'data'])
+    $query->fields('d', ['rid', 'bid', 'data', 'weight', 'conditions'])
       ->orderBy('bid', 'ASC')
       ->condition('rid', $rid, '=');
-
     $result = $query->execute();
-
     $results = [];
     while ($record = $result->fetchAssoc()) {
       $record['data'] = unserialize($record['data']);
+      $record['conditions'] = unserialize($record['conditions']);
       $results[] = $record;
     }
 
@@ -96,17 +83,19 @@ class DCBDb {
    */
   public function getBlock($rid, $bid) {
     $query = $this->database->select(self::$db_table, 'd');
-    $query->fields('d', ['rid', 'bid', 'data'])
+    $query->fields('d', ['rid', 'bid', 'data','weight', 'conditions'])
       ->orderBy('bid', 'ASC')
       ->condition('rid', $rid, '=')
       ->condition('bid', $bid, '=');
-    $result = $query->execute()->fetchAssoc();
-    if (!empty($result)) {
-      return unserialize($result['data']);
+    $result = $query->execute();
+    $results = [];
+    while ($record = $result->fetchAssoc()) {
+      $record['data'] = unserialize($record['data']);
+      $record['conditions'] = unserialize($record['conditions']);
+      $results[] = $record;
     }
-    else {
-      return FALSE;
-    }
+
+    return $results;
   }
 
   /**

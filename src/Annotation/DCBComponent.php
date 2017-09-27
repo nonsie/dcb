@@ -14,7 +14,7 @@ use Drupal\Component\Annotation\Plugin;
  *
  * Plugin Namespace: Plugin\dcb\DCBComponent
  *
- * @see \Drupal\dcb\DCBComponentManager
+ * @see \Drupal\dcb\Manager\DCBComponentManager
  * @see plugin_api
  *
  * @Annotation
@@ -38,21 +38,6 @@ class DCBComponent extends Plugin {
   public $name;
 
   /**
-   * Widgets optional themes.
-   *
-   * @var array
-   *   e.g array('grey' => array('template' => 'templates/grey.html.twig'))
-   */
-  public $themes;
-
-  /**
-   * The default theme.
-   *
-   * @var string
-   */
-  public $defaultTheme;
-
-  /**
    * @var string.
    */
   public $description;
@@ -60,12 +45,20 @@ class DCBComponent extends Plugin {
   /**
    * @var string.
    */
-  public $description_short;
+  public $descriptionShort;
 
   /**
-   * @var array.
+   * Widgets optional themes.
+   *
+   * @var array
+   *   e.g array('grey' => array('template' => 'templates/grey.html.twig'))
    */
-  public $properties;
+  public $displayOptions;
+
+  /**
+   * @var string
+   */
+  public $defaultDisplayOption;
 
   /**
    * Form settings.
@@ -74,5 +67,7 @@ class DCBComponent extends Plugin {
    *   e.g array('cardinality' => -1, 'variant_support' => TRUE)
    */
   public $formSettings;
+
+  public $fieldSets;
 
 }

@@ -21,31 +21,39 @@ class TextField extends DCBFieldBase {
   /**
    * @param array $properties
    *
+   * @param array $values
+   *
    * @return mixed
    */
-  public function form(array $properties = []) {
-    $field = $properties + [
+  public function form(array $properties = [], $values = []) {
+    $field = [
       '#type' => 'textfield',
       '#maxlength' => 256,
+      '#title' => $properties['label'],
+      '#default_value' => $values,
     ];
-    $this->setFormElement($field);
-    return $this->field;
+
+    return $field;
+  }
+
+  public function prepareStorage($values = []) {
+    return $values;
   }
 
   /**
-   * @param $value
-   * @param array $settings
+   * @param $properties
+   * @param $values
+   *
+   * @return array|mixed
+   * @internal param $value
+   * @internal param array $settings
    */
-  public static function preRender(&$value, &$settings = []) {
-    if (!empty($value)) {
-      $value = $settings + [
-        '#type' => 'html_tag',
-        '#tag' => 'div',
-        '#value' => $value,
-        '#attributes' => [
-          'class' => ['dyno-TextField'],
-        ],
-      ];
+  public function preRender($properties, $values) {
+    if (!empty($values)) {
+      return $values;
+    }
+    else {
+      return [];
     }
   }
 

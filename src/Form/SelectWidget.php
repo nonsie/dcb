@@ -52,9 +52,9 @@ class SelectWidget extends ComponentWizardBaseForm {
       (isset($cached_values['selected_component']) && !empty($cached_values['selected_component']))
         ? $cached_values['selected_component'] : '';
 
-    $widgets = $this->core->loadWidgets();
+    $components_list = $this->core->getComponentList();
     $options[''] = 'Select One';
-    foreach ($widgets as $machine => &$component) {
+    foreach ($components_list as $machine => &$component) {
       $options[$machine] = $component['name'];
     }
 
@@ -80,8 +80,8 @@ class SelectWidget extends ComponentWizardBaseForm {
     ];
 
     if (!empty($selected_component)) {
-      $layout = $this->core->initPlugin($selected_component);
-      $preview = $this->getPreview($layout);
+      $component_instance = $this->core->getComponentInstance($selected_component);
+
       $form['preview_placeholder'] += [
         'preview_description' => [
           '#type' => 'container',
@@ -92,15 +92,18 @@ class SelectWidget extends ComponentWizardBaseForm {
           ],
           'name' => [
             '#type' => 'markup',
-            '#markup' => $this->t("Preview for: @component", ['@component' => $widgets[$selected_component]['name']]),
+            '#markup' => $this->t("Preview for: @component", ['@component' => $component_instance->getComponentTypeName()]),
           ],
           'description' => [
             '#type' => 'html_tag',
             '#tag' => 'p',
-            '#value' => $widgets[$selected_component]['description_short'],
+            '#value' => $component_instance->getComponentTypeDescription('short'),
           ],
         ],
-        'previewImage' => $preview,
+        'previewImage' => [
+          '#type' => 'markup',
+          '#markup' => '<img height="280px" src="' . $component_instance->getComponentPreviewImage() . '"/>',
+        ],
       ];
     }
 

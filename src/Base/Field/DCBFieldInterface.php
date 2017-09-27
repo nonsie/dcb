@@ -43,7 +43,7 @@ interface DCBFieldInterface extends PluginInspectionInterface {
    * @return mixed
    *   A form render array.
    */
-  public function form(array $properties = []);
+  public function form(array $properties = [], $values);
 
   /**
    * Called when a widget using this field is being rendered.
@@ -57,7 +57,7 @@ interface DCBFieldInterface extends PluginInspectionInterface {
    * @return mixed
    *   A render array containing the fields output.
    */
-  public static function preRender(&$value, &$settings = []);
+  public function preRender($properties, $values);
 
   /**
    * Called when a widget is saved.
@@ -86,12 +86,5 @@ interface DCBFieldInterface extends PluginInspectionInterface {
    * @return mixed
    */
   public function validate();
-
-  /**
-   * @param $values
-   *
-   * @return mixed
-   */
-  public function setFormElement($values);
 
 }

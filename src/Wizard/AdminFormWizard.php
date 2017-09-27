@@ -42,10 +42,6 @@ class AdminFormWizard extends FormWizardBase {
    */
   public function getOperations($cached_values) {
     $operations = [
-      'selectgroup' => [
-        'form' => 'Drupal\dcb\Form\SelectGroup',
-        'title' => $this->t('Select a group'),
-      ],
       'selectwidget' => [
         'form' => 'Drupal\dcb\Form\SelectWidget',
         'title' => $this->t('Select a widget'),
