@@ -27,7 +27,7 @@ class DCBPhpPreRenderer {
     $this->component = $component;
 
     $assembled = [
-      'meta' => $this->component->getInstanceData()['meta'],
+      'meta' => $this->component->getInstanceData()['data']['meta'],
       'display' => '',
       'outer' => $this->outerPreRender(),
     ];

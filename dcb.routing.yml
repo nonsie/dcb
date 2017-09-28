@@ -1,12 +1,12 @@
 dcb.remove:
-  path: '/dcb/remove/{rid}/{bid}'
+  path: '/dcb/remove/{rid}/{bid}/{revision}'
   defaults:
     _controller: '\Drupal\dcb\Controller\DCBController::remove'
   requirements:
     _permission: 'use dcb'
 
 dcb.update:
-  path: '/dcb/update/{rid}/{bid}'
+  path: '/dcb/update/{rid}/{bid}/{revision}/{weight}'
   defaults:
     _controller: '\Drupal\dcb\Controller\DCBController::update'
   requirements:

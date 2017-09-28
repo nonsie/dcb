@@ -109,9 +109,9 @@ class DCBCore {
    * @return array
    */
   public function getComponentAdminForm($regionId, $componentId, $entityId, $componentType) {
-    $data = $this->db->getBlock($regionId, $componentId);
+    $data = $this->db->getBlock($regionId, $componentId, '1');
     if ($componentType === '') {
-      $componentType = $data['meta']['component'];
+      $componentType = $data['data']['meta']['component'];
     }
     $component = $this->getComponentInstance($componentType);
     $component->setInstanceData($data);
@@ -129,7 +129,7 @@ class DCBCore {
   public function saveComponentStorageArray(FormStateInterface $formState, $component_type) {
     $component = $this->getComponentInstance($component_type);
     $storageArray = $this->storageArrayGenerator->generate($formState, $component);
-    $this->db->save($storageArray);
+    $this->upsert($storageArray['rid'], $storageArray['bid'], $storageArray['revision'], $storageArray['data'], $storageArray['weight'], $storageArray['status']);
     return $storageArray;
   }
 
@@ -143,7 +143,7 @@ class DCBCore {
    */
   public function renderRegion($rid, $entity, $region_label, $renderer_name) {
     $renderer = $this->rendererFactory->getRenderer($renderer_name);
-    $region_data = $this->db->getBlocks($rid);
+    $region_data = $this->db->getBlocks($rid, '1');
     $prerenderdata = [];
     foreach($region_data as $component_data) {
       $prerenderdata[] = $this->preRenderComponent($component_data);
@@ -158,11 +158,11 @@ class DCBCore {
    *
    * @return mixed
    */
-  public function renderComponent($rid, $bid, $renderer_name) {
+  public function renderComponent($rid, $bid, $revision, $renderer_name) {
     $renderer = $this->rendererFactory->getRenderer($renderer_name);
-    $region_data = $this->db->getBlocks($rid);
+    $region_data = $this->db->getBlocks($rid, $revision);
     foreach($region_data as $component_data) {
-      if ($component_data['meta']['bid'] === $bid) {
+      if ($component_data['bid'] === $bid) {
         $prerenderdata = $this->preRenderComponent($component_data);
         return $renderer->renderComponent($prerenderdata);
       }
@@ -176,7 +176,7 @@ class DCBCore {
    * @return mixed
    */
   public function preRenderComponent($component_data) {
-    $component = $this->getComponentInstance($component_data['meta']['component']);
+    $component = $this->getComponentInstance($component_data['data']['meta']['component']);
     $component->setInstanceData($component_data);
     return $this->preRenderer->preRender($component);
   }
@@ -202,23 +202,39 @@ class DCBCore {
   /**
    * @param $rid
    * @param $bid
+   * @param string $revision
+   * @param null $data
+   * @param null $weight
+   * @param string $status
+   */
+  protected function upsert($rid, $bid, $revision = '1', $data = NULL, $weight = NULL, $status = NULL) {
+    if ($data == NULL || $weight == NULL || $status == NULL) {
+      $dbdata = $this->db->getBlock($rid, $bid, $revision);
+      $data = $data !== NULL ? $data : $dbdata['data'];
+      $weight = $weight !== NULL ? $weight : $dbdata['weight'];
+      $status = $status !== NULL ? $status : $dbdata['status'];
+    }
+    $record = [
+      'rid' => $rid,
+      'bid' => $bid,
+      'revisionid' => $revision,
+      'data' => $data,
+      'weight' => $weight,
+      'status' => $status,
+    ];
+    $this->db->save($record);
+  }
+
+  /**
+   * @param $rid
+   * @param $bid
    *
    * @return mixed
    */
-  public function updateBlock($rid, $bid) {
+  public function updateWeight($rid, $bid, $revision, $weight) {
     $result = FALSE;
-    if ($block = $this->db->getBlock($rid, $bid)) {
-      foreach ($_POST as $key => $value) {
-        $block[$key] = $value;
-      }
-      $record = [
-        'rid' => $rid,
-        'bid' => $bid,
-        'data' => serialize($block)
-      ];
-      $result = $this->db->save($record);
-    }
-    return ['result' => $result];
+    $this->upsert($rid, $bid, $revision, NULL, $weight, NULL);
+    return ['result' => TRUE];
   }
 
   /**

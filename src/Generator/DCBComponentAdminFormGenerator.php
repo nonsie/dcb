@@ -34,6 +34,9 @@ class DCBComponentAdminFormGenerator {
   }
 
   /**
+   * @param $regionId
+   * @param $componentId
+   * @param $entityId
    * @param \Drupal\dcb\Base\Component\DCBComponentInterface $component
    *
    * @return array
@@ -56,6 +59,7 @@ class DCBComponentAdminFormGenerator {
   }
 
   protected function generateMeta($regionId, $componentId, $entityId) {
+    $component_data = $this->component->getInstanceData();
     return [
       '#tree' => TRUE,
       'eid' => [
@@ -73,6 +77,18 @@ class DCBComponentAdminFormGenerator {
       'component' => [
         '#type' => 'hidden',
         '#value' => $this->component->getComponentTypeId(),
+      ],
+      'weight' => [
+        '#type' => 'hidden',
+        '#value' => isset($component_data['weight']) && !empty($component_data['weight']) ? $component_data['weight'] : '0',
+      ],
+      'revision' => [
+        '#type' => 'hidden',
+        '#value' => isset($component_data['revision']) && !empty($component_data['revision']) ? $component_data['revision'] : '1',
+      ],
+      'status' => [
+        '#type' => 'hidden',
+        '#value' => isset($component_data['status']) && !empty($component_data['status']) ? $component_data['status'] : 'live',
       ],
     ];
   }

@@ -3,6 +3,7 @@
 namespace Drupal\dcb\Base\Component;
 
 use Drupal\Component\Plugin\PluginBase;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\dcb\Manager\DCBFieldManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -96,9 +97,9 @@ abstract class DCBComponentBase extends PluginBase implements ContainerFactoryPl
   }
 
   public function getOuterFieldsInstanceData(string $key) {
-    if (isset($this->getInstanceData()['fieldSets']['outer']['fields']['visible'][$key]['field_data'])
-        && !empty($this->getInstanceData()['fieldSets']['outer']['fields']['visible'][$key]['field_data'])) {
-      return $this->getInstanceData()['fieldSets']['outer']['fields']['visible'][$key]['field_data'];
+    if (isset($this->getInstanceData()['data']['fieldSets']['outer']['fields']['visible'][$key]['field_data'])
+        && !empty($this->getInstanceData()['data']['fieldSets']['outer']['fields']['visible'][$key]['field_data'])) {
+      return $this->getInstanceData()['data']['fieldSets']['outer']['fields']['visible'][$key]['field_data'];
     }
     else {
       return [];

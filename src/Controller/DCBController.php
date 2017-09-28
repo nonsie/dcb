@@ -64,8 +64,8 @@ class DCBController extends ControllerBase {
    *
    * @return \Symfony\Component\HttpFoundation\JsonResponse
    */
-  public function update($rid, $bid) {
-    $result = $this->DCBCore->updateBlock($rid, $bid);
+  public function update($rid, $bid, $revision, $weight) {
+    $result = $this->DCBCore->updateWeight($rid, $bid, $revision, $weight);
     return new JsonResponse(Json::encode($result));
   }
 

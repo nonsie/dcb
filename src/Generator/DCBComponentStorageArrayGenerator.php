@@ -28,6 +28,8 @@ class DCBComponentStorageArrayGenerator {
    */
   private $component;
 
+  private $bid;
+
   public function __construct(DCBFieldManager $DCBFieldManager) {
     $this->DCBFieldManager = $DCBFieldManager;
   }
@@ -35,37 +37,48 @@ class DCBComponentStorageArrayGenerator {
   public function generate(FormStateInterface $formState, DCBComponentInterface $component) {
     $this->formState = $formState;
     $this->component = $component;
+    $this->bid = $this->generateBid($this->formState->getValue(['meta','bid']));
     return [
-      'meta' => $this->buildMeta(),
-      'fieldSets' => [
-        'outer' => [
-          'fields' => [
-            'visible' => $this->buildOuterFieldData(),
+      'bid' => $this->bid,
+      'rid' => $this->formState->getValue(['meta','rid']),
+      'weight' => $this->formState->getValue(['meta','weight']),
+      'revision' => $this->formState->getValue(['meta','revision']),
+      'status' => $this->formState->getValue(['meta','status']),
+      'data' => [
+        'meta' => $this->buildMeta(),
+        'fieldSets' => [
+          'outer' => [
+            'fields' => [
+              'visible' => $this->buildOuterFieldData(),
+            ],
           ],
         ],
       ],
     ];
   }
 
-  public function buildMeta() {
+  protected function generateBid($bidvalue) {
     if ($this->formState->getValue(['meta','bid']) === 'new') {
-      $bid = time();
+      return time();
     }
     else {
-      $bid = $this->formState->getValue(['meta','bid']);
+      return $this->formState->getValue(['meta','bid']);
     }
-    $meta = [
-      'eid' => $this->formState->getValue(['meta','eid']),
-      'bid' => $bid,
-      'rid' => $this->formState->getValue(['meta','rid']),
-      'component' => $this->formState->getValue(['meta','component']),
-      'last_update' => time(),
-    ];
+  }
+
+  public function buildMeta() {
+    $form_state_meta = $this->formState->getValue('meta');
+    foreach($form_state_meta as $key => $value) {
+      $meta[$key] = $value;
+    }
+    $meta['bid'] = $this->bid;
+    $meta['last_update'] = time();
     return $meta;
   }
 
   public function buildOuterFieldData() {
     $outerfields = $this->component->getOuterFieldsDefinition();
+    $storage = [];
     foreach ($outerfields as $key => $type) {
       /** @var \Drupal\dcb\Base\Field\DCBFieldBase $field */
       $field = $this->DCBFieldManager->createInstance($type);

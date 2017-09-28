@@ -59,20 +59,20 @@ class Create extends ComponentWizardBaseForm {
     $component_storage = $this->core->saveComponentStorageArray($formState, $formState->getValue(['meta','component']));
 
     // Prepare the rendered component for ajax update.
-    $prepared = $this->core->renderComponent($component_storage['meta']['rid'], $component_storage['meta']['bid'], 'drupal_theme_renderer');
+    $prepared = $this->core->renderComponent($component_storage['rid'], $component_storage['bid'], $component_storage['revision'], 'drupal_theme_renderer');
     $rendered = $this->renderer->render($prepared);
 
     if ($formState->getValue(['meta','bid']) === 'new') {
-      $command = new AppendCommand('div.dcb-region[data-dcb-rid="' . $component_storage['meta']['rid'] . '"]', $rendered);
+      $command = new AppendCommand('div.dcb-region[data-dcb-rid="' . $component_storage['rid'] . '"]', $rendered);
       $formState->setValue('ajaxcommand', $command);
     }
     else {
-      $command = new ReplaceCommand('div[data-dcb-bid="' . $component_storage['meta']['bid'] . '"]', $rendered);
+      $command = new ReplaceCommand('div[data-dcb-bid="' . $component_storage['bid'] . '"]', $rendered);
       $formState->setValue('ajaxcommand', $command);
     }
 
     // Invalidate the cache for this node so the content appears on next refresh.
-    $this->core->invalidateCache('node', $component_storage['meta']['eid']);
+    $this->core->invalidateCache('node', $component_storage['data']['meta']['eid']);
   }
 
   /**
