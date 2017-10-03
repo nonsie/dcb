@@ -1,6 +1,7 @@
 (function ($) {
 
   var globals = drupalSettings.dcb.core;
+  var currentpath = drupalSettings.path.currentPath;
 
   /*
    * Dynamic blocks controller.
@@ -582,7 +583,7 @@
           }
           $this.sections.region.toggleClass('dyno-editable');
           actions.append(back);
-          var add = $this.makeAJAXLink('new', '<i class="fa fa-plus fa-fw" aria-hidden="true" title="Add Dynoblock"></i>', 'selectgroup', item.rid);
+          var add = $this.makeAddAjaxLink('<i class="fa fa-plus fa-fw" aria-hidden="true" title="Add Dynoblock"></i>', item.rid);
           actions.append(add);
           actions.append('<span class="region-title">' + label + '</span>');
           break;
@@ -611,8 +612,21 @@
       this.renderRegions();
     },
 
+    makeAddAjaxLink: function (text, rid) {
+      var href = '/admin/structure/dcb_component/add/' + rid + '?destination=' + currentpath;
+
+      return $('<a>', {
+        'html': text,
+        'href': href,
+        'data-dialog-type': 'modal',
+        'class': 'use-ajax',
+        'data-dialog-options': '{"width":800,"height":600}'
+      });
+
+    },
+
     makeAJAXLink: function (bid, text, step, rid) {
-      var href = '/dcb/admin-wizard/ajax/' + step + '?bid=' + bid + '&rid=' + rid + '&etype=' + globals.cache.entity + '&eid=' + globals.cache.id;
+      var href = '/admin/structure/dcb_component/' + bid + '/edit?destination=' + currentpath;
 
       return $('<a>', {
         'html': text,

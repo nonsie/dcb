@@ -1,0 +1,12 @@
+dcb.dcb_component_type.*:
+  type: config_entity
+  label: 'DCB Component type config'
+  mapping:
+    id:
+      type: string
+      label: 'ID'
+    label:
+      type: label
+      label: 'Label'
+    uuid:
+      type: string

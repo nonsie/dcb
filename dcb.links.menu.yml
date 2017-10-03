@@ -1,0 +1,18 @@
+
+# DCB Component menu items definition
+entity.dcb_component.collection:
+  title: 'DCB Component list'
+  route_name: entity.dcb_component.collection
+  description: 'List DCB Component entities'
+  parent: system.admin_structure
+  weight: 100
+
+
+# DCB Component type menu items definition
+entity.dcb_component_type.collection:
+  title: 'DCB Component type'
+  route_name: entity.dcb_component_type.collection
+  description: 'List DCB Component type (bundles)'
+  parent: system.admin_structure
+  weight: 99
+
