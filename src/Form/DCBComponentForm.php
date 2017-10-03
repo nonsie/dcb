@@ -86,13 +86,8 @@ class DCBComponentForm extends ContentEntityForm {
 
     $status = parent::save($form, $form_state);
 
-    // Clear the cache for the destination
-    $destination = $this->redirectDestination->getAsArray();
-    $stuff=123;
-    if (!empty($destination)) {
-      $destination = str_replace('/', ':', $destination['destination']);
-      $this->cacheTagsInvalidator->invalidateTags([$destination]);
-    }
+    $this->cacheTagsInvalidator->invalidateTags(['dcbregion:' . $form_state->getValue(['region_id', '0', 'value'])]);
+
     switch ($status) {
       case SAVED_NEW:
         drupal_set_message($this->t('Created the %label DCB Component.', [

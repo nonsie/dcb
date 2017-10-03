@@ -72,6 +72,11 @@ class DCBRegionController extends ControllerBase {
         'data-dcb-label' => $region_label,
         'data-dcb-eid' => $entity_id,
       ],
+      '#cache' => [
+        'keys' => ['dcbregion', $rid],
+        'max-age' => \Drupal\Core\Cache\Cache::PERMANENT,
+        'tags' => ['dcbregion:' . $rid],
+      ],
     ];
 
     $region['content'] = $pre_render;
