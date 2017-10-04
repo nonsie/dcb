@@ -247,28 +247,6 @@ class DCBComponent extends RevisionableContentEntityBase implements DCBComponent
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
-    $fields['region_id'] = BaseFieldDefinition::create('string')
-      ->setLabel(t('Region ID'))
-      ->setDescription(t('The Region in which this component is assigned.'))
-      ->setRevisionable(TRUE)
-      ->setSettings([
-        'max_length' => 50,
-        'text_processing' => 0,
-      ])
-      ->setDefaultValue('')
-      ->setDisplayOptions('view', [
-        'label' => 'above',
-        'type' => 'string',
-        'weight' => -4,
-        'region' => 'hidden',
-      ])
-      ->setDisplayOptions('form', [
-        'type' => 'string_textfield',
-        'weight' => 99,
-      ])
-      ->setDisplayConfigurable('form', FALSE)
-      ->setDisplayConfigurable('view', FALSE);
-
     $fields['administrative_label'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Administrative Label'))
       ->setDescription(t('A short label for this component. For administrative purposes only.'))
@@ -312,6 +290,14 @@ class DCBComponent extends RevisionableContentEntityBase implements DCBComponent
       ->setReadOnly(TRUE)
       ->setRevisionable(TRUE)
       ->setTranslatable(TRUE);
+
+    $fields['region_id'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Region ID'))
+      ->setDescription(t('The Region in which this component is assigned.'));
+
+    $fields['view_mode'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('View Mode'))
+      ->setDescription(t('The View Mode to use for this component'));
 
     return $fields;
   }

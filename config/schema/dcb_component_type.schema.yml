@@ -10,3 +10,7 @@ dcb.dcb_component_type.*:
       label: 'Label'
     uuid:
       type: string
+    view_modes:
+      type: sequence
+      sequence:
+        type: string

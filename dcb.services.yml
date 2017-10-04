@@ -4,3 +4,4 @@ services:
     arguments:
       - '@entity.query'
       - '@entity_type.manager'
+      - '@cache_tags.invalidator'

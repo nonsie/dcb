@@ -44,7 +44,6 @@ class DCBComponentForm extends ContentEntityForm {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    /* @var $entity \Drupal\dcb\Entity\DCBComponent */
     $form = parent::buildForm($form, $form_state);
 
     if (!$this->entity->isNew()) {
@@ -56,13 +55,24 @@ class DCBComponentForm extends ContentEntityForm {
       ];
     }
 
-    if (isset($form['revision_log_message']['widget'][0]['#weight'])) {
-      $form['revision_log_message']['#weight'] = 200;
-      $form['revision_log_message']['widget'][0]['#weight'] = 200;
+    $view_modes_storage = $this->entityTypeManager->getStorage('dcb_component_type')->load($this->entity->bundle())->get('view_modes');
+    $all_view_modes = $view_modes = $this->entityManager->getViewModeOptionsByBundle('dcb_component', $this->entity->bundle());
+    foreach($view_modes_storage as $key => $value) {
+      if ($value !== '0') {
+        $selected_view_modes[$key] = $all_view_modes[$key];
+      }
     }
 
-    $entity = $this->entity;
+    if(!empty($selected_view_modes)) {
+      $form['view_mode_select'] = [
+        '#type' => 'select',
+        '#title' => "choose a view mode",
+        '#options' => $selected_view_modes,
+        '#default_value' => $this->entity->get('view_mode')->getString(),
+      ];
+    }
 
+    unset($form['actions']['delete']);
     return $form;
   }
 
@@ -84,9 +94,11 @@ class DCBComponentForm extends ContentEntityForm {
       $entity->setNewRevision(FALSE);
     }
 
+    $entity->set('view_mode', $form_state->getValue('view_mode_select'));
+
     $status = parent::save($form, $form_state);
 
-    $this->cacheTagsInvalidator->invalidateTags(['dcbregion:' . $form_state->getValue(['region_id', '0', 'value'])]);
+    $this->cacheTagsInvalidator->invalidateTags(['dcbregion:' . $entity->get('region_id')->getString()]);
 
     switch ($status) {
       case SAVED_NEW:

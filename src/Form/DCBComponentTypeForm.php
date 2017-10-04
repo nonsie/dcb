@@ -15,8 +15,8 @@ class DCBComponentTypeForm extends EntityForm {
    */
   public function form(array $form, FormStateInterface $form_state) {
     $form = parent::form($form, $form_state);
-
     $dcb_component_type = $this->entity;
+
     $form['label'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Label'),
@@ -33,7 +33,29 @@ class DCBComponentTypeForm extends EntityForm {
         'exists' => '\Drupal\dcb\Entity\DCBComponentType::load',
       ],
       '#disabled' => !$dcb_component_type->isNew(),
+
     ];
+
+    if (!empty($dcb_component_type->id())) {
+      $entity_type = 'dcb_component';
+      $bundle = $dcb_component_type->id();
+      // Get all view modes for the current bundle.
+      $view_modes = $this->entityManager->getViewModeOptionsByBundle($entity_type, $bundle);
+
+      $form['view_modes']  = [
+        '#type' => 'checkboxes',
+        '#title' => $this->t('Available View Modes'),
+        '#options' => $view_modes,
+        '#description' => $this->t("Choose the view modes that should be available for this component type."),
+        '#default_value' => $dcb_component_type->get('view_modes'),
+      ];
+    }
+    else {
+      $form['view_modes'] = [
+        '#type' => 'hidden',
+        '#value' => [],
+      ];
+    }
 
     /* You will need additional form elements for your custom properties. */
 
@@ -45,6 +67,11 @@ class DCBComponentTypeForm extends EntityForm {
    */
   public function save(array $form, FormStateInterface $form_state) {
     $dcb_component_type = $this->entity;
+
+    if ($form_state->getValue('view_modes') !== NULL) {
+      $dcb_component_type->set('view_modes', $form_state->getValue('view_modes'));
+    }
+
     $status = $dcb_component_type->save();
 
     switch ($status) {

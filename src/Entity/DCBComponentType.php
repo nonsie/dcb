@@ -55,4 +55,23 @@ class DCBComponentType extends ConfigEntityBundleBase implements DCBComponentTyp
    */
   protected $label;
 
+  /**
+   * @var array
+   */
+  protected $selectedViewModes;
+
+  /**
+   * @param array $viewModes
+   */
+  public function setSelectedViewModes(array $viewModes) {
+    $this->selectedViewModes = $viewModes;
+  }
+
+  /**
+   * @return array
+   */
+  public function getSelectedViewModes(): array {
+    return $this->selectedViewModes;
+  }
+
 }

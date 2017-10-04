@@ -8,10 +8,12 @@
 
 namespace Drupal\dcb\Controller;
 
+use Drupal\Core\Cache\CacheTagsInvalidator;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Entity\Query\QueryFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class DCBRegionController extends ControllerBase {
 
@@ -26,14 +28,20 @@ class DCBRegionController extends ControllerBase {
   protected $entityTypeManager;
 
   /**
+   * @var \Drupal\Core\Cache\CacheTagsInvalidator
+   */
+  private $cacheTagsInvalidator;
+
+  /**
    * DCBRegionController constructor.
    *
    * @param \Drupal\Core\Config\Entity\Query\QueryFactory $queryFactory
    * @param \Drupal\Core\Entity\EntityTypeManager $entityTypeManager
    */
-  public function __construct(QueryFactory $queryFactory, EntityTypeManager $entityTypeManager) {
+  public function __construct(QueryFactory $queryFactory, EntityTypeManager $entityTypeManager, CacheTagsInvalidator $cacheTagsInvalidator) {
     $this->queryFactory = $queryFactory;
     $this->entityTypeManager = $entityTypeManager;
+    $this->cacheTagsInvalidator = $cacheTagsInvalidator;
   }
 
   /**
@@ -42,7 +50,8 @@ class DCBRegionController extends ControllerBase {
   public static function create(ContainerInterface $container){
     return new static(
       $container->get('entity.query'),
-      $container->get('entity_type.manager')
+      $container->get('entity_type.manager'),
+      $container->get('cache_tags.invalidator')
     );
   }
 
@@ -83,6 +92,12 @@ class DCBRegionController extends ControllerBase {
 
     return $region;
 
+  }
+
+  public function deleteComponentFromRegion($regionId, $componentId) {
+    $this->entityTypeManager->getStorage('dcb_component')->delete([$componentId]);
+    $this->cacheTagsInvalidator->invalidateTags(['dcbregion:' . $regionId]);
+    return new JsonResponse(TRUE);
   }
 
 }
