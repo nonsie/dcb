@@ -106,5 +106,32 @@ function dcb_theme_suggestions_dcb_component(array $variables) {
   return $suggestions;
 }
 
+/**
+ * Implements hook_entity_view_mode_alter().
+ */
+function dcb_entity_view_mode_alter(&$view_mode, EntityInterface $entity, $context) {
+  if ($view_mode !== 'dcb_inline_viewmode') {
+    return;
+  }
+
+  /** @var \Drupal\dcb\Entity\DCBComponent $component */
+  $component = $entity;
+  $displayRepository = \Drupal::service('entity_display.repository');
+
+  // Set view mode to 'Default', this is for entities without
+  // a view mode selector field.
+  $view_mode = 'default';
+
+  // Find the first view mode selector field and change the view mode.
+  $selected_mode = $component->get('view_mode')->getString();
+  $available_modes = array_keys($displayRepository->getViewModeOptionsByBundle('dcb_component', $component->bundle()));
+
+  if (!empty($selected_mode) && in_array($selected_mode, $available_modes)) {
+    $view_mode = $selected_mode;
+  }
+
+  return $view_mode;
+}
+
 
 

@@ -56,7 +56,7 @@ class DCBComponentForm extends ContentEntityForm {
     }
 
     $view_modes_storage = $this->entityTypeManager->getStorage('dcb_component_type')->load($this->entity->bundle())->get('view_modes');
-    $all_view_modes = $view_modes = $this->entityManager->getViewModeOptionsByBundle('dcb_component', $this->entity->bundle());
+    $all_view_modes = $this->entityManager->getViewModeOptionsByBundle('dcb_component', $this->entity->bundle());
     foreach($view_modes_storage as $key => $value) {
       if ($value !== '0') {
         $selected_view_modes[$key] = $all_view_modes[$key];

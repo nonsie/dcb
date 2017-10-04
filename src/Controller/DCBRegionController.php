@@ -71,7 +71,7 @@ class DCBRegionController extends ControllerBase {
 
     $view_builder = $this->entityTypeManager->getViewBuilder('dcb_component');
     $entity = $this->entityTypeManager->getStorage('dcb_component')->loadMultiple(array_values($ids));
-    $pre_render = $view_builder->viewMultiple($entity, 'view_mode_selector');
+    $pre_render = $view_builder->viewMultiple($entity, 'dcb_inline_viewmode');
 
     $region = [
       '#type' => 'container',
