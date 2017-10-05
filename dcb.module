@@ -122,10 +122,13 @@ function dcb_entity_view_mode_alter(&$view_mode, EntityInterface $entity, $conte
   // a view mode selector field.
   $view_mode = 'default';
 
-  // Find the first view mode selector field and change the view mode.
+  // Find the selected mode
   $selected_mode = $component->get('view_mode')->getString();
+
+  // Get all the available view modes for this bundle.
   $available_modes = array_keys($displayRepository->getViewModeOptionsByBundle('dcb_component', $component->bundle()));
 
+  // If the selected mode exists in the list of available modes, change the view mode.
   if (!empty($selected_mode) && in_array($selected_mode, $available_modes)) {
     $view_mode = $selected_mode;
   }
