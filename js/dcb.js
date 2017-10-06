@@ -83,7 +83,7 @@
     postData: function (url, data, callback) {
       $.post(url, data).done(function (data) {
         if (callback) {
-          callback(JSON.parse(data));
+          callback(data);
         }
       }, 'json');
     },
@@ -91,7 +91,6 @@
     removeBlock: function (rid, bid, callback) {
       var $this = this;
       this.postData('/dcb/remove/' + rid + '/' + bid, [], function (data) {
-        $this.clearCacheTag();
         if (data.removed) {
           $this.getBlock(rid, bid, true);
         }
@@ -101,21 +100,14 @@
       });
     },
 
-    updateWeight: function (rid, bid, data, callback) {
+    updateWeight: function (rid, data, callback) {
       var $this = this;
-      this.postData('/dcb/update/' + rid + '/' + bid, data, function (data) {
-        $this.clearCacheTag();
+      this.postData('/dcb/update/' + rid, data, function (data) {
         if (callback) {
           callback(data);
         }
       });
     },
-
-    clearCacheTag: function () {
-      if (globals.cache.entity && globals.cache.id) {
-        this.getData('/dcb/invalidate/' + globals.cache.entity + '/' + globals.cache.id, '');
-      }
-    }
 
   };
 
@@ -137,7 +129,7 @@
     this.loadDynoBlocks = function () {
       var _this = this;
       this.region.children('.dcb-component').each(function () {
-        _this.addBlock($(this), $(this).data('dcb-bid'), $(this).data('dcb-rid'), $(this).data('dcb-handler'));
+        _this.addBlock($(this), $(this).data('dcb-bid'), _this.rid, $(this).data('dcb-handler'));
       });
       return this.dynoblocks;
     };
@@ -185,11 +177,12 @@
         return 0;
       });
 
+      var weightvalues = {};
       for (var weight in blocks) {
         this.region.append(blocks[weight].element);
-        DCB.updateWeight($this.rid, blocks[weight].bid, {"weight": weight}, function (result) {
-        });
+        weightvalues[blocks[weight].bid]=weight;
       }
+      DCB.updateWeight($this.rid, {"weights" : weightvalues}, function (result) {});
     }
   }
 

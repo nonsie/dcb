@@ -1,0 +1,13 @@
+dcb.remove:
+  path: '/dcb/remove/{regionId}/{componentId}'
+  defaults:
+    _controller: '\Drupal\dcb\Controller\DCBRegionController::deleteComponentFromRegion'
+  requirements:
+    _permission: 'use dcb'
+
+dcb.weight.update:
+  path: '/dcb/update/{regionId}'
+  defaults:
+    _controller: '\Drupal\dcb\Controller\DCBRegionController::updateWeights'
+  requirements:
+    _permission: 'use dcb'

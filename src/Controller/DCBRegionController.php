@@ -8,12 +8,14 @@
 
 namespace Drupal\dcb\Controller;
 
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\CacheTagsInvalidator;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Entity\Query\QueryFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 
 class DCBRegionController extends ControllerBase {
 
@@ -67,6 +69,7 @@ class DCBRegionController extends ControllerBase {
     $query = \Drupal::entityQuery('dcb_component');
     $query->condition('status', 1);
     $query->condition('region_id', $rid);
+    $query->sort('weight','ASC');
     $ids = $query->execute();
 
     $view_builder = $this->entityTypeManager->getViewBuilder('dcb_component');
@@ -83,7 +86,7 @@ class DCBRegionController extends ControllerBase {
       ],
       '#cache' => [
         'keys' => ['dcbregion', $rid],
-        'max-age' => \Drupal\Core\Cache\Cache::PERMANENT,
+        'max-age' => Cache::PERMANENT,
         'tags' => ['dcbregion:' . $rid],
       ],
     ];
@@ -94,10 +97,32 @@ class DCBRegionController extends ControllerBase {
 
   }
 
-  public function deleteComponentFromRegion($regionId, $componentId) {
-    $this->entityTypeManager->getStorage('dcb_component')->delete([$componentId]);
+  public function deleteComponentFromRegion(Request $request, $regionId, $componentId) {
+    $entityStorage = $this->entityTypeManager->getStorage('dcb_component');
+    $entity = $entityStorage->load($componentId);
+    if ($entity) {
+      $entityStorage->delete([$entity]);
+      $this->cacheTagsInvalidator->invalidateTags(['dcbregion:' . $regionId]);
+    }
+    $data['removed'] = TRUE;
+    return new JsonResponse($data);
+  }
+
+  public function updateWeights(Request $request, $regionId) {
+    $weightdata = $request->get('weights');
+
+    if (!empty($weightdata)) {
+      $entityStorage = $this->entityTypeManager->getStorage('dcb_component');
+      foreach ($weightdata as $eid => $weight) {
+        /** @var \Drupal\dcb\Entity\DCBComponent $entity */
+        $entity = $entityStorage->load($eid);
+        $entity->setWeight($weight);
+        $entity->save();
+      }
+    }
+    $data = TRUE;
     $this->cacheTagsInvalidator->invalidateTags(['dcbregion:' . $regionId]);
-    return new JsonResponse(TRUE);
+    return new JsonResponse($data);
   }
 
 }

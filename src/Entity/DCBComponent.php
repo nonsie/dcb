@@ -123,6 +123,21 @@ class DCBComponent extends RevisionableContentEntityBase implements DCBComponent
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function getWeight() {
+    return $this->get('weight')->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setWeight($weight) {
+    $this->set('weight', $weight);
+    return $this;
+  }
+
+  /**
    * @return \Drupal\Core\Field\FieldItemListInterface
    */
   public function getAdministrativeLabel() {
@@ -298,6 +313,11 @@ class DCBComponent extends RevisionableContentEntityBase implements DCBComponent
     $fields['view_mode'] = BaseFieldDefinition::create('string')
       ->setLabel(t('View Mode'))
       ->setDescription(t('The View Mode to use for this component'));
+
+    $fields['weight'] = BaseFieldDefinition::create('integer')
+      ->setLabel(t('Weight'))
+      ->setDescription(t('The weight of this component in the region its assigned.'))
+      ->setDefaultValue(0);
 
     return $fields;
   }
