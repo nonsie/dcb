@@ -3,11 +3,11 @@ dcb.remove:
   defaults:
     _controller: '\Drupal\dcb\Controller\DCBRegionController::deleteComponentFromRegion'
   requirements:
-    _permission: 'use dcb'
+    _permission: 'delete dcb component entities'
 
 dcb.weight.update:
   path: '/dcb/update/{regionId}'
   defaults:
     _controller: '\Drupal\dcb\Controller\DCBRegionController::updateWeights'
   requirements:
-    _permission: 'use dcb'
+    _permission: 'edit dcb component entities'

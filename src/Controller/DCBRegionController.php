@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: garymorse
- * Date: 10/2/17
- * Time: 7:46 PM
- */
 
 namespace Drupal\dcb\Controller;
 
@@ -97,6 +91,13 @@ class DCBRegionController extends ControllerBase {
 
   }
 
+  /**
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   * @param $regionId
+   * @param $componentId
+   *
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
+   */
   public function deleteComponentFromRegion(Request $request, $regionId, $componentId) {
     $entityStorage = $this->entityTypeManager->getStorage('dcb_component');
     $entity = $entityStorage->load($componentId);
@@ -108,6 +109,12 @@ class DCBRegionController extends ControllerBase {
     return new JsonResponse($data);
   }
 
+  /**
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   * @param $regionId
+   *
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
+   */
   public function updateWeights(Request $request, $regionId) {
     $weightdata = $request->get('weights');
 

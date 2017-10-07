@@ -3,6 +3,9 @@
 namespace Drupal\dcb\Form;
 
 use Drupal\Component\Datetime\TimeInterface;
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\RedirectCommand;
+use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Cache\CacheTagsInvalidator;
 use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Entity\EntityManagerInterface;
@@ -10,6 +13,8 @@ use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\RedirectDestination;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Url;
+use Drupal\views\Ajax\ScrollTopCommand;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -72,8 +77,43 @@ class DCBComponentForm extends ContentEntityForm {
       ];
     }
 
+    $form_actions = $form['actions'];
+
+    unset($form['actions']);
+
+    $form = [
+      'ajax_wrap' => [
+        '#type' => 'container',
+        '#prefix' => '<div id="dcbcomponent-entity-form">',
+        '#suffix' => '</div>',
+        'content' => $form,
+      ],
+      'actions' => $form_actions,
+    ];
+
     unset($form['actions']['delete']);
+
+    $form['actions']['submit']['#ajax'] = [
+      'callback' => '::submitAjax',
+      'wrapper' => 'dcbcomponent-entity-form',
+    ];
+
     return $form;
+  }
+
+  public function submitAjax($form, FormStateInterface $formState) {
+    $response = new AjaxResponse();
+
+    if ($formState::hasAnyErrors()) {
+      $response->addCommand(new ReplaceCommand('#dcbcomponent-entity-form', $form['ajax_wrap']));
+      $response->addCommand(new ScrollTopCommand('#drupal-modal'));
+    }
+    else {
+      $url = Url::fromUserInput("/" . $this->redirectDestination->get())->setAbsolute()->toString();
+      $response->addCommand(new RedirectCommand($url));
+    }
+
+    return $response;
   }
 
   /**
