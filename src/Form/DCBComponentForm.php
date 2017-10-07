@@ -14,7 +14,6 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\RedirectDestination;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
-use Drupal\views\Ajax\ScrollTopCommand;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -86,6 +85,9 @@ class DCBComponentForm extends ContentEntityForm {
         '#type' => 'container',
         '#prefix' => '<div id="dcbcomponent-entity-form">',
         '#suffix' => '</div>',
+        'messages' => [
+          '#type' => 'status_messages',
+        ],
         'content' => $form,
       ],
       'actions' => $form_actions,
@@ -106,7 +108,6 @@ class DCBComponentForm extends ContentEntityForm {
 
     if ($formState::hasAnyErrors()) {
       $response->addCommand(new ReplaceCommand('#dcbcomponent-entity-form', $form['ajax_wrap']));
-      $response->addCommand(new ScrollTopCommand('#drupal-modal'));
     }
     else {
       $url = Url::fromUserInput("/" . $this->redirectDestination->get())->setAbsolute()->toString();
