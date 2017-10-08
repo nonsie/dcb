@@ -26,7 +26,13 @@ class DCBComponentForm extends ContentEntityForm {
   /**
    * @var \Drupal\Core\Cache\CacheTagsInvalidator
    */
-  private $cacheTagsInvalidator;
+  protected $cacheTagsInvalidator;
+
+  /**
+   * @var \Drupal\Core\Routing\RedirectDestination
+   */
+  protected $redirectDestination;
+
 
   public function __construct(EntityManagerInterface $entity_manager, EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL, TimeInterface $time = NULL, CacheTagsInvalidator $cacheTagsInvalidator, RedirectDestination $redirectDestination) {
     parent::__construct($entity_manager, $entity_type_bundle_info, $time);
