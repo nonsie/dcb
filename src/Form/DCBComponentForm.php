@@ -102,7 +102,7 @@ class DCBComponentForm extends ContentEntityForm {
     unset($form['actions']['delete']);
 
     $form['actions']['submit']['#ajax'] = [
-      'callback' => '::submitAjax',
+      'callback' => [$this, 'submitAjax'],
       'wrapper' => 'dcbcomponent-entity-form',
     ];
 
