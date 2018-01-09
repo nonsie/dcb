@@ -5,7 +5,7 @@ namespace Drupal\dcb\Plugin\DCBComponent\Card;
 use Drupal\dcb\Base\Theme\DCBComponentTheme;
 
 /**
- * Class AAACardsDefaultTheme.
+ * Class CardsDefaultTheme.
  *
  * @package Drupal\dynoblock\Plugin\Dynoblock\Card
  */

@@ -130,15 +130,15 @@ class Card extends DCBComponentBase implements DCBComponentInterface{
      * look and act different. Each 'themes' below should be created as a class implementing
      * \DCBComponentTheme.
      * @see \Drupal\dcb\Plugin\DCBComponent\Card\CardsDefaultTheme
-     * @see \Drupal\dcb\Plugin\DCBComponent\Card\AAACardTextCenterItemTheme
+     * @see \Drupal\dcb\Plugin\DCBComponent\Card\CardTextCenterItemTheme
      */
     $this->registerItemThemeOptions([
       $delta => [
         'themes' => [
-          'AAACardDefaultItemTheme' => t('Default (text align left)'),
-          'AAACardTextCenterItemTheme' => t('Center (text align center)'),
+          'CardDefaultItemTheme' => t('Default (text align left)'),
+          'CardTextCenterItemTheme' => t('Center (text align center)'),
         ],
-        'default' => 'AAACardDefaultItemTheme',
+        'default' => 'CardDefaultItemTheme',
       ]
     ]);
 
