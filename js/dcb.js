@@ -1,6 +1,7 @@
 (function ($) {
 
   var globals = drupalSettings.dcb.core;
+  var currentpath = drupalSettings.path.currentPath;
 
   /*
    * Dynamic blocks controller.
@@ -21,7 +22,7 @@
 
     loadRegions: function () {
       var _this = this;
-      $('.dynoblock-region').each(function () {
+      $('.dcb-region').each(function () {
         var region = new DCBRegion($(this));
         _this.regions.push(region);
         region.init();
@@ -82,7 +83,7 @@
     postData: function (url, data, callback) {
       $.post(url, data).done(function (data) {
         if (callback) {
-          callback(JSON.parse(data));
+          callback(data);
         }
       }, 'json');
     },
@@ -90,7 +91,6 @@
     removeBlock: function (rid, bid, callback) {
       var $this = this;
       this.postData('/dcb/remove/' + rid + '/' + bid, [], function (data) {
-        $this.clearCacheTag();
         if (data.removed) {
           $this.getBlock(rid, bid, true);
         }
@@ -100,21 +100,14 @@
       });
     },
 
-    updateWeight: function (rid, bid, data, callback) {
+    updateWeight: function (rid, data, callback) {
       var $this = this;
-      this.postData('/dcb/update/' + rid + '/' + bid, data, function (data) {
-        $this.clearCacheTag();
+      this.postData('/dcb/update/' + rid, data, function (data) {
         if (callback) {
           callback(data);
         }
       });
     },
-
-    clearCacheTag: function () {
-      if (globals.cache.entity && globals.cache.id) {
-        this.getData('/dcb/invalidate/' + globals.cache.entity + '/' + globals.cache.id, '');
-      }
-    }
 
   };
 
@@ -124,9 +117,9 @@
   function DCBRegion(region) {
     this.blocks = [];
     this.region = region;
-    this.rid = region.data('dyno-rid');
-    this.nid = region.data('dyno-nid');
-    this.label = region.data('dyno-label');
+    this.rid = region.data('dcb-rid');
+    this.nid = region.data('dcb-nid');
+    this.label = region.data('dcb-label');
     var $this = this;
 
     this.init = function () {
@@ -135,8 +128,8 @@
 
     this.loadDynoBlocks = function () {
       var _this = this;
-      this.region.children('.dynoblock').each(function () {
-        _this.addBlock($(this), $(this).data('dyno-bid'), $(this).data('dyno-rid'), $(this).data('dyno-handler'));
+      this.region.children('.dcb-component').each(function () {
+        _this.addBlock($(this), $(this).data('dcb-bid'), _this.rid, $(this).data('dcb-handler'));
       });
       return this.dynoblocks;
     };
@@ -184,11 +177,12 @@
         return 0;
       });
 
+      var weightvalues = {};
       for (var weight in blocks) {
         this.region.append(blocks[weight].element);
-        DCB.updateWeight($this.rid, blocks[weight].bid, {"weight": weight}, function (result) {
-        });
+        weightvalues[blocks[weight].bid]=weight;
       }
+      DCB.updateWeight($this.rid, {"weights" : weightvalues}, function (result) {});
     }
   }
 
@@ -582,7 +576,7 @@
           }
           $this.sections.region.toggleClass('dyno-editable');
           actions.append(back);
-          var add = $this.makeAJAXLink('new', '<i class="fa fa-plus fa-fw" aria-hidden="true" title="Add Dynoblock"></i>', 'selectgroup', item.rid);
+          var add = $this.makeAddAjaxLink('<i class="fa fa-plus fa-fw" aria-hidden="true" title="Add Dynoblock"></i>', item.rid);
           actions.append(add);
           actions.append('<span class="region-title">' + label + '</span>');
           break;
@@ -611,8 +605,21 @@
       this.renderRegions();
     },
 
+    makeAddAjaxLink: function (text, rid) {
+      var href = '/admin/structure/dcb_component/add/' + rid + '?destination=' + currentpath;
+
+      return $('<a>', {
+        'html': text,
+        'href': href,
+        'data-dialog-type': 'modal',
+        'class': 'use-ajax',
+        'data-dialog-options': '{"width":800,"height":600}'
+      });
+
+    },
+
     makeAJAXLink: function (bid, text, step, rid) {
-      var href = '/dcb/admin-wizard/ajax/' + step + '?bid=' + bid + '&rid=' + rid + '&etype=' + globals.cache.entity + '&eid=' + globals.cache.id;
+      var href = '/admin/structure/dcb_component/' + bid + '/edit?destination=' + currentpath;
 
       return $('<a>', {
         'html': text,
@@ -632,8 +639,8 @@
   function DCBComponent(block, bid, rid, handler) {
     this.element = block;
     this.bid = bid;
-    this.label = block.data('dyno-label');
-    this.weight = block.data('dyno-weight');
+    this.label = block.data('dcb-label');
+    this.weight = block.data('dcb-weight');
     this.handler = handler;
     this.rid = rid;
     this.init = function () {

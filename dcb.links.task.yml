@@ -1,0 +1,23 @@
+# DCB Component routing definition
+
+entity.dcb_component.canonical:
+  route_name: entity.dcb_component.canonical
+  base_route: entity.dcb_component.canonical
+  title: 'View'
+
+entity.dcb_component.edit_form:
+  route_name: entity.dcb_component.edit_form
+  base_route: entity.dcb_component.canonical
+  title: 'Edit'
+
+entity.dcb_component.version_history:
+  route_name: entity.dcb_component.version_history
+  base_route: entity.dcb_component.canonical
+  title: 'Revisions'
+
+entity.dcb_component.delete_form:
+  route_name:  entity.dcb_component.delete_form
+  base_route:  entity.dcb_component.canonical
+  title: Delete
+  weight: 10
+

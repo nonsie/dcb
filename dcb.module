@@ -1,13 +1,6 @@
 <?php
 
-/**
- * @file
- * The dcb.module file.
- */
-
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\file\Entity\File;
-use Drupal\Core\Render\Element;
 
 /**
  * Implements hook_entity_presave().
@@ -15,12 +8,17 @@ use Drupal\Core\Render\Element;
  * Populates dcb region if it currently has no value.
  */
 function dcb_entity_presave(EntityInterface $entity) {
+  /** @var \Drupal\node\Entity\Node $entity */
   if ($entity->getEntityTypeId() !== 'node') {
     return;
   }
   // Find any dynoblock fields attached to an entity.
   $fieldnames = [];
   $fields = $entity->getFieldDefinitions();
+  /**
+   * @var  string $fieldname
+   * @var \Drupal\Core\Field\FieldDefinitionInterface $field
+   */
   foreach ($fields as $fieldname => $field) {
     if (substr($fieldname, 0, 6) !== 'field_') {
       continue;
@@ -36,8 +34,6 @@ function dcb_entity_presave(EntityInterface $entity) {
     foreach ($fieldnames as $fieldname) {
       $dcb_field = $entity->get($fieldname);
       if ($dcb_field->isEmpty()) {
-        // @todo randId() method is part of Drupal\dbc\Form\ComponentWizardBaseForm but should be in
-        // utility class instead?
         $rand = md5(random_bytes(32) . time());
         $dcb_field->set(0, $rand);
       }
@@ -53,7 +49,7 @@ function dcb_entity_presave(EntityInterface $entity) {
 function dcb_page_attachments(array &$page) {
   $is_admin = \Drupal::service('router.admin_context')->isAdminRoute();
   if (!$is_admin) {
-    if (\Drupal::currentUser()->hasPermission('use dcb')) {
+    if (\Drupal::currentUser()->hasPermission('edit dcb component entities')) {
       $page['#attached']['library'][] = 'dcb/edit';
       $page['#attached']['library'][] = 'dcb/font-awesome';
       $configs['load_ui'] = TRUE;
@@ -79,183 +75,71 @@ function dcb_page_attachments(array &$page) {
   }
 }
 
+
 /**
  * Implements hook_theme().
  */
-function dcb_theme($existing, $type, $theme, $path) {
-  $themes = [
-    'dcb_tabledrag' => [
-      'render element' => 'element',
-      'function' => 'theme_dcb_tabledrag',
-    ],
-    'dcb_image_thumbnail' => [
-      'render element' => 'element',
-      'function' => 'theme_dcb_image_thumbnail',
-    ],
-    'dcb_component' => [
-      'render element' => 'component_data',
-      'variables' => ['component_data' => NULL],
-    ],
-    'dcb_component__card' => [
-      'render element' => 'component_data',
-      'variables' => ['component_data' => NULL],
-      'base hook' => 'dcb_component',
-    ],
+function dcb_theme() {
+  $theme = [];
+  $theme['dcb_component'] = [
+    'render element' => 'elements',
+    'file' => 'dcb_component.page.inc',
+    'template' => 'dcb_component',
   ];
-  return $themes;
+  $theme['dcb_component_content_add_list'] = [
+    'render element' => 'content',
+    'variables' => ['content' => NULL],
+    'file' => 'dcb_component.page.inc',
+  ];
+  return $theme;
 }
 
 /**
- * Helper function to convert a string into a theme suggestion.
- *
- * @param string $string
- *   The String that needs converted.
- *
- * @return string
- *   The converted string
- */
-function _dcb_themeclean($string) {
-  return strtolower(str_replace(' ', '-', str_replace('-', '_', $string)));
-}
-
-/**
- * Implements hook_theme_suggestions_HOOK().
- */
+* Implements hook_theme_suggestions_HOOK().
+*/
 function dcb_theme_suggestions_dcb_component(array $variables) {
   $suggestions = [];
-  $suggestions[] = 'dcb_component__' . _dcb_themeclean($variables['component_data']['widget']);
-  $suggestions[] = 'dcb_component__' . _dcb_themeclean($variables['component_data']['widget']) . '__' . _dcb_themeclean($variables['component_data']['theme']);
+  /** @var \Drupal\dcb\Entity\DCBComponent $entity */
+  $entity = $variables['elements']['#dcb_component'];
+  $sanitized_view_mode = strtr($variables['elements']['#view_mode'], '.', '_');
+
+  $suggestions[] = 'dcb_component__' . $sanitized_view_mode;
+  $suggestions[] = 'dcb_component__' . $entity->bundle();
+  $suggestions[] = 'dcb_component__' . $entity->bundle() . '__' . $sanitized_view_mode;
+  $suggestions[] = 'dcb_component__' . $entity->id();
+  $suggestions[] = 'dcb_component__' . $entity->id() . '__' . $sanitized_view_mode;
   return $suggestions;
 }
 
 /**
- * Formats uploaded image thumbnail display.
- *
- * @param array $variables
- *   Variables provided by the theme system.
- *
- * @return array
- *   Render array of the thumbnail image.
+ * Implements hook_entity_view_mode_alter().
  */
-function theme_dcb_image_thumbnail(array $variables) {
-  $element = $variables['element'];
-  if (isset($element['#fid'][0]) && !empty($element['#fid'][0])) {
-
-    $file = File::load($element['#fid'][0]);
-
-    $variables = [
-      'style_name' => 'thumbnail',
-      'uri' => $file->getFileUri(),
-    ];
-
-    // The image.factory service will check if our image is valid.
-    /** @var \Drupal\Core\Image\Image $image */
-    $image = \Drupal::service('image.factory')->get($file->getFileUri());
-    if ($image->isValid()) {
-      $variables['width'] = $image->getWidth();
-      $variables['height'] = $image->getHeight();
-    }
-    else {
-      $variables['width'] = $variables['height'] = NULL;
-    }
-
-    $render_array['thumb'] = [
-      '#theme' => 'image_style',
-      '#width' => $variables['width'],
-      '#height' => $variables['height'],
-      '#style_name' => $variables['style_name'],
-      '#uri' => $variables['uri'],
-    ];
-    return render($render_array);
-  }
-}
-
-/**
- * Adds Drupal tabledrag support to set of containers.
- *
- * @param array $vars
- *   Array of table data.
- *
- * @return string
- *   Themed tabledrag element.
- */
-function theme_dcb_tabledrag(array $vars) {
-  $element = $vars['element'];
-  $content['table'] = [
-    '#type' => 'table',
-    '#header' => [t('Items'), t('Weight')],
-    '#empty' => t('There are no items yet. Add an item.'),
-    // TableDrag: Each array value is a list of callback arguments for
-    // drupal_add_tabledrag(). The #id of the table is automatically prepended;
-    // if there is none, an HTML ID is auto-generated.
-    '#tabledrag' => [
-      [
-        'action' => 'order',
-        'relationship' => 'sibling',
-        'group' => 'widget-table-sort',
-      ],
-    ],
-    '#attributes' => [
-      'id' => 'widget-table-sort',
-    ],
-  ];
-  $i = 0;
-  foreach (Element::children($element) as $key) {
-    if ($key !== 'add_another') {
-      // TableDrag: Mark the table row as draggable.
-      $content['table']['#rows'][$key]['class'][] = 'draggable';
-      // TableDrag: Sort the table row according to its
-      // existing/configured weight.
-      $content['table']['#rows'][$key]['#weight'] = $i;
-      // Some table columns containing raw markup.
-      $content['table']['#rows'][$key]['data'][] = render($element[$key]);
-      // TableDrag: Weight column element.
-      $weight = [
-        '#type' => 'textfield',
-        '#title' => t('Weight for @title', ['@title' => 'Weight']),
-        '#title_display' => 'invisible',
-        '#value' => $i,
-        // Classify the weight element for #tabledrag.
-        '#attributes' => [
-          'class' => [
-            'table-order-weight',
-            'widget-table-sort',
-          ],
-        ],
-      ];
-      $content['table']['#rows'][$key]['data'][] = render($weight);
-      $i++;
-    }
+function dcb_entity_view_mode_alter(&$view_mode, EntityInterface $entity, $context) {
+  if ($view_mode !== 'dcb_inline_viewmode') {
+    return NULL;
   }
 
-  $output = '<div id="' . $element['#attributes']['id'] . '" class="widget-field-groups">';
-  $output .= render($content);
-  $output .= render($element['add_another']);
-  $output .= '</div>';
+  /** @var \Drupal\dcb\Entity\DCBComponent $component */
+  $component = $entity;
+  $displayRepository = \Drupal::service('entity_display.repository');
 
-  drupal_attach_tabledrag($content['table'],
-    [
-      'table_id' => 'widget-table-sort',
-      'action' => 'order',
-      'relationship' => 'sibling',
-      'group' => 'widget-table-sort',
-    ]
-  );
+  // Set view mode to 'Default', this is for entities without
+  // a view mode selector field.
+  $view_mode = 'default';
 
-  return $output;
+  // Find the selected mode
+  $selected_mode = $component->get('view_mode')->getString();
+
+  // Get all the available view modes for this bundle.
+  $available_modes = array_keys($displayRepository->getViewModeOptionsByBundle('dcb_component', $component->bundle()));
+
+  // If the selected mode exists in the list of available modes, change the view mode.
+  if (!empty($selected_mode) && in_array($selected_mode, $available_modes)) {
+    $view_mode = $selected_mode;
+  }
+
+  return $view_mode;
 }
 
-/**
- * Implements hook_dcb_themes().
- */
-function dcb_dcb_themes() {
-  return [
-    'dcb' => [
-      'id' => 'dcb',
-      'label' => t('Dynamic Content Builder core'),
-      'description_short' => t('Contains components provided by DCB core.'),
-      'module' => 'dcb',
-      'path' => 'src/Plugin/DCBComponent',
-    ],
-  ];
-}
+
+

@@ -1,4 +1,33 @@
-use dcb:
-  title: 'Use Dynamic Content Builder'
-  description: 'Edit and create DCB content.'
-  restrict access: TRUE
+add dcb component entities:
+  title: 'Create new DCB Component entities'
+
+administer dcb component entities:
+  title: 'Administer DCB Component entities'
+  description: 'Allow to access the administration form to configure DCB Component entities.'
+  restrict access: true
+
+delete dcb component entities:
+  title: 'Delete DCB Component entities'
+
+edit dcb component entities:
+  title: 'Edit DCB Component entities'
+
+access dcb component overview:
+  title: 'Access the DCB Component overview page'
+
+view published dcb component entities:
+  title: 'View published DCB Component entities'
+
+view unpublished dcb component entities:
+  title: 'View unpublished DCB Component entities'
+
+view all dcb component revisions:
+  title: 'View all DCB Component revisions'
+
+revert all dcb component revisions:
+  title: 'Revert all DCB Component revisions'
+  description: 'Role requires permission <em>view DCB Component revisions</em> and <em>edit rights</em> for dcb component entities in question or <em>administer dcb component entities</em>.'
+
+delete all dcb component revisions:
+  title: 'Delete all revisions'
+  description: 'Role requires permission to <em>view DCB Component revisions</em> and <em>delete rights</em> for dcb component entities in question or <em>administer dcb component entities</em>.'

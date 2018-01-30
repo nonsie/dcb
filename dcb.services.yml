@@ -1,16 +1,7 @@
 services:
-  dcb.core:
-    class: Drupal\dcb\Service\DCBCore
-    arguments: ['@plugin.manager.dcbcomponent', '@dcb.database', '@module_handler', '@cache_tags.invalidator']
-
-  dcb.database:
-    class: Drupal\dcb\Service\DCBDb
-    arguments: ['@database']
-
-  plugin.manager.dcbcomponent:
-    class: Drupal\dcb\Manager\DCBComponentManager
-    parent: default_plugin_manager
-
-  plugin.manager.dcbfield:
-    class: Drupal\dcb\Manager\DCBFieldManager
-    parent: default_plugin_manager
+  dcb.region.controller:
+    class: Drupal\dcb\Controller\DCBRegionController
+    arguments:
+      - '@entity.query'
+      - '@entity_type.manager'
+      - '@cache_tags.invalidator'

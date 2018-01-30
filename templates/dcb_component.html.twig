@@ -1,0 +1,22 @@
+{#
+/**
+ * @file dcb_component.html.twig
+ * Default theme implementation to present DCB Component data.
+ *
+ * This template is used when viewing DCB Component pages.
+ *
+ *
+ * Available variables:
+ * - content: A list of content items. Use 'content' to print all content, or
+ * - attributes: HTML attributes for the container element.
+ *
+ * @see template_preprocess_dcb_component()
+ *
+ * @ingroup themeable
+ */
+#}
+<div{{ attributes.addClass('dcb_component') }}>
+  {% if content %}
+    {{- content -}}
+  {% endif %}
+</div>
