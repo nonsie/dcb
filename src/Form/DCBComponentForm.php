@@ -87,7 +87,9 @@ class DCBComponentForm extends ContentEntityForm {
 
     //unset($form['actions']);
 
-    /**$form = [
+    /**
+     *
+    $form = [
       'ajax_wrap' => [
         '#type' => 'container',
         '#prefix' => '<div id="dcbcomponent-entity-form">',
@@ -98,9 +100,9 @@ class DCBComponentForm extends ContentEntityForm {
         'content' => $form,
       ],
       'actions' => $form_actions,
-    ];
+    ];*/
 
-    $form['actions']['submit']['#ajax'] = [
+    /**$form['actions']['submit']['#ajax'] = [
       'callback' => [$this, 'submitAjax'],
       'wrapper' => 'dcbcomponent-entity-form',
     ];*/
@@ -115,8 +117,12 @@ class DCBComponentForm extends ContentEntityForm {
       $response->addCommand(new ReplaceCommand('#dcbcomponent-entity-form', $form));
     }
     else {
-      $url = Url::fromUserInput($this->redirectDestination->get())->setAbsolute()->toString();
-      $response->addCommand(new RedirectCommand($url));
+      $url = Url::fromUserInput($this->redirectDestination->get())
+        ->setAbsolute()
+        ->toString();
+      if (!empty($url)) {
+        $response->addCommand(new RedirectCommand($url));
+      }
     }
 
     return $response;
