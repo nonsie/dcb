@@ -19,7 +19,8 @@ class DCBComponentListBuilder extends EntityListBuilder {
    */
   public function buildHeader() {
     $header['id'] = $this->t('DCB Component ID');
-    $header['name'] = $this->t('Name');
+    $header['administrative_label'] = $this->t('Administrative Label');
+    $header['name'] = $this->t('DCB Component Type');
     return $header + parent::buildHeader();
   }
 
@@ -29,11 +30,8 @@ class DCBComponentListBuilder extends EntityListBuilder {
   public function buildRow(EntityInterface $entity) {
     /* @var $entity \Drupal\dcb\Entity\DCBComponent */
     $row['id'] = $entity->id();
-    $row['name'] = Link::createFromRoute(
-      $entity->label(),
-      'entity.dcb_component.edit_form',
-      ['dcb_component' => $entity->id()]
-    );
+    $row['administrative_label'] = $entity->getAdministrativeLabel()->getString();
+    $row['name'] = $entity->label();
     return $row + parent::buildRow($entity);
   }
 

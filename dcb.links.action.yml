@@ -1,8 +1,3 @@
-entity.dcb_component.add_form:
-  route_name: entity.dcb_component.add_page
-  title: 'Add DCB Component'
-  appears_on:
-    - entity.dcb_component.collection
 entity.dcb_component_type.add_form:
   route_name: entity.dcb_component_type.add_form
   title: 'Add DCB Component type'

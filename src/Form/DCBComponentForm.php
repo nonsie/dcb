@@ -67,25 +67,28 @@ class DCBComponentForm extends ContentEntityForm {
 
     $view_modes_storage = $this->entityTypeManager->getStorage('dcb_component_type')->load($this->entity->bundle())->get('view_modes');
     $all_view_modes = $this->entityManager->getViewModeOptionsByBundle('dcb_component', $this->entity->bundle());
-    foreach($view_modes_storage as $key => $value) {
+    foreach ($view_modes_storage as $key => $value) {
       if ($value !== '0') {
         $selected_view_modes[$key] = $all_view_modes[$key];
       }
     }
 
-    if(!empty($selected_view_modes)) {
+    if (!empty($selected_view_modes)) {
       $form['view_mode_select'] = [
         '#type' => 'select',
-        '#title' => "choose a view mode",
+        '#title' => "Choose a view mode",
         '#options' => $selected_view_modes,
         '#default_value' => $this->entity->get('view_mode')->getString(),
       ];
     }
 
     $form_actions = $form['actions'];
+    unset($form['actions']['delete']);
 
-    unset($form['actions']);
+    //unset($form['actions']);
 
+    /**
+     *
     $form = [
       'ajax_wrap' => [
         '#type' => 'container',
@@ -97,14 +100,12 @@ class DCBComponentForm extends ContentEntityForm {
         'content' => $form,
       ],
       'actions' => $form_actions,
-    ];
+    ];*/
 
-    unset($form['actions']['delete']);
-
-    $form['actions']['submit']['#ajax'] = [
+    /**$form['actions']['submit']['#ajax'] = [
       'callback' => [$this, 'submitAjax'],
       'wrapper' => 'dcbcomponent-entity-form',
-    ];
+    ];*/
 
     return $form;
   }
@@ -113,11 +114,15 @@ class DCBComponentForm extends ContentEntityForm {
     $response = new AjaxResponse();
 
     if ($formState::hasAnyErrors()) {
-      $response->addCommand(new ReplaceCommand('#dcbcomponent-entity-form', $form['ajax_wrap']));
+      $response->addCommand(new ReplaceCommand('#dcbcomponent-entity-form', $form));
     }
     else {
-      $url = Url::fromUserInput("/" . $this->redirectDestination->get())->setAbsolute()->toString();
-      $response->addCommand(new RedirectCommand($url));
+      $url = Url::fromUserInput($this->redirectDestination->get())
+        ->setAbsolute()
+        ->toString();
+      if (!empty($url)) {
+        $response->addCommand(new RedirectCommand($url));
+      }
     }
 
     return $response;

@@ -496,7 +496,7 @@
           blocks.append(region.blocks[bid].el);
         }
       } else {
-        var $link = $this.makeAJAXLink('new', '<span>here</span>', 'selectgroup', $this.activeRegion.rid);
+        var $link = $this.makeAddAjaxLink('<span>here</span>', $this.activeRegion.rid);
         blocks.append('<li class="list-group-item">No Blocks Found. Click <span class="herelink"></span> to add one.</li>');
         blocks.find('.herelink').append($link);
       }
@@ -606,7 +606,7 @@
     },
 
     makeAddAjaxLink: function (text, rid) {
-      var href = '/admin/structure/dcb_component/add/' + rid + '?destination=' + currentpath;
+      var href = '/admin/content/dcb_component/add/' + rid + '?destination=' + currentpath;
 
       return $('<a>', {
         'html': text,
@@ -619,7 +619,7 @@
     },
 
     makeAJAXLink: function (bid, text, step, rid) {
-      var href = '/admin/structure/dcb_component/' + bid + '/edit?destination=' + currentpath;
+      var href = '/admin/content/dcb_component/' + bid + '/edit?destination=' + currentpath;
 
       return $('<a>', {
         'html': text,

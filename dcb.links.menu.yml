@@ -1,12 +1,9 @@
-
 # DCB Component menu items definition
 entity.dcb_component.collection:
-  title: 'DCB Component list'
+  title: 'DCB Components'
   route_name: entity.dcb_component.collection
-  description: 'List DCB Component entities'
-  parent: system.admin_structure
-  weight: 100
-
+  description: 'List and edit DCB component entities'
+  parent: system.admin_content
 
 # DCB Component type menu items definition
 entity.dcb_component_type.collection:
