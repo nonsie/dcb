@@ -1,3 +1,10 @@
+dcb.region.list:
+  path: '/admin/content/dcb_component/region/{regionId}'
+  defaults:
+    _controller: '\Drupal\dcb\Controller\DCBRegionController::listComponentsInRegion'
+  requirements:
+    _permission: 'access dcb component overview'
+
 dcb.remove:
   path: '/dcb/remove/{regionId}/{componentId}'
   defaults:
