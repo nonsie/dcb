@@ -52,14 +52,11 @@ class DCBRegionController extends ControllerBase {
   }
 
   /**
-   * @param $regionId
+   * @param string $regionId
+   * @return array
    */
   public function listComponentsInRegion($regionId) {
-    $query = \Drupal::entityQuery('dcb_component');
-    $query->condition('status', 1);
-    $query->condition('region_id', $regionId);
-    $query->sort('weight','ASC');
-    $ids = $query->execute();
+    $ids = $this->getRegionComponentsByWeight($regionId);
 
     $build = array(
       '#markup' => t('List of components in region')
@@ -83,7 +80,7 @@ class DCBRegionController extends ControllerBase {
         '#rows' => $rows,
       );
     }
-
+    // @todo Pager?
     return $build;
 
   }
@@ -96,13 +93,7 @@ class DCBRegionController extends ControllerBase {
    * @return mixed
    */
   public function renderRegion($rid, $entity_id, $region_label) {
-
-    $query = \Drupal::entityQuery('dcb_component');
-    $query->condition('status', 1);
-    $query->condition('region_id', $rid);
-    $query->sort('weight','ASC');
-    $ids = $query->execute();
-
+    $ids = $this->getRegionComponentsByWeight($rid);
     $view_builder = $this->entityTypeManager->getViewBuilder('dcb_component');
     $entity = $this->entityTypeManager->getStorage('dcb_component')->loadMultiple(array_values($ids));
     $pre_render = $view_builder->viewMultiple($entity, 'dcb_inline_viewmode');
@@ -167,6 +158,20 @@ class DCBRegionController extends ControllerBase {
     $data = TRUE;
     $this->cacheTagsInvalidator->invalidateTags(['dcbregion:' . $regionId]);
     return new JsonResponse($data);
+  }
+
+  /**
+   * @param $regionId
+   *
+   * @return array
+   */
+  private function getRegionComponentsByWeight($regionId) {
+    $query = \Drupal::entityQuery('dcb_component');
+    $query->condition('status', 1);
+    $query->condition('region_id', $regionId);
+    $query->sort('weight','ASC');
+    $ids = $query->execute();
+    return $ids;
   }
 
 }
