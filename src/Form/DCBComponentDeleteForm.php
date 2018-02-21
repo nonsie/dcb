@@ -43,8 +43,7 @@ class DCBComponentDeleteForm extends ContentEntityConfirmFormBase {
   public function getQuestion() {
     return $this
       ->t('Are you sure you want to delete DCB component %name?', [
-        '%name' => $this->entity
-          ->label(),
+        '%name' => $this->entity->label(),
       ]);
   }
 
@@ -59,8 +58,7 @@ class DCBComponentDeleteForm extends ContentEntityConfirmFormBase {
    * {@inheritdoc}
    */
   protected function getRedirectUrl() {
-    return $this
-      ->getCancelUrl();
+    return $this->getCancelUrl();
   }
 
   /**
@@ -69,11 +67,9 @@ class DCBComponentDeleteForm extends ContentEntityConfirmFormBase {
   protected function getDeletionMessage() {
     return $this
       ->t('DCB component %label has been deleted.', [
-        '%label' => $this->entity
-          ->label(),
+        '%label' => $this->entity->label(),
       ]);
   }
-
 
   /**
    * {@inheritdoc}
