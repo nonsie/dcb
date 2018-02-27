@@ -164,22 +164,16 @@ class DCBComponentRegionForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    // Save elements in the same order as defined in post rather than the form.
-    $user_input = $form_state->getUserInput();
-    if (isset($user_input['table'])) {
-      foreach ($form['table'] as $key => $form_el) {
-        if (is_numeric($key)) {
-          if (isset($form['table'][$key]['#entity_id'])) {
-            $values = $form_state->getValue(['table', $key]);
-            if (!empty($values)) {
-              $row = $form['table'][$key];
-              if (isset($values['weight']) && $row['weight']['#default_value']
-                != $values['weight']) {
-                $entity = $this->entityTypeManager->getStorage('dcb_component')->load($row['#entity_id']);
-                $entity->set('weight', $values['weight']);
-                $entity->save();
-              }
-            }
+    foreach ($form['table'] as $key => $row) {
+      if (is_numeric($key)) {
+        if (isset($form['table'][$key]['#entity_id'])) {
+          $values = $form_state->getValue(['table', $key]);
+          if (!empty($values) &&
+            isset($values['weight']) &&
+            $row['weight']['#default_value'] != $values['weight']) {
+            $entity = $this->entityTypeManager->getStorage('dcb_component')->load($row['#entity_id']);
+            $entity->set('weight', $values['weight']);
+            $entity->save();
           }
         }
       }
