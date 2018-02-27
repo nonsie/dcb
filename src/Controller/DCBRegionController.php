@@ -52,40 +52,6 @@ class DCBRegionController extends ControllerBase {
   }
 
   /**
-   * @param string $regionId
-   * @return array
-   */
-  public function listComponentsInRegion($regionId) {
-    $ids = $this->getRegionComponentsByWeight($regionId);
-
-    $build = array(
-      '#markup' => t('List of components in region')
-    );
-    if (!empty($ids)) {
-      $rows = array();
-      foreach ($ids as $id) {
-        $entry = $this->entityTypeManager->getStorage('dcb_component')->load($id);
-        $rows[] = array(
-          $entry->id(),
-          $entry->getAdministrativeLabel()->getString(),
-          $entry->bundle(),
-          $entry->getWeight(),
-          \Drupal::service('date.formatter')->format($entry->getCreatedTime(), 'date_text'),
-        );
-      }
-      $header = array(t('ID'), t('Label'), t('Type'), t('Weight'), t('Created'));
-      $build['table'] = array(
-        '#theme' => 'table',
-        '#header' => $header,
-        '#rows' => $rows,
-      );
-    }
-    // @todo Pager?
-    return $build;
-
-  }
-
-  /**
    * @param $rid
    * @param $entity
    * @param $region_label
@@ -165,7 +131,7 @@ class DCBRegionController extends ControllerBase {
    *
    * @return array
    */
-  private function getRegionComponentsByWeight($regionId) {
+  public function getRegionComponentsByWeight($regionId) {
     $query = \Drupal::entityQuery('dcb_component');
     $query->condition('status', 1);
     $query->condition('region_id', $regionId);
