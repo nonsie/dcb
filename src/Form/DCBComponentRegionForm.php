@@ -59,7 +59,7 @@ class DCBComponentRegionForm extends FormBase {
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'dcb_component_region_edit';
+    return 'dcb_component_region_order';
   }
 
 
