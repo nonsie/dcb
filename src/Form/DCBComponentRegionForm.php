@@ -5,12 +5,16 @@ namespace Drupal\dcb\Form;
 use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Render\Element;
 use Drupal\dcb\Controller\DCBRegionController;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Cache\CacheTagsInvalidator;
 
 
+/**
+ * Class DCBComponentRegionForm
+ *
+ * @package Drupal\dcb\Form
+ */
 class DCBComponentRegionForm extends FormBase {
 
   /**
@@ -23,14 +27,26 @@ class DCBComponentRegionForm extends FormBase {
    */
   protected $cacheTagsInvalidator;
 
+  /**
+   * DCBComponentRegionForm constructor.
+   *
+   * @param \Drupal\Core\Entity\EntityTypeManager      $entityTypeManager
+   * @param \Drupal\Core\Cache\CacheTagsInvalidator    $cacheTagsInvalidator
+   * @param \Drupal\dcb\Controller\DCBRegionController $regionController
+   */
   public function __construct(EntityTypeManager $entityTypeManager,
-                              CacheTagsInvalidator $cacheTagsInvalidator,
-                              DCBRegionController $regionController) {
+                                 CacheTagsInvalidator $cacheTagsInvalidator,
+                                 DCBRegionController $regionController) {
     $this->cacheTagsInvalidator = $cacheTagsInvalidator;
     $this->entityTypeManager = $entityTypeManager;
     $this->regionController = $regionController;
   }
 
+  /**
+   * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
+   *
+   * @return static
+   */
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('entity_type.manager'),
