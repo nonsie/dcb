@@ -34,9 +34,7 @@ class DCBComponentRegionForm extends FormBase {
    * @param \Drupal\Core\Cache\CacheTagsInvalidator    $cacheTagsInvalidator
    * @param \Drupal\dcb\Controller\DCBRegionController $regionController
    */
-  public function __construct(EntityTypeManager $entityTypeManager,
-                                 CacheTagsInvalidator $cacheTagsInvalidator,
-                                 DCBRegionController $regionController) {
+  public function __construct(EntityTypeManager $entityTypeManager, CacheTagsInvalidator $cacheTagsInvalidator, DCBRegionController $regionController) {
     $this->cacheTagsInvalidator = $cacheTagsInvalidator;
     $this->entityTypeManager = $entityTypeManager;
     $this->regionController = $regionController;
@@ -62,12 +60,10 @@ class DCBComponentRegionForm extends FormBase {
     return 'dcb_component_region_order';
   }
 
-
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state,
-                            $regionId = NULL) {
+  public function buildForm(array $form, FormStateInterface $form_state, $regionId = NULL) {
     $form['#title'] = $this->t('Components in region');
     $form['#region'] = $regionId;
     // Get entity IDs based on region ID.
