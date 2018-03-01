@@ -102,9 +102,9 @@ class DCBComponentRegionForm extends FormBase {
       // if there is none, an HTML ID is auto-generated.
       '#tabledrag' => [
         [
-          'action'       => 'order',
+          'action' => 'order',
           'relationship' => 'sibling',
-          'group'        => 'dcbregion-order-weight',
+          'group' => 'dcbregion-order-weight',
         ],
       ],
     ];
