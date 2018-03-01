@@ -1,7 +1,8 @@
 dcb.region.list:
   path: '/admin/content/dcb_component/region/{regionId}'
   defaults:
-    _controller: '\Drupal\dcb\Controller\DCBRegionController::listComponentsInRegion'
+    _form: 'Drupal\dcb\Form\DCBComponentRegionForm'
+    _title: 'Re-order components withing a region'
   requirements:
     _permission: 'access dcb component overview'
 

@@ -34,12 +34,26 @@ class DCBComponentForm extends ContentEntityForm {
   protected $redirectDestination;
 
 
+  /**
+   * DCBComponentForm constructor.
+   *
+   * @param \Drupal\Core\Entity\EntityManagerInterface             $entity_manager
+   * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface|NULL $entity_type_bundle_info
+   * @param \Drupal\Component\Datetime\TimeInterface|NULL          $time
+   * @param \Drupal\Core\Cache\CacheTagsInvalidator                $cacheTagsInvalidator
+   * @param \Drupal\Core\Routing\RedirectDestination               $redirectDestination
+   */
   public function __construct(EntityManagerInterface $entity_manager, EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL, TimeInterface $time = NULL, CacheTagsInvalidator $cacheTagsInvalidator, RedirectDestination $redirectDestination) {
     parent::__construct($entity_manager, $entity_type_bundle_info, $time);
     $this->cacheTagsInvalidator = $cacheTagsInvalidator;
     $this->redirectDestination = $redirectDestination;
   }
 
+  /**
+   * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
+   *
+   * @return static
+   */
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('entity.manager'),
@@ -110,6 +124,12 @@ class DCBComponentForm extends ContentEntityForm {
     return $form;
   }
 
+  /**
+   * @param                                      $form
+   * @param \Drupal\Core\Form\FormStateInterface $formState
+   *
+   * @return \Drupal\Core\Ajax\AjaxResponse
+   */
   public function submitAjax($form, FormStateInterface $formState) {
     $response = new AjaxResponse();
 
