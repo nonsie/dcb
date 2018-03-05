@@ -1,0 +1,8 @@
+uuid: 2212e0a2-8861-4cee-a98b-49d82ba5f7e2
+langcode: en
+status: true
+dependencies: {  }
+id: one_column_text
+label: 'One Column Text'
+view_modes:
+  default: default

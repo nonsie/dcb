@@ -1,0 +1,29 @@
+uuid: c7080558-0ecc-4b02-9ccd-69e01d064a0b
+langcode: en
+status: true
+dependencies:
+  config:
+    - dcb.dcb_component_type.heading
+    - field.field.dcb_component.heading.field_heading_copy
+    - field.field.dcb_component.heading.field_heading_format
+id: dcb_component.heading.default
+targetEntityType: dcb_component
+bundle: heading
+mode: default
+content:
+  field_heading_copy:
+    weight: 27
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textarea
+    region: content
+  field_heading_format:
+    weight: 26
+    settings: {  }
+    third_party_settings: {  }
+    type: options_select
+    region: content
+hidden:
+  user_id: true

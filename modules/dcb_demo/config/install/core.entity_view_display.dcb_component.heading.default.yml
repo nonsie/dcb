@@ -1,0 +1,31 @@
+uuid: f2f93670-6bdd-41a0-b411-1378cbe6dbdc
+langcode: en
+status: true
+dependencies:
+  config:
+    - dcb.dcb_component_type.heading
+    - field.field.dcb_component.heading.field_heading_copy
+    - field.field.dcb_component.heading.field_heading_format
+  module:
+    - options
+id: dcb_component.heading.default
+targetEntityType: dcb_component
+bundle: heading
+mode: default
+content:
+  field_heading_copy:
+    weight: 1
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: basic_string
+    region: content
+  field_heading_format:
+    weight: 0
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: list_key
+    region: content
+hidden:
+  user_id: true

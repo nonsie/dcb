@@ -1,0 +1,24 @@
+uuid: 5a6b5ae7-bcb3-428c-b54d-d1298727dc24
+langcode: en
+status: true
+dependencies:
+  config:
+    - dcb.dcb_component_type.one_column_text
+    - field.field.dcb_component.one_column_text.field_copy
+  module:
+    - text
+id: dcb_component.one_column_text.default
+targetEntityType: dcb_component
+bundle: one_column_text
+mode: default
+content:
+  field_copy:
+    weight: 26
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+    type: text_textarea
+    region: content
+hidden:
+  user_id: true

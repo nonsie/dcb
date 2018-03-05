@@ -1,0 +1,21 @@
+uuid: 53ef9238-9549-4f9f-9c84-7f83cc585836
+langcode: en
+status: true
+dependencies:
+  config:
+    - dcb.dcb_component_type.one_column_text
+    - field.storage.dcb_component.field_copy
+  module:
+    - text
+id: dcb_component.one_column_text.field_copy
+field_name: field_copy
+entity_type: dcb_component
+bundle: one_column_text
+label: Copy
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: text_long
