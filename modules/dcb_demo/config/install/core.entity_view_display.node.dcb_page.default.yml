@@ -1,0 +1,28 @@
+uuid: c467066b-63d2-4228-b3ab-de651b6124b1
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.dcb_page.field_dcb
+    - node.type.dcb_page
+  module:
+    - dcb
+    - user
+id: node.dcb_page.default
+targetEntityType: node
+bundle: dcb_page
+mode: default
+content:
+  field_dcb:
+    weight: 101
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: dcb_default
+    region: content
+  links:
+    weight: 100
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+hidden: {  }

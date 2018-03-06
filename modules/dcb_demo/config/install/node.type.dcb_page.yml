@@ -1,0 +1,17 @@
+uuid: 62b96d58-641c-44c9-9eda-1a05c3c0cd35
+langcode: en
+status: true
+dependencies:
+  module:
+    - menu_ui
+third_party_settings:
+  menu_ui:
+    available_menus: {  }
+    parent: ''
+name: 'DCB Page'
+type: dcb_page
+description: 'A page built with DCB components.'
+help: ''
+new_revision: true
+preview_mode: 1
+display_submitted: false

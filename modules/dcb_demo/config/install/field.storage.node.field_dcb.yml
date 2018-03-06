@@ -1,0 +1,19 @@
+uuid: 7de680a0-2fbf-4cbf-ab9e-e8cb7957d355
+langcode: en
+status: true
+dependencies:
+  module:
+    - dcb
+    - node
+id: node.field_dcb
+field_name: field_dcb
+entity_type: node
+type: dcb
+settings: {  }
+module: dcb
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

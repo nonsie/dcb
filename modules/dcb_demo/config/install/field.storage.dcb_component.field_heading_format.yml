@@ -1,0 +1,39 @@
+uuid: 30d156e5-f684-4436-8bc0-5af55ba91e60
+langcode: en
+status: true
+dependencies:
+  module:
+    - dcb
+    - options
+id: dcb_component.field_heading_format
+field_name: field_heading_format
+entity_type: dcb_component
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: h1
+      label: H1
+    -
+      value: h2
+      label: H2
+    -
+      value: h3
+      label: H3
+    -
+      value: h4
+      label: H4
+    -
+      value: h5
+      label: H5
+    -
+      value: h6
+      label: H6
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

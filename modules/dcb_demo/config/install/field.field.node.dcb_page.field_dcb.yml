@@ -1,0 +1,21 @@
+uuid: ac0aa7d7-603c-47c6-a2cc-c4ea7ab3b50a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_dcb
+    - node.type.dcb_page
+  module:
+    - dcb
+id: node.dcb_page.field_dcb
+field_name: field_dcb
+entity_type: node
+bundle: dcb_page
+label: DCB
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: dcb

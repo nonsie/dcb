@@ -1,0 +1,23 @@
+uuid: 818a9b41-de11-4ab1-bd3f-1a71f477d395
+langcode: en
+status: true
+dependencies:
+  config:
+    - dcb.dcb_component_type.one_column_text
+    - field.field.dcb_component.one_column_text.field_copy
+  module:
+    - text
+id: dcb_component.one_column_text.default
+targetEntityType: dcb_component
+bundle: one_column_text
+mode: default
+content:
+  field_copy:
+    weight: 0
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: text_default
+    region: content
+hidden:
+  user_id: true

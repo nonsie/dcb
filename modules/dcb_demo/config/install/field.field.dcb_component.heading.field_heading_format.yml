@@ -1,0 +1,23 @@
+uuid: d902742d-b854-40f5-bac6-0151632eb131
+langcode: en
+status: true
+dependencies:
+  config:
+    - dcb.dcb_component_type.heading
+    - field.storage.dcb_component.field_heading_format
+  module:
+    - options
+id: dcb_component.heading.field_heading_format
+field_name: field_heading_format
+entity_type: dcb_component
+bundle: heading
+label: 'Heading Format'
+description: 'The <h1> to <h6> tags are used to define HTML headings. <h1> defines the most important heading. <h6> defines the least important heading.'
+required: true
+translatable: false
+default_value:
+  -
+    value: h2
+default_value_callback: ''
+settings: {  }
+field_type: list_string
