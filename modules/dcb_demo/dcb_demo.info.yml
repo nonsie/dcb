@@ -4,7 +4,10 @@ dependencies:
   - dcb:dcb
   - drupal:field
   - drupal:field_ui
+  - drupal:menu_ui
   - drupal:node
+  - drupal:options
+  - drupal:path
 hidden: false
 name: DCB Demo
 package: DCB
