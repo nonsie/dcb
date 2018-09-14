@@ -1,0 +1,34 @@
+<?php
+/**
+ * @file
+ * Installation hooks for DCB module.
+ */
+
+use Drupal\Core\Database\Database;
+use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\field\Entity\FieldStorageConfig;
+
+/**
+ * Implements hook_install().
+ */
+function dcb_install() {
+  // Assign a weight 1 higher than content_translation to ensure dcb_module_implements_alter
+  // runs after content_translation_module_implements_alter.
+  module_set_weight('dcb', 11);
+}
+
+/**
+ * Installs dcb region entity schema if it doesn't exist yet.
+ */
+function dcb_update_8001() {
+  $entity_definition_update_manager = Drupal::entityDefinitionUpdateManager();
+  $database = Drupal::database();
+
+  // Check if dcb schema is installed.
+  if (!$database->schema()->tableExists('dcb')) {
+    $entity_type_manager = \Drupal::entityTypeManager();
+    $entity_type_manager->clearCachedDefinitions();
+    $entity_definition_update_manager->installEntityType($entity_type_manager->getDefinition('dcb'));
+  }
+}

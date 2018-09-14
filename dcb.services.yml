@@ -1,7 +1,34 @@
+parameters:
+  # todo: remove cors.config override when dcb service can communicate via same origin
+  cors.config:
+      enabled: true
+      allowedHeaders: ['*']
+      allowedMethods: ['*']
+      allowedOrigins: ['*']
+      exposedHeaders: false
+      maxAge: false
+      supportsCredentials: true
 services:
-  dcb.region.controller:
-    class: Drupal\dcb\Controller\DCBRegionController
-    arguments:
-      - '@entity.query'
-      - '@entity_type.manager'
-      - '@cache_tags.invalidator'
+  dcb.normalizer.relationship_field_definition.schema_json.jsonapi:
+    class: Drupal\dcb\Normalizer\jsonapi\RelationshipFieldDefinitionNormalizer
+    arguments: ['@plugin.manager.field.field_type']
+    tags:
+      - { name: normalizer, priority: 100 }
+  dcb.normalizer.field_definition.schema_json.jsonapi:
+    class: Drupal\dcb\Normalizer\jsonapi\FieldDefinitionNormalizer
+    tags:
+      - { name: normalizer, priority: 31 }
+  # HAL version of FieldDefinition.
+  # This services is primarily used to short-circuit merging normalization of
+  # data references to the schema root.
+  dcb.normalizer.field_definition.schema_json.hal_json:
+    class: Drupal\dcb\Normalizer\json\FieldDefinitionNormalizer
+    tags:
+      - { name: normalizer, priority: 100 }
+  # If the typed data definition is a list (as most are somewhere along the
+  # property hierarchy) this triggers the recursion to the next layer.
+  dcb.normalizer.list_data_definition.schema_json.json:
+    class: Drupal\dcb\Normalizer\json\ListDataDefinitionNormalizer
+    tags:
+      - { name: normalizer, priority: 20 }
+

@@ -13,3 +13,17 @@ entity.dcb_component_type.collection:
   parent: system.admin_structure
   weight: 99
 
+
+# DCB menu items definition
+entity.dcb.collection:
+  title: 'DCB list'
+  route_name: entity.dcb.collection
+  description: 'List DCB entities'
+  parent: system.admin_structure
+  weight: 100
+
+dcb.admin.structure.settings:
+  title: 'DCB settings'
+  description: 'Configure DCB entities'
+  route_name: dcb.settings
+  parent: system.admin_structure

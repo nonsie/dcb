@@ -38,6 +38,7 @@ use Drupal\user\UserInterface;
  *     },
  *   },
  *   base_table = "dcb_component",
+ *   fieldable = FALSE,
  *   data_table = "dcb_component_field_data",
  *   revision_table = "dcb_component_revision",
  *   revision_data_table = "dcb_component_field_revision",
@@ -328,9 +329,15 @@ class DCBComponent extends RevisionableContentEntityBase implements DCBComponent
       ->setRevisionable(TRUE)
       ->setTranslatable(TRUE);
 
-    $fields['region_id'] = BaseFieldDefinition::create('string')
-      ->setLabel(t('Region ID'))
-      ->setDescription(t('The Region in which this component is assigned.'));
+    $fields['region_id'] = BaseFieldDefinition::create('entity_reference_revisions')
+    ->setLabel(t('DCB Region ID'))
+    ->setDescription(t('The Region in which this component is assigned.'))
+    ->setCardinality(1)
+    ->setRequired(TRUE)
+    ->setSetting('target_type', 'dcb')
+    ->setDisplayConfigurable('form', TRUE)
+    ->setDisplayConfigurable('view', TRUE);
+
 
     $fields['view_mode'] = BaseFieldDefinition::create('string')
       ->setLabel(t('View Mode'))

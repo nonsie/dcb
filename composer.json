@@ -1,0 +1,16 @@
+{
+  "name": "dcb/dcb",
+  "description": "Enables the creation of DCB entities.",
+  "type": "drupal-module",
+  "license": "GPL-2.0",
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/nonsie/dcb"
+    }
+  ],
+  "require": {
+    "dcb/dcb": "dev-master",
+    "drupal/core": "~8"
+  }
+}

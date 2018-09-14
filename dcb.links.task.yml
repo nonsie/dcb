@@ -26,3 +26,30 @@ entity.dcb_component.delete_form:
   title: 'Delete'
   weight: 10
 
+# DCB routing definition
+dcb.settings_tab:
+  route_name: dcb.settings
+  title: 'Settings'
+  base_route: dcb.settings
+
+entity.dcb.canonical:
+  route_name: entity.dcb.canonical
+  base_route: entity.dcb.canonical
+  title: 'View'
+
+entity.dcb.edit_form:
+  route_name: entity.dcb.edit_form
+  base_route: entity.dcb.canonical
+  title: 'Edit'
+
+entity.dcb.version_history:
+  route_name: entity.dcb.version_history
+  base_route: entity.dcb.canonical
+  title: 'Revisions'
+
+entity.dcb.delete_form:
+  route_name:  entity.dcb.delete_form
+  base_route:  entity.dcb.canonical
+  title: Delete
+  weight: 10
+

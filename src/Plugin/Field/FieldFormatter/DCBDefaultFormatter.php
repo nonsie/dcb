@@ -6,7 +6,7 @@ use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FormatterBase;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\dcb\Controller\DCBRegionController;
+use Drupal\dcb\Controller\DCBController;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -16,17 +16,19 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   id = "dcb_default",
  *   label = @Translation("DCB default formatter"),
  *   field_types = {
- *     "dcb"
+ *     "dcb",
+ *     "entity_reference",
+ *     "entity_reference_revisions"
  *   }
  * )
  */
 class DCBDefaultFormatter extends FormatterBase implements ContainerFactoryPluginInterface {
 
   /**
-   * @var \Drupal\dcb\Controller\DCBRegionController
+   * @var \Drupal\dcb\Controller\DCBController
    *   Injected Region controller.
    */
-  protected $DCBRegionController;
+  protected $DCBController;
 
   /**
    * DCBDefaultFormatter constructor.
@@ -38,11 +40,11 @@ class DCBDefaultFormatter extends FormatterBase implements ContainerFactoryPlugi
    * @param string $label
    * @param string $view_mode
    * @param array $third_party_settings
-   * @param \Drupal\dcb\Controller\DCBRegionController $DCBRegionController
+   * @param \Drupal\dcb\Controller\DCBController $DCBController
    */
-  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings, DCBRegionController $DCBRegionController) {
+  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings, DCBController $DCBController) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
-    $this->DCBRegionController = $DCBRegionController;
+    $this->DCBController = $DCBController;
   }
 
   /**
@@ -71,7 +73,7 @@ class DCBDefaultFormatter extends FormatterBase implements ContainerFactoryPlugi
    */
   public function settingsSummary() {
     $summary = [];
-    $summary[] = t('Displays DCB region ID.');
+    $summary[] = t('Displays DCB ID.');
     return $summary;
   }
 
@@ -85,7 +87,7 @@ class DCBDefaultFormatter extends FormatterBase implements ContainerFactoryPlugi
      * @var FieldItemListInterface $item
      */
     foreach ($items as $delta => $item) {
-      $element[$delta] = $this->DCBRegionController->renderRegion($item->id, $item->getEntity()->id(), $item->getFieldDefinition()->getLabel());
+      $element[$delta] = $this->DCBController->renderRegion($item->id, $item->getEntity()->id(), $item->getFieldDefinition()->getLabel());
     }
     return $element;
   }

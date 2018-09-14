@@ -5,3 +5,9 @@ package: 'DCB'
 type: module
 dependencies:
   - field
+  - entity_reference_revisions
+  - schemata
+  - schemata_json_schema
+  - basic_auth
+  - rest
+  - hal

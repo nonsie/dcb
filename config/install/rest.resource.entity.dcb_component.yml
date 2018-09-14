@@ -1,0 +1,23 @@
+uuid: 61942e51-4044-404b-bfde-f55e87aa4548
+langcode: en
+status: true
+dependencies:
+  module:
+    - basic_auth
+    - dcb
+    - hal
+    - schemata
+    - serialization
+    - user
+id: entity.dcb_component
+plugin_id: 'entity:dcb_component'
+granularity: resource
+configuration:
+  methods:
+    - GET
+  formats:
+    - hal_json
+    - schema_json
+    - json
+  authentication:
+    - cookie

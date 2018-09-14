@@ -5,7 +5,7 @@ namespace Drupal\dcb\Form;
 use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\dcb\Controller\DCBRegionController;
+use Drupal\dcb\Controller\DCBController;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Cache\CacheTagsInvalidator;
 
@@ -32,9 +32,9 @@ class DCBComponentRegionForm extends FormBase {
    *
    * @param \Drupal\Core\Entity\EntityTypeManager      $entityTypeManager
    * @param \Drupal\Core\Cache\CacheTagsInvalidator    $cacheTagsInvalidator
-   * @param \Drupal\dcb\Controller\DCBRegionController $regionController
+   * @param \Drupal\dcb\Controller\DCBController       $regionController
    */
-  public function __construct(EntityTypeManager $entityTypeManager, CacheTagsInvalidator $cacheTagsInvalidator, DCBRegionController $regionController) {
+  public function __construct(EntityTypeManager $entityTypeManager, CacheTagsInvalidator $cacheTagsInvalidator, DCBController $regionController) {
     $this->cacheTagsInvalidator = $cacheTagsInvalidator;
     $this->entityTypeManager = $entityTypeManager;
     $this->regionController = $regionController;
@@ -67,7 +67,7 @@ class DCBComponentRegionForm extends FormBase {
     $form['#title'] = $this->t('Components in region');
     $form['#region'] = $regionId;
     // Get entity IDs based on region ID.
-    $entityIds = $this->regionController->getRegionComponentsByWeight($regionId);
+    $entityIds = $this->regionController->getComponentsByWeight($regionId);
     $this->DCBComponentRegionTable($entityIds, $form);
     $form['save'] = [
       '#type' => 'submit',

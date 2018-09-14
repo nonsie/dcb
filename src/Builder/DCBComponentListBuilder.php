@@ -21,6 +21,7 @@ class DCBComponentListBuilder extends EntityListBuilder {
     $header['id'] = $this->t('DCB Component ID');
     $header['administrative_label'] = $this->t('Administrative Label');
     $header['name'] = $this->t('DCB Component Type');
+    $header['parent'] = $this->t('DCB ID');
     return $header + parent::buildHeader();
   }
 
@@ -32,6 +33,7 @@ class DCBComponentListBuilder extends EntityListBuilder {
     $row['id'] = $entity->id();
     $row['administrative_label'] = $entity->getAdministrativeLabel()->getString();
     $row['name'] = $entity->label();
+    $row['parent'] = $entity->region_id->getValue()[0]['target_id'];
     return $row + parent::buildRow($entity);
   }
 

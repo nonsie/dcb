@@ -31,3 +31,34 @@ revert all dcb component revisions:
 delete all dcb component revisions:
   title: 'Delete all revisions'
   description: 'Role requires permission to <em>view DCB Component revisions</em> and <em>delete rights</em> for dcb component entities in question or <em>administer dcb component entities</em>.'
+
+add dcb entities:
+  title: 'Create new DCB entities'
+
+administer dcb entities:
+  title: 'Administer DCB entities'
+  description: 'Allow to access the administration form to configure DCB entities.'
+  restrict access: true
+
+delete dcb entities:
+  title: 'Delete DCB entities'
+
+edit dcb entities:
+  title: 'Edit DCB entities'
+
+view published dcb entities:
+  title: 'View published DCB entities'
+
+view unpublished dcb entities:
+  title: 'View unpublished DCB entities'
+
+view all dcb revisions:
+  title: 'View all DCB revisions'
+
+revert all dcb revisions:
+  title: 'Revert all DCB revisions'
+  description: 'Role requires permission <em>view DCB revisions</em> and <em>edit rights</em> for dcb entities in question or <em>administer dcb entities</em>.'
+
+delete all dcb revisions:
+  title: 'Delete all revisions'
+  description: 'Role requires permission to <em>view DCB revisions</em> and <em>delete rights</em> for dcb entities in question or <em>administer dcb entities</em>.'

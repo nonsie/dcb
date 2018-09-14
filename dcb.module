@@ -75,7 +75,6 @@ function dcb_page_attachments(array &$page) {
   }
 }
 
-
 /**
  * Implements hook_theme().
  */
