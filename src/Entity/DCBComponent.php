@@ -112,14 +112,14 @@ class DCBComponent extends RevisionableContentEntityBase implements DCBComponent
   /**
    * {@inheritdoc}
    */
-  public function getRegionId() {
+  public function getRegion() {
     return $this->get('region_id')->value;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setRegionId($regionId) {
+  public function setRegion($regionId) {
     $this->set('region_id', $regionId);
     return $this;
   }
