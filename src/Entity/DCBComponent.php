@@ -79,7 +79,6 @@ class DCBComponent extends RevisionableContentEntityBase implements DCBComponent
    */
   public static function preCreate(EntityStorageInterface $storage_controller, array &$values) {
     parent::preCreate($storage_controller, $values);
-    debug($values);
 
     $values += [
       'user_id' => \Drupal::currentUser()->id(),
@@ -334,30 +333,12 @@ class DCBComponent extends RevisionableContentEntityBase implements DCBComponent
     ->setSettings([
       'target_type' => 'dcb',
       'multiple' => FALSE,
+      'default_value' => '',
       'handler' => 'default'
     ])  
-    ->setDefaultValue('')
-    ->setCardinality(1)
     ->setRequired(TRUE)
     ->setRevisionable(TRUE)
-    ->setTranslatable(TRUE)
-    ->setDisplayOptions('view', [
-      'label' => 'hidden',
-      'type' => 'entity_reference_label',
-      'weight' => 14, 
-    ])  
-    ->setDisplayOptions('form', array(
-      'type' => 'entity_reference_autocomplete',
-      'settings' => array(
-        'match_operator' => 'CONTAINS',
-        'size' => 60, 
-        'placeholder' => '', 
-      ),
-      'weight' => -1, 
-    ))  
-    ->setSetting('target_type', 'dcb')
-    ->setDisplayConfigurable('form', TRUE)
-    ->setDisplayConfigurable('view', TRUE);
+    ->setTranslatable(TRUE);
 
 
     $fields['view_mode'] = BaseFieldDefinition::create('string')
