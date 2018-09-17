@@ -55,13 +55,13 @@ class DCBComponentHtmlRouteProvider extends AdminHtmlRouteProvider {
    *
    * @return null|\Symfony\Component\Routing\Route
    */
-  protected function getAddPageRoute(EntityTypeInterface $entity_type, $region_id = '') {
+  protected function getAddPageRoute(EntityTypeInterface $entity_type, $parent_id = '') {
 
     if ($entity_type->hasLinkTemplate('add-page') && $entity_type->getKey('bundle')) {
       if ($route = parent::getAddPageRoute($entity_type)) {
         $route->setDefault('_controller', DCBComponentEntityController::class . '::modalAddPage');
         $route->setDefault('entity_type_id', $entity_type->id());
-        $route->setDefault('region_id', $region_id);
+        $route->setDefault('parent_id', $parent_id);
         $route->setOption('_admin_route', TRUE);
         $route->setRequirement('_entity_create_any_access', $entity_type->id());
         return $route;

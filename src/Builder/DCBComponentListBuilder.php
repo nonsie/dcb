@@ -33,7 +33,7 @@ class DCBComponentListBuilder extends EntityListBuilder {
     $row['id'] = $entity->id();
     $row['administrative_label'] = $entity->getAdministrativeLabel()->getString();
     $row['name'] = $entity->label();
-    $row['parent'] = $entity->region_id->getValue()[0]['target_id'];
+    $row['parent'] = $entity->parent_id->getValue()[0]['target_id'];
     return $row + parent::buildRow($entity);
   }
 

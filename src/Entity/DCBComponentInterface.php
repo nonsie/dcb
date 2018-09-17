@@ -41,7 +41,7 @@ interface DCBComponentInterface extends RevisionableInterface, RevisionLogInterf
    * @return string
    *   ID of the DCB Component.
    */
-  public function getRegion();
+  public function getParent();
 
   /**
    * Sets the DCB Component region.
@@ -52,7 +52,7 @@ interface DCBComponentInterface extends RevisionableInterface, RevisionLogInterf
    * @return \Drupal\dcb\Entity\DCBComponentInterface
    *   The called DCB Component entity.
    */
-  public function setRegion($id);
+  public function setParent($id);
 
   /**
    * Gets the DCB Component creation timestamp.

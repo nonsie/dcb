@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: garymorse
- * Date: 9/29/17
- * Time: 12:25 AM
- */
 
 namespace Drupal\dcb\Builder;
 
@@ -26,7 +20,7 @@ class DCBComponentViewBuilder extends EntityViewBuilder {
 
     $build['#attributes']['class'][] = 'dcb-component';
     $build['#attributes']['data-dcb-bid'] = $entity->id();
-    /** @var  $entity \Drupal\dcb\Entity\DcbComponent  */
+    /** @var  $entity \Drupal\dcb\Entity\DCBComponent  */
     $build['#attributes']['data-dcb-label'] = $entity->getAdministrativeLabel()->getString();
 
   }

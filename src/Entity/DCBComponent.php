@@ -38,7 +38,6 @@ use Drupal\user\UserInterface;
  *     },
  *   },
  *   base_table = "dcb_component",
- *   fieldable = FALSE,
  *   data_table = "dcb_component_field_data",
  *   revision_table = "dcb_component_revision",
  *   revision_data_table = "dcb_component_field_revision",
@@ -56,8 +55,8 @@ use Drupal\user\UserInterface;
  *   },
  *   links = {
  *     "canonical" = "/admin/content/dcb_component/{dcb_component}",
- *     "add-page" = "/admin/content/dcb_component/add/{region_id}",
- *     "add-form" = "/admin/content/dcb_component/add/{dcb_component_type}/{region_id}",
+ *     "add-page" = "/admin/content/dcb_component/add/{parent_id}",
+ *     "add-form" = "/admin/content/dcb_component/add/{dcb_component_type}/{parent_id}",
  *     "edit-form" = "/admin/content/dcb_component/{dcb_component}/edit",
  *     "delete-form" = "/admin/content/dcb_component/{dcb_component}/delete",
  *     "version-history" = "/admin/content/dcb_component/{dcb_component}/revisions",
@@ -83,7 +82,7 @@ class DCBComponent extends RevisionableContentEntityBase implements DCBComponent
 
     $values += [
       'user_id' => \Drupal::currentUser()->id(),
-      'region_id' => $values['region_id'],
+      'parent_id' => $values['parent_id'],
     ];
   }
 
@@ -112,15 +111,15 @@ class DCBComponent extends RevisionableContentEntityBase implements DCBComponent
   /**
    * {@inheritdoc}
    */
-  public function getRegion() {
-    return $this->get('region_id')->value;
+  public function getParent() {
+    return $this->get('parent_id')->value;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setRegion($regionId) {
-    $this->set('region_id', $regionId);
+  public function setParent($parentId) {
+    $this->set('parent_id', $parentId);
     return $this;
   }
 
@@ -239,7 +238,7 @@ class DCBComponent extends RevisionableContentEntityBase implements DCBComponent
     if ($rel === 'add-form' && ($this->getEntityType()->hasKey('bundle'))) {
       $parameter_name = $this->getEntityType()->getBundleEntityType() ?: $this->getEntityType()->getKey('bundle');
       $uri_route_parameters[$parameter_name] = $this->bundle();
-      $uri_route_parameters['region_id'] = 'none';
+      $uri_route_parameters['parent_id'] = 'none';
     }
     if ($rel === 'revision_revert' && $this instanceof RevisionableInterface) {
       $uri_route_parameters[$this->getEntityTypeId() . '_revision'] = $this->getRevisionId();
@@ -329,11 +328,33 @@ class DCBComponent extends RevisionableContentEntityBase implements DCBComponent
       ->setRevisionable(TRUE)
       ->setTranslatable(TRUE);
 
-    $fields['region_id'] = BaseFieldDefinition::create('entity_reference_revisions')
-    ->setLabel(t('DCB Region ID'))
-    ->setDescription(t('The Region in which this component is assigned.'))
+    $fields['parent_id'] = BaseFieldDefinition::create('entity_reference_revisions')
+    ->setLabel(t('DCB ID'))
+    ->setDescription(t('DCB this component belongs to.'))
+    ->setSettings([
+      'target_type' => 'dcb',
+      'multiple' => FALSE,
+      'handler' => 'default'
+    ])  
+    ->setDefaultValue('')
     ->setCardinality(1)
     ->setRequired(TRUE)
+    ->setRevisionable(TRUE)
+    ->setTranslatable(TRUE)
+    ->setDisplayOptions('view', [
+      'label' => 'hidden',
+      'type' => 'entity_reference_label',
+      'weight' => 14, 
+    ])  
+    ->setDisplayOptions('form', array(
+      'type' => 'entity_reference_autocomplete',
+      'settings' => array(
+        'match_operator' => 'CONTAINS',
+        'size' => 60, 
+        'placeholder' => '', 
+      ),
+      'weight' => -1, 
+    ))  
     ->setSetting('target_type', 'dcb')
     ->setDisplayConfigurable('form', TRUE)
     ->setDisplayConfigurable('view', TRUE);

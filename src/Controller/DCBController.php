@@ -2,18 +2,47 @@
 
 namespace Drupal\dcb\Controller;
 
+use Drupal\Core\Cache\Cache;
+use Drupal\Core\Cache\CacheTagsInvalidator;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Drupal\Core\Entity\Query\QueryFactory;
 use Drupal\Core\Url;
 use Drupal\dcb\Entity\DcbInterface;
 
 /**
  * Class DCBController.
- *
- *  Returns responses for DCB routes.
+ * 
+ * Contains callback methods for dynamic DCB routes.
  */
-class DCBController extends ControllerBase implements ContainerInjectionInterface {
+class DCBController extends ControllerBase {
+   /**
+   * @var \Drupal\Core\Cache\CacheTagsInvalidator
+   */
+  private $cacheTagsInvalidator;
+   /**
+   * DCBRegionController constructor.
+   *
+   * @param Drupal\Core\Cache\CacheTagsInvalidator $cacheTagsInvalidator
+   */
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, CacheTagsInvalidator $cacheTagsInvalidator) {
+    $this->cacheTagsInvalidator = $cacheTagsInvalidator;
+    $this->entityTypeManager = $entity_type_manager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('entity_type.manager'),
+      $container->get('cache_tags.invalidator')
+    );
+  }
 
   /**
    * Displays a DCB  revision.
@@ -54,7 +83,7 @@ class DCBController extends ControllerBase implements ContainerInjectionInterfac
    * @return array
    *   An array as expected by drupal_render().
    */
-  public function revisionOverview(DcbInterface $dcb) {
+  public function revisionOverview(DCBInterface $dcb) {
     $account = $this->currentUser();
     $langcode = $dcb->language()->getId();
     $langname = $dcb->language()->getName();
@@ -169,7 +198,7 @@ class DCBController extends ControllerBase implements ContainerInjectionInterfac
    * @return mixed
    */
   public function renderRegion($rid, $entity_id, $region_label) {
-    $ids = $this->getRegionComponentsByWeight($rid);
+    $ids = $this->getComponentsByWeight($rid);
     $view_builder = $this->entityTypeManager->getViewBuilder('dcb_component');
     $entity = $this->entityTypeManager->getStorage('dcb_component')->loadMultiple(array_values($ids));
     $pre_render = $view_builder->viewMultiple($entity, 'dcb_inline_viewmode');
@@ -202,12 +231,12 @@ class DCBController extends ControllerBase implements ContainerInjectionInterfac
    *
    * @return \Symfony\Component\HttpFoundation\JsonResponse
    */
-  public function deleteComponent(Request $request, $id, $componentId) {
+  public function deleteComponent(Request $request, $parentId, $componentId) {
     $entityStorage = $this->entityTypeManager->getStorage('dcb_component');
     $entity = $entityStorage->load($componentId);
     if ($entity) {
       $entityStorage->delete([$entity]);
-      $this->cacheTagsInvalidator->invalidateTags(['dcbregion:' . $id]);
+      $this->cacheTagsInvalidator->invalidateTags(['dcbregion:' . $parentId]);
     }
     $data['removed'] = TRUE;
     return new JsonResponse($data);
@@ -215,13 +244,12 @@ class DCBController extends ControllerBase implements ContainerInjectionInterfac
 
   /**
    * @param \Symfony\Component\HttpFoundation\Request $request
-   * @param $id
+   * @param $parentId
    *
    * @return \Symfony\Component\HttpFoundation\JsonResponse
    */
-  public function setWeights(Request $request, $id) {
+  public function setWeights(Request $request, $parentId) {
     $weightdata = $request->get('weights');
-
     if (!empty($weightdata)) {
       $entityStorage = $this->entityTypeManager->getStorage('dcb_component');
       foreach ($weightdata as $eid => $weight) {
@@ -232,32 +260,44 @@ class DCBController extends ControllerBase implements ContainerInjectionInterfac
       }
     }
     $data = TRUE;
-    $this->cacheTagsInvalidator->invalidateTags(['dcbregion:' . $id]);
+    $this->cacheTagsInvalidator->invalidateTags(['dcbregion:' . $parentId]);
     return new JsonResponse($data);
   }
 
   /**
-   * @param \Symfony\Component\HttpFoundation\Request $request
-   * @param $id
+   * @param $parentId
    *
    * @return \Symfony\Component\HttpFoundation\JsonResponse
    */
-  public function getWeights(Request $request, $id) {
-    $components = $this->getComponentsByWeight($id);
+  public function getWeights($parentId) {
+    $components = $this->getComponentsByWeight($parentId);
     return new JsonResponse($components);
   }
 
   /**
-   * @param $id
+   * @todo This needs to run a proper revision query
+   * 
+   * @param $parentId
    *
    * @return array
    */
-  public function getComponentsByWeight($id) {
-    $query = \Drupal::entityQuery('dcb_component');
-    $query->condition('status', 1);
-    $query->condition('region_id', $id);
-    $query->sort('weight','ASC');
-    $ids = $query->execute();
+  public function getComponentsByWeight($parentId) {
+    /**$query = \Drupal::entityQuery('dcb_component')
+    ->condition('parent_id', $parentId)
+    ->condition('status', 1)
+    ->sort('weight','ASC');
+    $ids = $query->execute();*/
+    /** 
+     * @todo This needs to be entityQuery but it fails with revisions.
+     */
+    $query = \Drupal::database()->select('dcb_component', 'dc');
+    $query->leftjoin('dcb_component_field_data', 'dcfd', 'dcfd.id = dc.id');
+    $query->fields('dc', ['id']);
+    $query->condition('dcfd.status', 1);
+    $query->condition('dcfd.parent_id__target_id', $parentId);
+    $query->orderBy('dcfd.weight', 'ASC');
+    $ids = $query->execute()->fetchAllKeyed(0, 0);
+  
     return $ids;
   }
 

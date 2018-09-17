@@ -51,13 +51,13 @@ class DCBComponentEntityController extends EntityController {
    * @param string $entity_type_id
    *   The entity type ID.
    *
-   * @param string $region_id
-   *   The region ID.
+   * @param string $parent_id
+   *   The parent ID.
    *
    * @return \Symfony\Component\HttpFoundation\RedirectResponse|array
    *   A render array with the add links for each bundle.
    */
-  public function modalAddPage($entity_type_id, $region_id) {
+  public function modalAddPage($entity_type_id, $parent_id) {
     $entity_type = $this->entityTypeManager->getDefinition($entity_type_id);
     $bundles = $this->entityTypeBundleInfo->getBundleInfo($entity_type_id);
     $bundle_key = $entity_type->getKey('bundle');
@@ -106,7 +106,7 @@ class DCBComponentEntityController extends EntityController {
         'add_link' => Link::createFromRoute(
           $bundle_info['label'],
           $form_route_name,
-          [$bundle_argument => $bundle_name, 'region_id' => $region_id, 'dcb_component_type' => $bundle_name, 'destination' => $destination['destination']],
+          [$bundle_argument => $bundle_name, 'parent_id' => $parent_id, 'dcb_component_type' => $bundle_name, 'destination' => $destination['destination']],
           ['attributes' => ['data-dialog-type' => 'modal', 'class' => ['use-ajax']]]
         ),
       ];

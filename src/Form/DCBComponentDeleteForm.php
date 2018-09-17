@@ -90,7 +90,7 @@ class DCBComponentDeleteForm extends ContentEntityConfirmFormBase {
     $form_state->setRedirectUrl($this->getRedirectUrl());
 
     // Bust cache for the region.
-    $this->cacheTagsInvalidator->invalidateTags(['dcbregion:' . $entity->get('region_id')->getString()]);
+    $this->cacheTagsInvalidator->invalidateTags(['dcbregion:' . $entity->get('parent_id')->getString()]);
   }
 
 }

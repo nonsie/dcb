@@ -99,28 +99,6 @@ class DCBComponentForm extends ContentEntityForm {
     $form_actions = $form['actions'];
     unset($form['actions']['delete']);
 
-    //unset($form['actions']);
-
-    /**
-     *
-    $form = [
-      'ajax_wrap' => [
-        '#type' => 'container',
-        '#prefix' => '<div id="dcbcomponent-entity-form">',
-        '#suffix' => '</div>',
-        'messages' => [
-          '#type' => 'status_messages',
-        ],
-        'content' => $form,
-      ],
-      'actions' => $form_actions,
-    ];*/
-
-    /**$form['actions']['submit']['#ajax'] = [
-      'callback' => [$this, 'submitAjax'],
-      'wrapper' => 'dcbcomponent-entity-form',
-    ];*/
-
     return $form;
   }
 
@@ -169,8 +147,9 @@ class DCBComponentForm extends ContentEntityForm {
     $entity->set('view_mode', $form_state->getValue('view_mode_select'));
 
     $status = parent::save($form, $form_state);
-
-    $this->cacheTagsInvalidator->invalidateTags(['dcbregion:' . $entity->get('region_id')->getString()]);
+    // @todo: This is outright silly.
+    $parent = $entity->get('parent_id')->first()->getValue()['target_id'];
+    $this->cacheTagsInvalidator->invalidateTags(['dcbregion:' . $parent]);
 
     switch ($status) {
       case SAVED_NEW:
@@ -205,7 +184,7 @@ class DCBComponentForm extends ContentEntityForm {
           $values[$bundle_key] = $route_match->getParameter($bundle_key);
         }
       }
-      $values['region_id'] = $route_match->getParameter('region_id');
+      $values['parent_id'] = $route_match->getParameter('parent_id');
       $entity = $this->entityTypeManager->getStorage($entity_type_id)->create($values);
     }
 
