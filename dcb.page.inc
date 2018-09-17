@@ -20,7 +20,7 @@ use Drupal\Core\Render\Element;
  *   - attributes: HTML attributes for the containing element.
  */
 function template_preprocess_dcb(array &$variables) {
-  // Fetch Dcb Entity Object.
+  // Fetch DCB Entity Object.
   $dcb = $variables['elements']['#dcb'];
 
   // Helpful $content variable for templates.

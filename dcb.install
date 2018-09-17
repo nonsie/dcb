@@ -19,7 +19,7 @@ function dcb_install() {
 }
 
 /**
- * Installs dcb region entity schema if it doesn't exist yet.
+ * Installs DCB entity schema if it doesn't exist yet.
  */
 function dcb_update_8001() {
   $entity_definition_update_manager = Drupal::entityDefinitionUpdateManager();
