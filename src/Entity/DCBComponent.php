@@ -79,10 +79,10 @@ class DCBComponent extends RevisionableContentEntityBase implements DCBComponent
    */
   public static function preCreate(EntityStorageInterface $storage_controller, array &$values) {
     parent::preCreate($storage_controller, $values);
+    debug($values);
 
     $values += [
       'user_id' => \Drupal::currentUser()->id(),
-      'parent_id' => $values['parent_id'],
     ];
   }
 

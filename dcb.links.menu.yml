@@ -18,9 +18,8 @@ entity.dcb_component_type.collection:
 entity.dcb.collection:
   title: 'DCB list'
   route_name: entity.dcb.collection
-  description: 'List DCB entities'
-  parent: system.admin_structure
-  weight: 100
+  description: 'List and edit DCB entities'
+  parent: system.admin_content
 
 dcb.admin.structure.settings:
   title: 'DCB settings'
