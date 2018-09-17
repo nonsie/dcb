@@ -5,7 +5,7 @@ use Drupal\Core\Entity\EntityInterface;
 /**
  * Implements hook_entity_presave().
  *
- * Populates dcb region if it currently has no value.
+ * Populates dcb region/parent if it currently has no value.
  */
 function dcb_entity_presave(EntityInterface $entity) {
   /** @var \Drupal\node\Entity\Node $entity */

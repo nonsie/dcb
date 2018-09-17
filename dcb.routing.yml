@@ -1,5 +1,5 @@
 dcb.region.list:
-  path: '/admin/content/dcb_component/region/{regionId}'
+  path: '/admin/content/dcb_component/region/{parentId}'
   defaults:
     _form: 'Drupal\dcb\Form\DCBComponentRegionForm'
     _title: 'Re-order components within a region'
@@ -7,20 +7,23 @@ dcb.region.list:
     _permission: 'access dcb component overview'
 
 dcb.weight.list:
-  path: '/dcb/list/{regionId}'
+  path: '/dcb/list/{parentId}'
   defaults:
     _controller: '\Drupal\dcb\Controller\DCBController::getWeights'
   requirements:
     _permission: 'edit dcb component entities'
+
 dcb.remove:
-  path: '/dcb/remove/{regionId}/{componentId}'
+  # Used in dcb.js to remove a component from parent.
+  path: '/dcb/remove/{parentId}/{componentId}'
   defaults:
     _controller: '\Drupal\dcb\Controller\DCBController::deleteComponent'
   requirements:
     _permission: 'delete dcb component entities'
 
 dcb.weight.update:
-  path: '/dcb/update/{regionId}'
+  # Used in dcb.js to update component weight.
+  path: '/dcb/update/{parentId}'
   defaults:
     _controller: '\Drupal\dcb\Controller\DCBController::setWeights'
   requirements:
